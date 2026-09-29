@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NetVerse | Lab Jaringan Komputer 3D</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  
+  <script>
+    (function() {
+      try {
+        const savedTheme = localStorage.getItem('netverse-theme');
+        document.documentElement.classList.remove('dark', 'light', 'midnight', 'emerald');
+        if (savedTheme === 'light') {
+          document.documentElement.classList.add('light');
+          document.documentElement.setAttribute('data-theme', 'light');
+        } else if (savedTheme === 'midnight') {
+          document.documentElement.classList.add('midnight', 'dark');
+          document.documentElement.setAttribute('data-theme', 'midnight');
+        } else if (savedTheme === 'emerald') {
+          document.documentElement.classList.add('emerald', 'dark');
+          document.documentElement.setAttribute('data-theme', 'emerald');
+        } else {
+          document.documentElement.classList.add('dark');
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+
+        const savedLang = localStorage.getItem('netverse-lang') || 'id';
+        document.documentElement.setAttribute('lang', savedLang);
+      } catch (e) {}
+    })();
+  </script>
+
+  <!-- Typography: Plus Jakarta Sans for UI + JetBrains Mono for Engineering Telemetry -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Google <model-viewer> for WebGL/WebXR 3D Object Exploration (Official Standard) -->
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            workbench: {
+              base: '#050811',
+              surface: '#090e1a',
+              elevated: '#0f172a',
+              border: '#172238',
+              borderBright: '#243556',
+            },
+            signal: {
+              cyan: '#06b6d4',
+              emerald: '#10b981',
+              amber: '#f59e0b',
+              crimson: '#ef4444',
+              violet: '#8b5cf6'
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-[#050811] text-slate-100 min-h-screen font-sans selection:bg-amber-500/30 selection:text-amber-200 antialiased overflow-x-hidden">
+  <div id="app"></div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

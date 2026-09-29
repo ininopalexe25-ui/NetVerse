@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Environment variables & Secrets (CRITICAL: Do NOT commit)
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Production Build Output
+dist/
+dist-ssr/
+*.local
+
+# Test & Audit Artifacts
+audit-results/
+coverage/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# Editor & System Files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/*
+!.vscode/extensions.json
+.idea
+.impeccable/
+
+# Backup Files
+*.bak
+*.tmp
