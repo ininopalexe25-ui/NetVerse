@@ -19,11 +19,11 @@ const state = {
   session: null,
   userProfile: {
     id: null,
-    nama_lengkap: 'Muhammad Naufal Farras',
-    username: 'naufalmhsunesa',
+    nama_lengkap: 'User',
+    username: 'user',
     level: 1,
-    total_xp: 250,
-    role: 'mahasiswa'
+    total_xp: 0,
+    role: 'tamu'
   },
   authModalOpen: false,
   authMode: 'login', // 'login' | 'register' | 'profile'
@@ -58,7 +58,7 @@ const state = {
   aiMessages: [
     {
       role: 'assistant',
-      text: t('ai.greeting', initialLang),
+      text: t('ai.greeting', initialLang, { name: 'User' }),
       concept: t('ai.defaultConcept', initialLang)
     }
   ],
@@ -72,6 +72,19 @@ const state = {
   materiFormat: 'teori', // 'teori' | 'video'
   activeVideoId: 'TrqZDU7Ywf4'
 };
+
+// Returns user's dynamic display name if logged in, or 'User' if guest
+function getEffectiveUserName() {
+  if (state.session) {
+    const profileName = state.userProfile?.nama_lengkap?.trim() ||
+      state.session.user?.user_metadata?.full_name?.trim() ||
+      state.session.user?.user_metadata?.name?.trim();
+    if (profileName) {
+      return profileName;
+    }
+  }
+  return 'User';
+}
 
 // Theme Manager (Light, Dark, Midnight Blue, Dark Emerald)
 function applyTheme(theme) {
@@ -141,7 +154,7 @@ function setLanguage(lang) {
 
   // Update initial greeting if user hasn't started talking yet
   if (state.aiMessages.length === 1 && state.aiMessages[0].role === 'assistant') {
-    state.aiMessages[0].text = t('ai.greeting', lang);
+    state.aiMessages[0].text = t('ai.greeting', lang, { name: getEffectiveUserName() });
     state.aiMessages[0].concept = t('ai.defaultConcept', lang);
   }
 
@@ -189,6 +202,10 @@ async function loadUserProfile(userId) {
       if (createdProfile) {
         state.userProfile = createdProfile;
       }
+    }
+
+    if (state.aiMessages.length === 1 && state.aiMessages[0].role === 'assistant') {
+      state.aiMessages[0].text = t('ai.greeting', state.lang, { name: getEffectiveUserName() });
     }
   } catch (err) {
     console.warn('Profile loader notice:', err);
@@ -246,6 +263,9 @@ const GEMINI_MODEL = import.meta.env.VITE_GEMINI_MODEL || 'gemini-2.5-flash';
 async function callGeminiTutor(query, contextName, history = []) {
   if (!GEMINI_API_KEY) return null;
 
+  const studentName = getEffectiveUserName();
+  const isGuest = !state.session || studentName === 'User';
+
   // Build conversational context (last 6 turns)
   const previousTurns = (history || [])
     .filter(m => m.role === 'user' || m.role === 'assistant')
@@ -261,7 +281,7 @@ async function callGeminiTutor(query, contextName, history = []) {
   if (!lastItem || lastItem.role !== 'user' || lastItem.parts[0]?.text !== query) {
     contents.push({
       role: 'user',
-      parts: [{ text: `Konteks halaman: ${contextName}\nPertanyaan mahasiswa: ${query}` }]
+      parts: [{ text: `Konteks halaman: ${contextName}\nNama pengguna: ${studentName}\nPertanyaan pengguna: ${query}` }]
     });
   }
 
@@ -279,11 +299,19 @@ async function callGeminiTutor(query, contextName, history = []) {
           text: `Kamu adalah NetVerse Socratic AI Tutor untuk mahasiswa/siswa Teknik Komputer dan Jaringan (TKJ) di PTI UNESA.
 Bimbing mahasiswa memahami konsep jaringan komputer, pengkabelan UTP/STP, crimping kabel, fungsi switch, router, server, dan pengujian LAN tester.
 
+Identitas & Ketentuan Panggilan Pengguna:
+- Nama pengguna saat ini: "${studentName}".
+- Status akun: ${isGuest ? 'Tamu / Belum Login (Wajib dipanggil "User")' : 'Pengguna Terdaftar'}.
+- ATURAN PENTING IDENTITAS:
+  1. Jika pengguna belum login (bernama "User"), panggil atau sapa mereka HANYA sebagai "User".
+  2. Jika pengguna sudah login, sapa atau panggil mereka dengan nama "${studentName}".
+  3. JANGAN SEKALI-KALI memanggil pengguna dengan nama "Naufal" atau nama pembuat web, kecuali jika nama profil pengguna di atas memang secara eksplisit bernama Naufal.
+
 Pedoman Pedagogis:
 1. ${langGuidance}
 2. Pendekatan Sokratik: Jika mahasiswa menanyakan jawaban kuis atau meminta urutan warna pin crimping kabel UTP (T568A/T568B), JANGAN memberikan bocoran urutan langsung secara mentah. Bimbing mereka melalui pemahaman konsep (seperti pasangan kawat Tx/Rx, alasan pemilinan/twist untuk meredam crosstalk, atau cara membaca lampu LAN tester).
 3. Format Output WAJIB berupa JSON yang valid dengan format:
-   - "response": Penjelasan tutor yang ramah, mendidik, dan diakhiri dengan pertanyaan reflektif jika tepat.
+   - "response": Penjelasan tutor yang ramah, mendidik, menyapa pengguna dengan nama yang tepat jika relevan, dan diakhiri dengan pertanyaan reflektif jika tepat.
    - "concept": Topik/konsep inti dalam 2-4 kata.
    - "suggestedInquiries": Array berisi 2 pertanyaan lanjutan singkat yang relevan untuk diklik mahasiswa.`
         }
@@ -381,7 +409,8 @@ async function sendSocraticQuery(userQuery) {
         body: {
           query: q,
           context: activeContextName,
-          user_id: state.session?.user?.id || null
+          user_id: state.session?.user?.id || null,
+          user_name: getEffectiveUserName()
         }
       });
       if (data && data.response) {
@@ -624,18 +653,24 @@ async function initData() {
         await loadUserProfile(newSession.user.id);
         await loadLearningProgress(newSession.user.id);
         await loadAiTutorHistory(newSession.user.id);
+        if (state.aiMessages.length === 1 && state.aiMessages[0].role === 'assistant') {
+          state.aiMessages[0].text = t('ai.greeting', state.lang, { name: getEffectiveUserName() });
+        }
       } else {
         state.userProfile = {
           id: null,
-          nama_lengkap: 'Muhammad Naufal Farras',
-          username: 'naufalmhsunesa',
+          nama_lengkap: 'User',
+          username: 'user',
           level: 1,
-          total_xp: 250,
-          role: 'mahasiswa'
+          total_xp: 0,
+          role: 'tamu'
         };
         state.learningProgress = {};
         state.quizAnswers = {};
         state.quizSubmitted = {};
+        if (state.aiMessages.length === 1 && state.aiMessages[0].role === 'assistant') {
+          state.aiMessages[0].text = t('ai.greeting', state.lang, { name: 'User' });
+        }
       }
       renderApp();
     });
@@ -961,7 +996,7 @@ async function verifyCrimping() {
   // Record to Supabase
   try {
     const elapsedRounded = Math.max(1, Math.round(state.crimpingElapsedSeconds));
-    const playerName = state.userProfile?.nama_lengkap || 'Muhammad Naufal Farras';
+    const playerName = getEffectiveUserName();
     const userId = state.session?.user?.id || null;
 
     // Check if user already has a record for this cable standard
@@ -1385,6 +1420,9 @@ function attachEvents() {
           } else {
             state.userProfile.nama_lengkap = namaLengkap;
             state.userProfile.username = username;
+            if (state.aiMessages.length === 1 && state.aiMessages[0].role === 'assistant') {
+              state.aiMessages[0].text = t('ai.greeting', state.lang, { name: namaLengkap });
+            }
             state.authNotice = { type: 'success', message: t('authModal.profileUpdated', state.lang) };
           }
         }
@@ -1407,12 +1445,18 @@ function attachEvents() {
         state.authModalOpen = false;
         state.userProfile = {
           id: null,
-          nama_lengkap: 'Muhammad Naufal Farras',
-          username: 'naufalmhsunesa',
+          nama_lengkap: 'User',
+          username: 'user',
           level: 1,
-          total_xp: 250,
-          role: 'mahasiswa'
+          total_xp: 0,
+          role: 'tamu'
         };
+        state.learningProgress = {};
+        state.quizAnswers = {};
+        state.quizSubmitted = {};
+        if (state.aiMessages.length === 1 && state.aiMessages[0].role === 'assistant') {
+          state.aiMessages[0].text = t('ai.greeting', state.lang, { name: 'User' });
+        }
       } catch (err) {
         console.warn('Signout error:', err);
       }
@@ -1822,7 +1866,7 @@ function attachEvents() {
       state.aiMessages = [
         {
           role: 'assistant',
-          text: t('ai.greeting', state.lang),
+          text: t('ai.greeting', state.lang, { name: getEffectiveUserName() }),
           concept: t('ai.defaultConcept', state.lang)
         }
       ];

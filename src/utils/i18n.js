@@ -208,7 +208,7 @@ export const translations = {
       placeholder: 'Tanyakan sesuatu tentang jaringan...',
       send: 'Kirim',
       loading: 'Sedang menyiapkan jawaban...',
-      greeting: 'Hai, Naufal! Kita bisa belajar cara kerja jaringan, mengenal perangkatnya, atau membahas hasil praktikmu. Ada yang ingin kamu tanyakan?',
+      greeting: 'Hai, {name}! Kita bisa belajar cara kerja jaringan, mengenal perangkatnya, atau membahas hasil praktikmu. Ada yang ingin kamu tanyakan?',
       defaultConcept: 'Tutor jaringan',
       systemPromptLang: 'Gunakan Bahasa Indonesia yang ramah, mendidik, dan teknis akurat.'
     },
@@ -236,8 +236,8 @@ export const translations = {
       profileUpdateErr: 'Perubahan profil belum tersimpan. Coba lagi.',
       accountCreatedLogin: 'Akun berhasil dibuat. Kamu sudah masuk.',
       accountCreatedSignIn: 'Akun berhasil dibuat. Sekarang kamu bisa masuk.',
-      namePlaceholder: 'Contoh: Naufal Farras',
-      userPlaceholder: 'Contoh: naufal_tkj',
+      namePlaceholder: 'Contoh: Budi Santoso',
+      userPlaceholder: 'Contoh: budi_tkj',
       invalidCredentials: 'Kata sandi atau email tidak cocok dengan yang didaftarkan. Silakan periksa kembali email dan kata sandi Anda.',
       emailNotConfirmed: 'Email belum aktif atau belum diverifikasi. Coba masuk kembali sebentar lagi.',
       genericLoginError: 'Kata sandi atau email tidak cocok dengan yang didaftarkan. Coba periksa lagi.',
@@ -448,7 +448,7 @@ export const translations = {
       placeholder: 'Ask any question about computer networking...',
       send: 'Send',
       loading: 'Generating socratic response...',
-      greeting: 'Hello! We can explore network fundamentals, inspect 3D devices, or discuss your cable crimping results. What would you like to ask?',
+      greeting: 'Hello, {name}! We can explore network fundamentals, inspect 3D devices, or discuss your cable crimping results. What would you like to ask?',
       defaultConcept: 'Network Tutor',
       systemPromptLang: 'Please respond in English with clear, educational, and technically rigorous explanations.'
     },
@@ -688,7 +688,7 @@ export const translations = {
       placeholder: 'ネットワーク技術について質問してください...',
       send: '送信',
       loading: '解説を生成中...',
-      greeting: 'こんにちは！ネットワークの基礎原理、3D機器の仕組み、ケーブル圧着のコツなどを一緒に学べます。何について知りたいですか？',
+      greeting: 'こんにちは、{name}さん！ネットワークの基礎原理、3D機器の仕組み、ケーブル圧着のコツなどを一緒に学べます。何について知りたいですか？',
       defaultConcept: 'ネットワーク助教',
       systemPromptLang: '親しみやすく、教育的で技術的に正確な日本語で回答してください。'
     },
@@ -928,7 +928,7 @@ export const translations = {
       placeholder: '输入关于计算机网络技术的任何疑问...',
       send: '发送',
       loading: '正在生成启发式解答...',
-      greeting: '你好！我们可以一起探讨网络协议原理、解析 3D 硬件设备，或解答网线制作疑难。有什么想了解的吗？',
+      greeting: '你好，{name}！我们可以一起探讨网络协议原理、解析 3D 硬件设备，或解答网线制作疑难。有什么想了解的吗？',
       defaultConcept: '网络助教',
       systemPromptLang: '请使用亲切、易懂且专业严谨的中文进行启发式苏格拉底教学解答。'
     },

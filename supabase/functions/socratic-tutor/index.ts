@@ -134,7 +134,7 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const { query, context = "Umum", user_id = null } = await req.json();
+    const { query, context = "Umum", user_id = null, user_name = null } = await req.json();
 
     if (!query || typeof query !== "string") {
       return new Response(
@@ -142,6 +142,10 @@ Deno.serve(async (req: Request) => {
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    const callerName = (user_name && typeof user_name === "string" && user_name.trim()) 
+      ? user_name.trim() 
+      : (user_id ? "Mahasiswa" : "User");
 
     let tutorResult;
 
@@ -152,6 +156,11 @@ Deno.serve(async (req: Request) => {
         const prompt = `Kamu adalah NetVerse Socratic AI Tutor untuk mahasiswa/siswa Teknik Komputer dan Jaringan (TKJ).
 Bimbing mahasiswa memahami konsep jaringan komputer, UTP/STP, crimping, switch, router, dan LAN tester.
 Gunakan Bahasa Indonesia yang ramah, jelas, edukatif, dan ringkas.
+
+Identitas Pengguna:
+- Nama pengguna: "${callerName}".
+- Ketentuan panggilan: Sapa atau panggil pengguna dengan nama "${callerName}". Jika pengguna belum login (bernama "User"), panggil mereka "User". JANGAN PERNAH menyapa atau memanggil pengguna dengan nama pembuat web ("Naufal") kecuali jika profil pengguna memang secara eksplisit bernama Naufal.
+
 PENTING: Pada simulasi crimping atau pertanyaan urutan kabel, JANGAN membocorkan langsung susunan warna kabel atau urutan pin secara mentah. Bimbing mereka melalui pemahaman konsep (misal: kenapa pin Tx/Rx terpisah, fungsi pilinan kabel, dll).
 Format output WAJIB JSON dengan format:
 {
