@@ -8,8 +8,10 @@ import { t } from '../utils/i18n.js';
 
 export function renderLeaderboard(scores = [], currentUser = {}, activeFilter = 'all', realtimeStatus = 'CONNECTED', lang = 'id') {
   const isRealtimeActive = ['CONNECTED', 'SUBSCRIBED'].includes(realtimeStatus);
-  // 1. Filter scores by standard if selected
+  // 1. Filter scores by standard if selected and strictly filter out unauthenticated 'User' entries
   const filteredScores = scores.filter(s => {
+    const rawName = (s.player_name || s.name || '').trim().toLowerCase();
+    if (!rawName || rawName === 'user') return false;
     if (activeFilter === 'all') return true;
     const std = s.standar_kabel || s.standard;
     return std === activeFilter;
@@ -19,6 +21,7 @@ export function renderLeaderboard(scores = [], currentUser = {}, activeFilter = 
   const bestScoreByUser = new Map();
   for (const s of filteredScores) {
     const rawName = (s.player_name || s.name || t('leaderboard.participantDefault', lang)).trim();
+    if (rawName.toLowerCase() === 'user') continue;
     // Unique key: prefer user_id, fallback to normalized player name
     const userKey = s.user_id ? `uid:${s.user_id}` : `name:${rawName.toLowerCase()}`;
     const acc = Number(s.akurasi_persen !== undefined ? s.akurasi_persen : (parseFloat(s.accuracy) || 0));
@@ -54,7 +57,7 @@ export function renderLeaderboard(scores = [], currentUser = {}, activeFilter = 
       const userMateriXp = Number(currentUser.materiXp !== undefined ? currentUser.materiXp : Math.max(0, userTotalXp - userCrimpingXp));
       bestScoreByUser.set(userKey, {
         user_id: currentUser.id,
-        player_name: currentUser.nama_lengkap || 'User',
+        player_name: currentUser.nama_lengkap || currentUser.username || t('leaderboard.participantDefault', lang),
         standar_kabel: activeFilter !== 'all' ? activeFilter : 'T568B',
         waktu_detik: userCrimpingXp > 0 ? 15 : undefined,
         akurasi_persen: userCrimpingXp > 0 ? 100 : undefined,

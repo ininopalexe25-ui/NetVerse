@@ -131,6 +131,15 @@ CREATE POLICY "Leaderboard dapat dibaca publik" ON public.skor_minigame FOR SELE
 DROP POLICY IF EXISTS "Pengguna dapat mencatat skor sendiri" ON public.skor_minigame;
 CREATE POLICY "Pengguna dapat mencatat skor sendiri" ON public.skor_minigame FOR INSERT WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Pengguna dapat memperbarui skor sendiri" ON public.skor_minigame;
+CREATE POLICY "Pengguna dapat memperbarui skor sendiri" ON public.skor_minigame FOR UPDATE TO authenticated USING ((select auth.uid()) = user_id) WITH CHECK ((select auth.uid()) = user_id);
+
+DROP POLICY IF EXISTS "Pengguna dapat menghapus skor sendiri" ON public.skor_minigame;
+CREATE POLICY "Pengguna dapat menghapus skor sendiri" ON public.skor_minigame FOR DELETE TO authenticated USING ((select auth.uid()) = user_id);
+
+-- Pembersihan data legacy: Hanya pengguna terotentikasi yang disimpan di skor_minigame
+-- DELETE FROM public.skor_minigame WHERE player_name ILIKE 'user' OR (user_id IS NULL AND player_name = 'User');
+
 DROP POLICY IF EXISTS "Pengguna mengelola progres belajarnya" ON public.progres_belajar;
 CREATE POLICY "Pengguna mengelola progres belajarnya" ON public.progres_belajar FOR ALL USING (auth.uid() = user_id);
 

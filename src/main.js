@@ -549,30 +549,36 @@ function enrichScoresWithProfiles(scoresList = [], profilesList = []) {
     'muhammad naufal farras': 200
   };
 
-  return scoresList.map(s => {
-    const rawName = (s.player_name || '').trim().toLowerCase();
-    const prof = (s.user_id && profileMap.get(`uid:${s.user_id}`)) || profileMap.get(`name:${rawName}`);
-    const crimpingXp = Number(s.xp_didapat || 0);
+  return scoresList
+    .filter(s => {
+      const rawName = (s.player_name || '').trim().toLowerCase();
+      // Strictly exclude any guest / unauthenticated "User" scores
+      return rawName && rawName !== 'user';
+    })
+    .map(s => {
+      const rawName = (s.player_name || '').trim().toLowerCase();
+      const prof = (s.user_id && profileMap.get(`uid:${s.user_id}`)) || profileMap.get(`name:${rawName}`);
+      const crimpingXp = Number(s.xp_didapat || 0);
 
-    let totalXp = crimpingXp;
-    let materiXp = 0;
+      let totalXp = crimpingXp;
+      let materiXp = 0;
 
-    if (prof) {
-      totalXp = Math.max(Number(prof.total_xp || 0), crimpingXp);
-      materiXp = Math.max(0, totalXp - crimpingXp);
-    } else {
-      materiXp = mockMateriBenchmarks[rawName] !== undefined ? mockMateriBenchmarks[rawName] : (s.xp_materi || 0);
-      totalXp = crimpingXp + materiXp;
-    }
+      if (prof) {
+        totalXp = Math.max(Number(prof.total_xp || 0), crimpingXp);
+        materiXp = Math.max(0, totalXp - crimpingXp);
+      } else {
+        materiXp = mockMateriBenchmarks[rawName] !== undefined ? mockMateriBenchmarks[rawName] : (s.xp_materi || 0);
+        totalXp = crimpingXp + materiXp;
+      }
 
-    return {
-      ...s,
-      total_xp: totalXp,
-      crimpingXp: crimpingXp,
-      materiXp: materiXp,
-      level: prof?.level || Math.floor(totalXp / 500) + 1
-    };
-  });
+      return {
+        ...s,
+        total_xp: totalXp,
+        crimpingXp: crimpingXp,
+        materiXp: materiXp,
+        level: prof?.level || Math.floor(totalXp / 500) + 1
+      };
+    });
 }
 
 // Realtime New Score Handler (WebSocket Broadcast)
@@ -580,6 +586,9 @@ function handleRealtimeNewScore(newScore) {
   if (!newScore) return;
 
   const rawName = (newScore.player_name || '').trim().toLowerCase();
+  // Strictly ignore unauthenticated or generic 'User' entries
+  if (!rawName || rawName === 'user' || !newScore.user_id) return;
+
   const crimpingXp = Number(newScore.xp_didapat || 0);
   if (state.session?.user?.id && (newScore.user_id === state.session.user.id || rawName === (state.userProfile.nama_lengkap || '').trim().toLowerCase())) {
     const currentMateriXp = Object.values(state.learningProgress || {}).reduce((acc, p) => acc + Number(p.xp_didapat || p.skor_quiz || 0), 0);
@@ -652,6 +661,7 @@ async function fetchLatestScores() {
     const { data: latestScores } = await supabase
       .from('skor_minigame')
       .select('*')
+      .not('player_name', 'ilike', 'user')
       .order('akurasi_persen', { ascending: false })
       .order('waktu_detik', { ascending: true })
       .limit(100);
@@ -661,7 +671,11 @@ async function fetchLatestScores() {
       .select('id, nama_lengkap, username, total_xp, level');
 
     if (latestScores && latestScores.length > 0) {
-      state.scores = enrichScoresWithProfiles(latestScores, profileRows || []);
+      const cleanScores = latestScores.filter(s => {
+        const name = (s.player_name || '').trim().toLowerCase();
+        return name && name !== 'user';
+      });
+      state.scores = enrichScoresWithProfiles(cleanScores, profileRows || []);
       renderApp();
     }
   } catch (err) {
@@ -764,6 +778,7 @@ async function initData() {
     const { data: scores } = await supabase
       .from('skor_minigame')
       .select('*')
+      .not('player_name', 'ilike', 'user')
       .order('akurasi_persen', { ascending: false })
       .order('waktu_detik', { ascending: true })
       .limit(100);
@@ -773,7 +788,11 @@ async function initData() {
       .select('id, nama_lengkap, username, total_xp, level');
 
     if (scores && scores.length > 0) {
-      state.scores = enrichScoresWithProfiles(scores, profiles || []);
+      const cleanScores = scores.filter(s => {
+        const name = (s.player_name || '').trim().toLowerCase();
+        return name && name !== 'user';
+      });
+      state.scores = enrichScoresWithProfiles(cleanScores, profiles || []);
     }
 
     // 5. Connect Realtime Channels
@@ -1090,23 +1109,23 @@ async function verifyCrimping() {
       : `${correctCount} dari 8 pin sudah tepat (${accuracy.toFixed(1)}%). Periksa lagi pin yang ditandai merah.`
   };
 
-  // Record to Supabase
+  // Record to Supabase (strictly authenticated users only)
   try {
     const elapsedRounded = Math.max(1, Math.round(state.crimpingElapsedSeconds));
     const playerName = getEffectiveUserName();
-    const userId = state.session?.user?.id || null;
+    const userId = state.session?.user?.id;
+
+    if (!userId || playerName.trim().toLowerCase() === 'user') {
+      renderApp();
+      return;
+    }
 
     // Check if user already has a record for this cable standard
-    let checkQuery = supabase
+    const checkQuery = supabase
       .from('skor_minigame')
       .select('id, akurasi_persen, waktu_detik, xp_didapat')
-      .eq('standar_kabel', state.crimpingStandard);
-
-    if (userId) {
-      checkQuery = checkQuery.eq('user_id', userId);
-    } else {
-      checkQuery = checkQuery.eq('player_name', playerName).is('user_id', null);
-    }
+      .eq('standar_kabel', state.crimpingStandard)
+      .eq('user_id', userId);
 
     const { data: existingRows } = await checkQuery.limit(1);
     const existing = existingRows && existingRows[0];
@@ -1958,7 +1977,8 @@ function attachEvents() {
 
         // Update current user's entry in state.scores if present so Leaderboard reflects it immediately
         if (state.session?.user?.id) {
-          const userIdx = state.scores.findIndex(s => s.user_id === state.session.user.id || s.player_name === getEffectiveUserName());
+          const currentName = getEffectiveUserName().trim().toLowerCase();
+          const userIdx = state.scores.findIndex(s => s.user_id === state.session.user.id || (currentName !== 'user' && (s.player_name || '').trim().toLowerCase() === currentName));
           if (userIdx !== -1) {
             state.scores[userIdx].total_xp = state.userProfile.total_xp;
             state.scores[userIdx].materiXp = (state.scores[userIdx].materiXp || 0) + earnedXp;

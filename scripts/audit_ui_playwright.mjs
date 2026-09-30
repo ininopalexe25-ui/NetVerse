@@ -378,10 +378,14 @@ async function runAudit() {
 
       // Submit Quiz
       await page.click('#btn-submit-quiz');
-      await page.waitForTimeout(500);
+      try {
+        await page.waitForSelector('#btn-retry-quiz', { timeout: 8000 });
+      } catch (e) {
+        await page.waitForTimeout(1000);
+      }
 
       // Verify post-submission results
-      const explanationCards = await page.$$('.bg-emerald-950\\/20');
+      const explanationCards = await page.$$('.bg-emerald-950\\/20, .bg-rose-950\\/20');
       recordCheck('Socratic Post-Submission Explanations rendered', explanationCards.length >= 1, `${explanationCards.length} explanations`);
 
       const retryBtn = await page.$('#btn-retry-quiz');
@@ -393,7 +397,7 @@ async function runAudit() {
       // Test retrying and answering again to confirm every quiz answer awards XP
       if (retryBtn) {
         await retryBtn.click();
-        await page.waitForTimeout(200);
+        await page.waitForTimeout(300);
 
         for (let q = 0; q < 5; q++) {
           const opt = await page.$(`[data-quiz-q="${q}"][data-quiz-opt="0"]`);
@@ -403,7 +407,11 @@ async function runAudit() {
           }
         }
         await page.click('#btn-submit-quiz');
-        await page.waitForTimeout(300);
+        try {
+          await page.waitForSelector('#btn-retry-quiz', { timeout: 8000 });
+        } catch (e) {
+          await page.waitForTimeout(1000);
+        }
 
         const studentXpAfterRetry = await page.evaluate(() => window.__netverseState.userProfile?.total_xp || 0);
         recordCheck('Retrying quiz also awards XP according to score', studentXpAfterRetry > studentXpAfterQuiz, `XP increased from ${studentXpAfterQuiz} to ${studentXpAfterRetry} (+${studentXpAfterRetry - studentXpAfterQuiz} XP)`);
@@ -518,6 +526,11 @@ async function runAudit() {
 
     const breakdownText = await page.$$eval('.text-\\[10px\\].text-slate-400', els => els.length);
     recordCheck('Leaderboard displays XP breakdown (Crimping + Materi)', breakdownText > 0, `${breakdownText} breakdown rows`);
+
+    // Verify that guest "User" is strictly excluded from leaderboard
+    const userNames = await page.$$eval('tbody tr td:nth-child(2)', els => els.map(e => e.textContent.trim().toLowerCase()));
+    const hasUnauthenticatedUser = userNames.some(n => n === 'user' || n.startsWith('user '));
+    recordCheck('Guest "User" strictly excluded from Leaderboard', !hasUnauthenticatedUser, `Found participants: ${userNames.join(', ')}`);
 
     // Test Realtime Toast Banner
     await page.evaluate(() => {
