@@ -27,22 +27,38 @@ export function renderLeaderboard(scores = [], currentUser = {}, activeFilter = 
     if (rawName.toLowerCase() === 'user') continue;
     // Unique key: prefer user_id, fallback to normalized player name
     const userKey = s.user_id ? `uid:${s.user_id}` : `name:${rawName.toLowerCase()}`;
+    const isUserCurrent = Boolean(
+      (currentUser?.id && s.user_id === currentUser.id) ||
+      (currentUser?.nama_lengkap && rawName.toLowerCase() === currentUser.nama_lengkap.trim().toLowerCase())
+    );
     const acc = Number(s.akurasi_persen !== undefined ? s.akurasi_persen : (parseFloat(s.accuracy) || 0));
     const time = Number(s.waktu_detik !== undefined ? s.waktu_detik : (parseInt(s.time, 10) || 999));
-    const xp = Number(s.total_xp !== undefined ? s.total_xp : ((s.xp_didapat || 0) + (s.xp_materi || 0) || s.xp || 0));
+    const xp = Number(
+      isUserCurrent && currentUser?.total_xp !== undefined
+        ? currentUser.total_xp
+        : (s.total_xp !== undefined ? s.total_xp : ((s.xp_didapat || 0) + (s.xp_materi || 0) || s.xp || 0))
+    );
 
     if (!bestScoreByUser.has(userKey)) {
       bestScoreByUser.set(userKey, s);
     } else {
       const currentBest = bestScoreByUser.get(userKey);
+      const isCurrUserCurrent = Boolean(
+        (currentUser?.id && currentBest.user_id === currentUser.id) ||
+        (currentUser?.nama_lengkap && (currentBest.player_name || '').trim().toLowerCase() === currentUser.nama_lengkap.trim().toLowerCase())
+      );
       const currAcc = Number(currentBest.akurasi_persen !== undefined ? currentBest.akurasi_persen : (parseFloat(currentBest.accuracy) || 0));
       const currTime = Number(currentBest.waktu_detik !== undefined ? currentBest.waktu_detik : (parseInt(currentBest.time, 10) || 999));
-      const currXp = Number(currentBest.total_xp !== undefined ? currentBest.total_xp : ((currentBest.xp_didapat || 0) + (currentBest.xp_materi || 0) || currentBest.xp || 0));
+      const currXp = Number(
+        isCurrUserCurrent && currentUser?.total_xp !== undefined
+          ? currentUser.total_xp
+          : (currentBest.total_xp !== undefined ? currentBest.total_xp : ((currentBest.xp_didapat || 0) + (currentBest.xp_materi || 0) || currentBest.xp || 0))
+      );
 
-      // Compare: higher accuracy > faster time > higher XP
-      const isBetter = (acc > currAcc) ||
-        (acc === currAcc && time < currTime) ||
-        (acc === currAcc && time === currTime && xp > currXp);
+      // Compare: higher XP > higher accuracy > faster time
+      const isBetter = (xp > currXp) ||
+        (xp === currXp && acc > currAcc) ||
+        (xp === currXp && acc === currAcc && time < currTime);
 
       if (isBetter) {
         bestScoreByUser.set(userKey, s);
@@ -76,19 +92,22 @@ export function renderLeaderboard(scores = [], currentUser = {}, activeFilter = 
 
   const uniqueScores = Array.from(bestScoreByUser.values());
 
-  // 3. Sort: accuracy desc, time asc, xp desc
+  // 3. Sort: XP desc (primary), accuracy desc (secondary), time asc (tertiary)
   uniqueScores.sort((a, b) => {
+    const isCurrentA = Boolean((currentUser?.id && a.user_id === currentUser.id) || (currentUser?.nama_lengkap && (a.player_name || '').trim().toLowerCase() === currentUser.nama_lengkap.trim().toLowerCase()));
+    const isCurrentB = Boolean((currentUser?.id && b.user_id === currentUser.id) || (currentUser?.nama_lengkap && (b.player_name || '').trim().toLowerCase() === currentUser.nama_lengkap.trim().toLowerCase()));
+
+    const xpA = Number(isCurrentA && currentUser?.total_xp !== undefined ? currentUser.total_xp : (a.total_xp !== undefined ? a.total_xp : ((a.xp_didapat || 0) + (a.xp_materi || 0) || a.xp || 0)));
+    const xpB = Number(isCurrentB && currentUser?.total_xp !== undefined ? currentUser.total_xp : (b.total_xp !== undefined ? b.total_xp : ((b.xp_didapat || 0) + (b.xp_materi || 0) || b.xp || 0)));
+    if (xpB !== xpA) return xpB - xpA;
+
     const accA = Number(a.akurasi_persen !== undefined ? a.akurasi_persen : (parseFloat(a.accuracy) || 0));
     const accB = Number(b.akurasi_persen !== undefined ? b.akurasi_persen : (parseFloat(b.accuracy) || 0));
     if (accB !== accA) return accB - accA;
 
     const timeA = Number(a.waktu_detik !== undefined ? a.waktu_detik : (parseInt(a.time, 10) || 999));
     const timeB = Number(b.waktu_detik !== undefined ? b.waktu_detik : (parseInt(b.time, 10) || 999));
-    if (timeA !== timeB) return timeA - timeB;
-
-    const xpA = Number(a.total_xp !== undefined ? a.total_xp : ((a.xp_didapat || 0) + (a.xp_materi || 0) || a.xp || 0));
-    const xpB = Number(b.total_xp !== undefined ? b.total_xp : ((b.xp_didapat || 0) + (b.xp_materi || 0) || b.xp || 0));
-    return xpB - xpA;
+    return timeA - timeB;
   });
 
   const displayScores = uniqueScores.length > 0 

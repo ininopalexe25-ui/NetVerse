@@ -589,6 +589,17 @@ function enrichScoresWithProfiles(scoresList = [], profilesList = []) {
         materiXp: materiXp,
         level: prof?.level || Math.floor(totalXp / 500) + 1
       };
+    })
+    .sort((a, b) => {
+      const xpA = Number(a.total_xp !== undefined ? a.total_xp : ((a.crimpingXp || 0) + (a.materiXp || 0)));
+      const xpB = Number(b.total_xp !== undefined ? b.total_xp : ((b.crimpingXp || 0) + (b.materiXp || 0)));
+      if (xpB !== xpA) return xpB - xpA;
+
+      const accA = Number(a.akurasi_persen || 0);
+      const accB = Number(b.akurasi_persen || 0);
+      if (accB !== accA) return accB - accA;
+
+      return Number(a.waktu_detik || 0) - Number(b.waktu_detik || 0);
     });
 }
 
@@ -622,11 +633,16 @@ function handleRealtimeNewScore(newScore) {
     state.scores.push(newScore);
   }
 
-  // Re-sort scores by accuracy desc, time asc
+  // Re-sort scores primarily by total_xp desc, then accuracy desc, time asc
   state.scores.sort((a, b) => {
+    const xpA = Number(a.total_xp !== undefined ? a.total_xp : ((a.crimpingXp || 0) + (a.materiXp || 0)));
+    const xpB = Number(b.total_xp !== undefined ? b.total_xp : ((b.crimpingXp || 0) + (b.materiXp || 0)));
+    if (xpB !== xpA) return xpB - xpA;
+
     const accA = Number(a.akurasi_persen || 0);
     const accB = Number(b.akurasi_persen || 0);
     if (accB !== accA) return accB - accA;
+
     return Number(a.waktu_detik || 0) - Number(b.waktu_detik || 0);
   });
 

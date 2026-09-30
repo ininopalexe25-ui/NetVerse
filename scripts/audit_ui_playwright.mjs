@@ -544,6 +544,16 @@ async function runAudit() {
     const hasUnauthenticatedUser = userNames.some(n => n === 'user' || n.startsWith('user '));
     recordCheck('Guest "User" strictly excluded from Leaderboard', !hasUnauthenticatedUser, `Found participants: ${userNames.join(', ')}`);
 
+    // Verify Leaderboard rankings are ordered from top to bottom based on Total XP
+    const xpValues = await page.$$eval('tbody tr td:last-child div:first-child', els => 
+      els.map(e => {
+        const m = e.textContent.match(/(\d+)/);
+        return m ? parseInt(m[1], 10) : 0;
+      })
+    );
+    const isSortedByXp = xpValues.every((val, i) => i === 0 || val <= xpValues[i - 1]);
+    recordCheck('Leaderboard rankings sorted strictly by Total XP descending', isSortedByXp, `XP sequence: ${xpValues.join(' >= ')}`);
+
     // Test Realtime Toast Banner
     await page.evaluate(() => {
       if (window.__netverseState) {
