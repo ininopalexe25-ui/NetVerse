@@ -194,8 +194,43 @@ async function runAudit() {
     const wireButtons = await page.$$('[data-pick-wire]');
     recordCheck('Available UTP Wires Palette rendered', wireButtons.length === 8);
 
+    // 1. Audit Guest Practice Lock & Zero XP Protection
+    const guestCrimpingLock = await page.$('#btn-guest-unlock-crimping');
+    recordCheck('Guest Crimping Feature Lock Banner rendered', !!guestCrimpingLock);
+
+    const guestXp = await page.evaluate(() => window.__netverseState.userProfile.total_xp);
+    recordCheck('Guest XP is strictly 0', guestXp === 0, `Total XP: ${guestXp}`);
+
+    // Try interacting as guest -> Must trigger login modal
+    await page.click('[data-pick-wire="WO"]');
+    await page.waitForTimeout(300);
+    const isModalOpenForGuest = await page.evaluate(() => !!document.getElementById('auth-modal-backdrop'));
+    recordCheck('Guest wire interaction blocked & prompts login modal', isModalOpenForGuest);
+
+    if (isModalOpenForGuest) {
+      await page.click('#btn-close-auth-modal');
+      await page.waitForTimeout(300);
+    }
+
+    // 2. Authenticate student to audit active wire crimping and continuity testing
+    await page.evaluate(() => {
+      window.__netverseState.session = {
+        user: { id: 'test-student-id', email: 'mahasiswa@unesa.ac.id' }
+      };
+      window.__netverseState.userProfile = {
+        id: 'test-student-id',
+        nama_lengkap: 'Budi Santoso',
+        username: 'buditkj',
+        level: 1,
+        total_xp: 250,
+        role: 'mahasiswa'
+      };
+      window.__renderApp();
+    });
+    await page.waitForTimeout(200);
+
     // Place wires sequentially (T568B: WO, O, WG, B, WB, G, WBr, Br)
-    console.log('   Simulating wire placement into RJ-45 pins...');
+    console.log('   Simulating wire placement into RJ-45 pins as authenticated user...');
     const wireSequenceT568B = ['WO', 'O', 'WG', 'B', 'WB', 'G', 'WBr', 'Br'];
     for (const wireId of wireSequenceT568B) {
       const sel = `[data-pick-wire="${wireId}"]`;
@@ -267,6 +302,52 @@ async function runAudit() {
       // Check quiz options
       const quizQuestions = await page.$$('[data-quiz-q="0"]');
       recordCheck('Quiz question 1 options rendered', quizQuestions.length === 4, `${quizQuestions.length} options`);
+
+      // Verify Guest Quiz Lock behavior
+      await page.evaluate(() => {
+        window.__netverseState.session = null;
+        window.__netverseState.userProfile = {
+          id: null,
+          nama_lengkap: 'User',
+          username: 'user',
+          level: 1,
+          total_xp: 0,
+          role: 'tamu'
+        };
+        window.__renderApp();
+      });
+      await page.waitForTimeout(200);
+
+      const guestQuizLock = await page.$('#btn-guest-unlock-quiz');
+      recordCheck('Guest Quiz Feature Lock Banner rendered', !!guestQuizLock);
+
+      // Verify guest answering attempt is blocked and prompts login modal
+      await page.click('[data-quiz-q="0"][data-quiz-opt="0"]');
+      await page.waitForTimeout(300);
+      const isQuizGuestModalOpen = await page.evaluate(() => !!document.getElementById('auth-modal-backdrop'));
+      recordCheck('Guest quiz interaction blocked & prompts login modal', isQuizGuestModalOpen);
+
+      if (isQuizGuestModalOpen) {
+        await page.click('#btn-close-auth-modal');
+        await page.waitForTimeout(300);
+      }
+
+      // Re-authenticate student to answer questions and complete evaluation
+      await page.evaluate(() => {
+        window.__netverseState.session = {
+          user: { id: 'test-student-id', email: 'mahasiswa@unesa.ac.id' }
+        };
+        window.__netverseState.userProfile = {
+          id: 'test-student-id',
+          nama_lengkap: 'Budi Santoso',
+          username: 'buditkj',
+          level: 1,
+          total_xp: 250,
+          role: 'mahasiswa'
+        };
+        window.__renderApp();
+      });
+      await page.waitForTimeout(200);
 
       // Radii check on quiz elements
       const quizRadii = await page.evaluate(() => {
@@ -550,7 +631,20 @@ async function runAudit() {
     console.log('\n8. Auditing Supabase Auth Modal & Profile Interface...');
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.click('header [data-nav="workbench"]');
-    await page.waitForTimeout(500);
+    // Ensure clean guest state for Auth Modal Login/Register testing
+    await page.evaluate(() => {
+      window.__netverseState.session = null;
+      window.__netverseState.userProfile = {
+        id: null,
+        nama_lengkap: 'User',
+        username: 'user',
+        level: 1,
+        total_xp: 0,
+        role: 'tamu'
+      };
+      window.__renderApp();
+    });
+    await page.waitForTimeout(300);
 
     const authTriggerBtn = await page.$('#btn-open-auth-modal');
     recordCheck('Auth/Profile trigger button rendered in Navbar', !!authTriggerBtn);

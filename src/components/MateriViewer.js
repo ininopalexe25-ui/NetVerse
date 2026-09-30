@@ -17,7 +17,8 @@ export function renderMateriViewer(
   quizOnly = false, 
   lang = 'id',
   materiFormat = 'teori',
-  activeVideoId = null
+  activeVideoId = null,
+  isAuthenticated = false
 ) {
   const rawCurrentModul = moduls[selectedIndex] || {
     id: 'default-modul',
@@ -523,6 +524,34 @@ export function renderMateriViewer(
                 ` : ''}
               </div>
 
+              ${!isAuthenticated ? `
+                <!-- Guest Quiz Lock Banner -->
+                <div class="rounded-xl p-4 sm:p-5 bg-gradient-to-r from-amber-500/10 via-amber-600/5 to-transparent border border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg shadow-amber-500/5">
+                  <div class="flex items-start gap-3.5">
+                    <div class="w-10 h-10 rounded-lg bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-amber-400 text-lg shrink-0 mt-0.5">
+                      🔒
+                    </div>
+                    <div class="space-y-1">
+                      <div class="flex items-center gap-2">
+                        <h4 class="text-sm font-bold text-white tracking-tight">${t('materi.guestQuizLockTitle', lang)}</h4>
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-amber-400/20 text-amber-300 border border-amber-400/30">${t('crimping.guestBadge', lang)}</span>
+                      </div>
+                      <p class="text-xs text-slate-300 leading-relaxed max-w-2xl">
+                        ${t('materi.guestQuizLockDesc', lang)}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    id="btn-guest-unlock-quiz"
+                    class="rounded-lg px-4 py-2.5 bg-amber-400 hover:bg-amber-300 text-black text-xs font-bold transition-all shadow-md active:scale-95 shrink-0 flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <span>${t('materi.guestQuizLockBtn', lang)}</span>
+                    <span>&rarr;</span>
+                  </button>
+                </div>
+              ` : ''}
+
               <!-- Questions List -->
               <div class="space-y-6">
                 ${quizzes.map((quiz, qIdx) => {
@@ -604,12 +633,17 @@ export function renderMateriViewer(
                 ${!quizSubmitted ? `
                   <button
                     id="btn-submit-quiz"
-                    class="rounded-lg px-5 py-2.5 bg-white text-black hover:bg-slate-200 text-xs font-semibold transition-all shadow-md active:scale-95 flex items-center gap-2 cursor-pointer"
+                    class="rounded-lg px-5 py-2.5 ${
+                      isAuthenticated
+                        ? 'bg-white text-black hover:bg-slate-200'
+                        : 'bg-amber-400 hover:bg-amber-300 text-black shadow-amber-400/20'
+                    } text-xs font-semibold transition-all shadow-md active:scale-95 flex items-center gap-2 cursor-pointer"
+                    title="${isAuthenticated ? t('materi.submitQuiz', lang) : t('materi.guestQuizLockTitle', lang)}"
                   >
-                    <span>${t('materi.submitQuiz', lang)}</span>
+                    <span>${isAuthenticated ? t('materi.submitQuiz', lang) : `🔒 ${t('materi.guestQuizLockBtn', lang)}`}</span>
                     <span class="font-mono text-slate-600">→</span>
                   </button>
-                  <span class="text-xs text-slate-400">${t('materi.answerAllNotice', lang)}</span>
+                  <span class="text-xs text-slate-400">${isAuthenticated ? t('materi.answerAllNotice', lang) : t('materi.guestQuizLockDesc', lang)}</span>
                 ` : `
                   <div class="flex items-center gap-3">
                     <button

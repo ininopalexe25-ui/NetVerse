@@ -18,6 +18,7 @@ export function renderCrimpingMaster(state, lang = state.lang || 'id') {
   const userSlots = state.crimpingSlots || [null, null, null, null, null, null, null, null];
   const elapsed = state.crimpingElapsedSeconds || 0;
   const result = state.crimpingResult;
+  const isAuthenticated = !!(state.session && state.userProfile && state.userProfile.id);
 
   const placedWireIds = userSlots.filter(Boolean);
   const availableWires = PALETTE_ORDER
@@ -85,6 +86,34 @@ export function renderCrimpingMaster(state, lang = state.lang || 'id') {
           </div>
         </div>
       </div>
+
+      ${!isAuthenticated ? `
+        <!-- Guest Practice Lock Banner -->
+        <div class="rounded-xl p-4 sm:p-5 bg-gradient-to-r from-amber-500/10 via-amber-600/5 to-transparent border border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg shadow-amber-500/5">
+          <div class="flex items-start gap-3.5">
+            <div class="w-10 h-10 rounded-lg bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-amber-400 text-lg shrink-0 mt-0.5">
+              🔒
+            </div>
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <h3 class="text-sm font-bold text-white tracking-tight">${t('crimping.guestLockTitle', lang)}</h3>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-amber-400/20 text-amber-300 border border-amber-400/30">${t('crimping.guestBadge', lang)}</span>
+              </div>
+              <p class="text-xs text-slate-300 leading-relaxed max-w-2xl">
+                ${t('crimping.guestLockDesc', lang)}
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            id="btn-guest-unlock-crimping"
+            class="rounded-lg px-4 py-2.5 bg-amber-400 hover:bg-amber-300 text-black text-xs font-bold transition-all shadow-md active:scale-95 shrink-0 flex items-center gap-1.5 cursor-pointer"
+          >
+            <span>${t('crimping.guestLockBtn', lang)}</span>
+            <span>&rarr;</span>
+          </button>
+        </div>
+      ` : ''}
 
       <!-- Main Workshop Canvas -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-start">
@@ -195,11 +224,16 @@ export function renderCrimpingMaster(state, lang = state.lang || 'id') {
                 <!-- Button-in-Button Verification CTA -->
                 <button 
                   id="btn-verify-crimping" 
-                  class="group rounded-lg pl-5 pr-2 py-2 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-xs sm:text-sm flex items-center gap-3 transition-all active:scale-[0.98] shadow-lg shadow-emerald-500/20 cursor-pointer"
+                  class="group rounded-lg pl-5 pr-2 py-2 ${
+                    isAuthenticated 
+                      ? 'bg-emerald-500 hover:bg-emerald-400 shadow-emerald-500/20 text-black' 
+                      : 'bg-amber-400 hover:bg-amber-300 shadow-amber-400/20 text-black'
+                  } font-semibold text-xs sm:text-sm flex items-center gap-3 transition-all active:scale-[0.98] shadow-lg cursor-pointer"
+                  title="${isAuthenticated ? t('crimping.btnVerify', lang) : t('crimping.guestLockTitle', lang)}"
                 >
-                  <span>${t('crimping.btnVerify', lang)}</span>
-                  <span class="w-7 h-7 rounded-md bg-black text-white flex items-center justify-center transition-transform group-hover:translate-x-0.5 text-xs font-bold">
-                    ✓
+                  <span>${isAuthenticated ? t('crimping.btnVerify', lang) : `🔒 ${t('crimping.guestLockBtn', lang)}`}</span>
+                  <span class="w-7 h-7 rounded-md bg-black ${isAuthenticated ? 'text-white' : 'text-amber-400'} flex items-center justify-center transition-transform group-hover:translate-x-0.5 text-xs font-bold">
+                    ${isAuthenticated ? '✓' : '→'}
                   </span>
                 </button>
               </div>

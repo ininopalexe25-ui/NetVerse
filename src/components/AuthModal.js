@@ -210,15 +210,23 @@ export function renderAuthModal(state) {
                   class="p-3 rounded-lg text-xs flex items-start gap-2.5 transition-all animate-fadeIn ${
                     state.authNotice.type === 'error' 
                       ? 'bg-rose-500/15 border border-rose-500/40 text-rose-200' 
+                      : state.authNotice.type === 'warning'
+                      ? 'bg-amber-500/15 border border-amber-500/40 text-amber-200'
                       : 'bg-emerald-500/15 border border-emerald-500/40 text-emerald-200'
                   }"
                 >
                   <span class="text-sm shrink-0 mt-0.5" aria-hidden="true">
-                    ${state.authNotice.type === 'error' ? '⚠️' : '✓'}
+                    ${state.authNotice.type === 'error' || state.authNotice.type === 'warning' ? '⚠️' : '✓'}
                   </span>
                   <div class="flex-1 leading-relaxed">
-                    <span class="font-bold block mb-0.5 ${state.authNotice.type === 'error' ? 'text-rose-300' : 'text-emerald-300'}">
-                      ${state.authNotice.type === 'error' 
+                    <span class="font-bold block mb-0.5 ${
+                      state.authNotice.type === 'error' 
+                        ? 'text-rose-300' 
+                        : state.authNotice.type === 'warning'
+                        ? 'text-amber-300'
+                        : 'text-emerald-300'
+                    }">
+                      ${state.authNotice.type === 'error' || state.authNotice.type === 'warning'
                         ? t('authModal.noticeWarningTitle', lang)
                         : t('authModal.noticeSuccessTitle', lang)}
                     </span>

@@ -111,7 +111,11 @@ export const translations = {
       resultSuccessMsg: 'Hebat, semua pin tersusun dengan benar! (+{xp} XP)',
       resultPartialMsg: '{correct} dari 8 pin sudah tepat ({accuracy}%). Periksa lagi pin yang ditandai merah.',
       videoTutorialBtn: 'Video Tutorial',
-      videoTutorialTitle: 'Tonton Tutorial Cara Crimping Kabel UTP'
+      videoTutorialTitle: 'Tonton Tutorial Cara Crimping Kabel UTP',
+      guestLockTitle: 'Fitur Praktik Merakit Kabel Terkunci',
+      guestLockDesc: 'Sebagai pengguna tamu, Anda hanya dapat melihat susunan pin dan palet warna. Masuk dengan akun NetVerse untuk mulai merakit kabel, menguji kontinuitas LAN tester, dan mencatat skor ke papan peringkat.',
+      guestLockBtn: 'Masuk untuk Mulai Merakit',
+      guestBadge: 'Mode Tamu'
     },
     materi: {
       header: 'Materi TKJ',
@@ -138,6 +142,9 @@ export const translations = {
       submitQuiz: 'Periksa Jawaban',
       retryQuiz: 'Ulangi Kuis',
       quizCompletedNotice: 'Kuis berhasil diselesaikan!',
+      guestQuizLockTitle: 'Kuis Evaluasi Diagnostik Terkunci',
+      guestQuizLockDesc: 'Anda bebas membaca materi teori dan menonton video praktik. Masuk dengan akun NetVerse untuk mengerjakan kuis diagnostik, menguji pemahaman konsep, dan mengumpulkan XP.',
+      guestQuizLockBtn: 'Masuk untuk Mengerjakan Kuis',
       quizFailedNotice: 'Nilaimu di bawah 50%. Baca lagi materinya, lalu coba kuis sekali lagi.',
       answerAllNotice: 'Jawab semua soal sebelum memeriksa hasilnya.',
       modeTheory: 'Teks & Teori',
@@ -248,6 +255,8 @@ export const translations = {
       loginSubtitle: 'Masuk untuk menyimpan progres belajar dan hasil praktikmu.',
       noticeWarningTitle: 'Peringatan Masuk Akun',
       noticeSuccessTitle: 'Berhasil',
+      loginRequiredCrimping: 'Silakan masuk dengan akun NetVerse terlebih dahulu untuk mulai merakit kabel dan menguji hasil praktik.',
+      loginRequiredQuiz: 'Silakan masuk dengan akun NetVerse terlebih dahulu untuk mengerjakan kuis dan mengumpulkan XP.',
       continueGuest: 'Lanjut tanpa akun →'
     },
     toast: {
@@ -351,7 +360,11 @@ export const translations = {
       resultSuccessMsg: 'Outstanding, all 8 pins match the wiring standard! (+{xp} XP)',
       resultPartialMsg: '{correct} of 8 pins are correct ({accuracy}%). Inspect pins flagged in red.',
       videoTutorialBtn: 'Video Tutorial',
-      videoTutorialTitle: 'Watch UTP Cable Crimping Video Guide'
+      videoTutorialTitle: 'Watch UTP Cable Crimping Video Guide',
+      guestLockTitle: 'Cable Crimping Simulation Locked',
+      guestLockDesc: 'As a guest user, you can view the RJ-45 connector and wire palette. Log in with a NetVerse account to start assembling cables, test LAN continuity, and save your scores to the leaderboard.',
+      guestLockBtn: 'Log In to Start Crimping',
+      guestBadge: 'Guest Mode'
     },
     materi: {
       header: 'Network Syllabus',
@@ -378,6 +391,9 @@ export const translations = {
       submitQuiz: 'Submit Answers',
       retryQuiz: 'Retry Quiz',
       quizCompletedNotice: 'Quiz completed successfully!',
+      guestQuizLockTitle: 'Diagnostic Evaluation Quiz Locked',
+      guestQuizLockDesc: 'You can freely read the theory materials and watch practical videos. Log in with a NetVerse account to take the diagnostic quiz, test your concepts, and earn XP.',
+      guestQuizLockBtn: 'Log In to Take Quiz',
       quizFailedNotice: 'Score below 50%. Review the material and try again.',
       answerAllNotice: 'Please answer all questions before submitting.',
       modeTheory: 'Reading & Theory',
@@ -488,6 +504,8 @@ export const translations = {
       loginSubtitle: 'Sign in to sync your practice history and XP.',
       noticeWarningTitle: 'Sign In Warning',
       noticeSuccessTitle: 'Success',
+      loginRequiredCrimping: 'Please log in with a NetVerse account first to assemble cables and test your results.',
+      loginRequiredQuiz: 'Please log in with a NetVerse account first to take the quiz and earn XP.',
       continueGuest: 'Continue as guest →'
     },
     toast: {
@@ -591,7 +609,11 @@ export const translations = {
       resultSuccessMsg: '素晴らしい！すべてのピンが規格通り正しく結線されました！(+{xp} XP)',
       resultPartialMsg: '8ピン中 {correct} ピンが正解です（{accuracy}%）。赤色のピンを確認してください。',
       videoTutorialBtn: '動画解説',
-      videoTutorialTitle: 'UTPケーブル圧着の解説動画を視聴'
+      videoTutorialTitle: 'UTPケーブル圧着の解説動画を視聴',
+      guestLockTitle: 'LANケーブル圧着実習ロック中',
+      guestLockDesc: 'ゲストユーザーはRJ-45コネクタとケーブル配色の閲覧が可能です。ケーブル圧着の実習、LANテスターでの導通確認、ランキングへの記録にはNetVerseアカウントへのログインが必要です。',
+      guestLockBtn: 'ログインして実習を開始',
+      guestBadge: '閲覧のみ'
     },
     materi: {
       header: 'TKJネットワーク教材',
@@ -618,6 +640,9 @@ export const translations = {
       submitQuiz: '回答を送信して採点',
       retryQuiz: '再挑戦',
       quizCompletedNotice: 'テスト完了！理解度が記録されました。',
+      guestQuizLockTitle: '診断評価クイズ ロック中',
+      guestQuizLockDesc: '講義テキストの閲覧や実践動画の視聴は自由に可能です。理解度テストへの解答やXPの獲得にはNetVerseアカウントへのログインが必要です。',
+      guestQuizLockBtn: 'ログインしてクイズに挑戦',
       quizFailedNotice: '得点が50%未満です。講義を復習して再挑戦しましょう。',
       answerAllNotice: '採点する前にすべての問題に回答してください。',
       modeTheory: '講義テキスト',
@@ -728,6 +753,8 @@ export const translations = {
       loginSubtitle: 'ログインして学習進捗やランキングを同期します。',
       noticeWarningTitle: 'ログイン警告',
       noticeSuccessTitle: '成功',
+      loginRequiredCrimping: 'ケーブル圧着の実習とテストを行うには、まずNetVerseアカウントでログインしてください。',
+      loginRequiredQuiz: 'クイズに回答してXPを獲得するには、まずNetVerseアカウントでログインしてください。',
       continueGuest: 'ゲストとして続行 →'
     },
     toast: {
@@ -831,7 +858,11 @@ export const translations = {
       resultSuccessMsg: '太棒了！所有引脚线序完全匹配标准！(+{xp} XP)',
       resultPartialMsg: '8根线芯中匹配了 {correct} 根（准确率 {accuracy}%），请检查标红的引脚。',
       videoTutorialBtn: '教学视频',
-      videoTutorialTitle: '观看网线水晶头压接教学视频'
+      videoTutorialTitle: '观看网线水晶头压接教学视频',
+      guestLockTitle: '网线制作模拟实验已锁定',
+      guestLockDesc: '访客用户可自由观察 RJ-45 水晶头引脚与线序色谱。登录 NetVerse 账号即可解锁排线压接实操、网络测线仪通断检测并记录成绩至排行榜。',
+      guestLockBtn: '立即登录开始制作',
+      guestBadge: '仅限浏览'
     },
     materi: {
       header: 'TKJ 课程讲义',
@@ -858,6 +889,9 @@ export const translations = {
       submitQuiz: '提交批改',
       retryQuiz: '重新测试',
       quizCompletedNotice: '测评已完成！成绩已成功同步至云端。',
+      guestQuizLockTitle: '诊断评估测试已锁定',
+      guestQuizLockDesc: '您可以自由浏览理论教材与观看实践视频。登录 NetVerse 账号后即可参与诊断测评、检验知识掌握度并获取课程经验值 (XP)。',
+      guestQuizLockBtn: '立即登录参与测评',
       quizFailedNotice: '得分低于50%，建议复习讲义后重新作答。',
       answerAllNotice: '请在提交评分前回答所有题目。',
       modeTheory: '理论讲义',
@@ -968,6 +1002,8 @@ export const translations = {
       loginSubtitle: '登录以同步学习进度及排行榜数据。',
       noticeWarningTitle: '登录提示',
       noticeSuccessTitle: '成功',
+      loginRequiredCrimping: '请先登录 NetVerse 账号，以进行网线制作与实操测试。',
+      loginRequiredQuiz: '请先登录 NetVerse 账号，以参与课后测试并赢取经验值。',
       continueGuest: '以访客身份继续 →'
     },
     toast: {

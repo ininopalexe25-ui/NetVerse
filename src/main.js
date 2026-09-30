@@ -506,6 +506,11 @@ async function sendSocraticQuery(userQuery) {
 
 // Save XP and Level to Cloud
 async function syncProfileXp(earnedAmount) {
+  if (!state.session?.user?.id) {
+    state.userProfile.total_xp = 0;
+    state.userProfile.level = 1;
+    return;
+  }
   state.userProfile.total_xp += earnedAmount;
   state.userProfile.level = Math.floor(state.userProfile.total_xp / 500) + 1;
 
@@ -856,7 +861,8 @@ function renderApp() {
         state.quizMode,
         state.lang,
         state.materiFormat,
-        state.activeVideoId
+        state.activeVideoId,
+        !!state.session
       );
       break;
     }
@@ -953,6 +959,16 @@ function setCrimpingStandard(standard) {
 
 // Verify Crimping
 async function verifyCrimping() {
+  if (!state.session) {
+    state.authModalOpen = true;
+    state.authMode = 'login';
+    state.authNotice = {
+      type: 'warning',
+      message: t('authModal.loginRequiredCrimping', state.lang)
+    };
+    renderApp();
+    return;
+  }
   stopCrimpingTimer();
   const target = STANDARDS[state.crimpingStandard];
   const user = state.crimpingSlots;
@@ -1561,6 +1577,17 @@ function attachEvents() {
       const rawData = e.dataTransfer.getData('application/json');
       if (!rawData) return;
 
+      if (!state.session) {
+        state.authModalOpen = true;
+        state.authMode = 'login';
+        state.authNotice = {
+          type: 'warning',
+          message: t('authModal.loginRequiredCrimping', state.lang)
+        };
+        renderApp();
+        return;
+      }
+
       try {
         const payload = JSON.parse(rawData);
         if (payload.type === 'palette') {
@@ -1588,6 +1615,16 @@ function attachEvents() {
   // Wire picking (Click-to-place fallback / mobile friendly)
   document.querySelectorAll('[data-pick-wire]').forEach(btn => {
     btn.addEventListener('click', (e) => {
+      if (!state.session) {
+        state.authModalOpen = true;
+        state.authMode = 'login';
+        state.authNotice = {
+          type: 'warning',
+          message: t('authModal.loginRequiredCrimping', state.lang)
+        };
+        renderApp();
+        return;
+      }
       const wireId = e.currentTarget.getAttribute('data-pick-wire');
       const firstEmptyIndex = state.crimpingSlots.findIndex(s => s === null);
       if (firstEmptyIndex !== -1) {
@@ -1602,6 +1639,16 @@ function attachEvents() {
   // Wire removal from slot
   document.querySelectorAll('[data-remove-pin]').forEach(btn => {
     btn.addEventListener('click', (e) => {
+      if (!state.session) {
+        state.authModalOpen = true;
+        state.authMode = 'login';
+        state.authNotice = {
+          type: 'warning',
+          message: t('authModal.loginRequiredCrimping', state.lang)
+        };
+        renderApp();
+        return;
+      }
       const idx = parseInt(e.currentTarget.getAttribute('data-remove-pin'), 10);
       state.crimpingSlots[idx] = null;
       state.crimpingResult = null;
@@ -1613,10 +1660,34 @@ function attachEvents() {
   const btnReset = document.getElementById('btn-reset-crimping');
   if (btnReset) {
     btnReset.addEventListener('click', () => {
+      if (!state.session) {
+        state.authModalOpen = true;
+        state.authMode = 'login';
+        state.authNotice = {
+          type: 'warning',
+          message: t('authModal.loginRequiredCrimping', state.lang)
+        };
+        renderApp();
+        return;
+      }
       stopCrimpingTimer();
       state.crimpingSlots = [null, null, null, null, null, null, null, null];
       state.crimpingElapsedSeconds = 0;
       state.crimpingResult = null;
+      renderApp();
+    });
+  }
+
+  // Guest unlock crimping button
+  const guestUnlockCrimping = document.getElementById('btn-guest-unlock-crimping');
+  if (guestUnlockCrimping) {
+    guestUnlockCrimping.addEventListener('click', () => {
+      state.authModalOpen = true;
+      state.authMode = 'login';
+      state.authNotice = {
+        type: 'warning',
+        message: t('authModal.loginRequiredCrimping', state.lang)
+      };
       renderApp();
     });
   }
@@ -1709,6 +1780,17 @@ function attachEvents() {
   // Quiz Option Click
   document.querySelectorAll('[data-quiz-q]').forEach(btn => {
     btn.addEventListener('click', (e) => {
+      if (!state.session) {
+        state.authModalOpen = true;
+        state.authMode = 'login';
+        state.authNotice = {
+          type: 'warning',
+          message: t('authModal.loginRequiredQuiz', state.lang)
+        };
+        renderApp();
+        return;
+      }
+
       const qIdx = parseInt(e.currentTarget.getAttribute('data-quiz-q'), 10);
       const optIdx = parseInt(e.currentTarget.getAttribute('data-quiz-opt'), 10);
       const currentModul = state.moduls[state.selectedModulIndex];
@@ -1723,10 +1805,34 @@ function attachEvents() {
     });
   });
 
+  // Guest unlock quiz button
+  const guestUnlockQuiz = document.getElementById('btn-guest-unlock-quiz');
+  if (guestUnlockQuiz) {
+    guestUnlockQuiz.addEventListener('click', () => {
+      state.authModalOpen = true;
+      state.authMode = 'login';
+      state.authNotice = {
+        type: 'warning',
+        message: t('authModal.loginRequiredQuiz', state.lang)
+      };
+      renderApp();
+    });
+  }
+
   // Submit Quiz & Evaluate
   const submitQuizBtn = document.getElementById('btn-submit-quiz');
   if (submitQuizBtn) {
     submitQuizBtn.addEventListener('click', async () => {
+      if (!state.session) {
+        state.authModalOpen = true;
+        state.authMode = 'login';
+        state.authNotice = {
+          type: 'warning',
+          message: t('authModal.loginRequiredQuiz', state.lang)
+        };
+        renderApp();
+        return;
+      }
       const currentModul = state.moduls[state.selectedModulIndex];
       if (!currentModul) return;
 
@@ -1793,6 +1899,16 @@ function attachEvents() {
   const retryQuizBtn = document.getElementById('btn-retry-quiz');
   if (retryQuizBtn) {
     retryQuizBtn.addEventListener('click', () => {
+      if (!state.session) {
+        state.authModalOpen = true;
+        state.authMode = 'login';
+        state.authNotice = {
+          type: 'warning',
+          message: t('authModal.loginRequiredQuiz', state.lang)
+        };
+        renderApp();
+        return;
+      }
       const currentModul = state.moduls[state.selectedModulIndex];
       if (!currentModul) return;
       const mId = currentModul.id;
