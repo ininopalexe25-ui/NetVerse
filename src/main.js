@@ -820,8 +820,8 @@ async function initData() {
   if (!state.moduls || state.moduls.length === 0) {
     state.moduls = [
       { id: '1', slug: 'jaringan-dasar-topologi', judul: 'Dasar jaringan dan topologi', estimasi_menit: 10, xp_reward: 100, deskripsi: 'Pelajari peran host dan bentuk topologi star, bus, serta mesh.' },
-      { id: '2', slug: 'media-transmisi-utp', judul: 'Kabel UTP dan urutan warnanya', estimasi_menit: 15, xp_reward: 150, deskripsi: 'Kenali susunan kawat dalam kabel UTP dan urutan warna T568A serta T568B.' },
-      { id: '3', slug: 'perangkat-keras-jaringan', judul: 'Mengenal router dan switch', estimasi_menit: 15, xp_reward: 150, deskripsi: 'Pelajari perbedaan fungsi switch Layer 2 dan router Layer 3.' }
+      { id: '2', slug: 'media-transmisi-utp', judul: 'Kabel UTP dan urutan warnanya', estimasi_menit: 15, xp_reward: 100, deskripsi: 'Kenali susunan kawat dalam kabel UTP dan urutan warna T568A serta T568B.' },
+      { id: '3', slug: 'perangkat-keras-jaringan', judul: 'Mengenal router dan switch', estimasi_menit: 15, xp_reward: 100, deskripsi: 'Pelajari perbedaan fungsi switch Layer 2 dan router Layer 3.' }
     ];
   }
 
@@ -1860,20 +1860,39 @@ function attachEvents() {
 
       state.quizSubmitted[mId] = true;
 
-      const currentProgress = state.learningProgress[mId] || {};
-      const wasAlreadyCompleted = currentProgress.status === 'selesai';
+      // XP didapat dari setiap menjawab kuis sesuai nilai yang didapat (0 - 100)
+      const earnedXp = scorePct;
 
       state.learningProgress[mId] = {
         modul_id: mId,
         status: passed ? 'selesai' : 'sedang_belajar',
         skor_quiz: scorePct,
+        xp_didapat: earnedXp,
         terakhir_dibaca: new Date().toISOString()
       };
 
-      // Award XP if passed and not completed before
-      if (passed && !wasAlreadyCompleted) {
-        const reward = currentModul.xp_reward || 100;
-        await syncProfileXp(reward);
+      // Award XP from answering quiz according to score obtained
+      if (earnedXp > 0) {
+        await syncProfileXp(earnedXp);
+
+        // Show celebration toast for quiz completion with earned XP
+        const moduleTitle = currentModul.judul || t('nav.materi', state.lang);
+        state.realtimeToast = {
+          id: Date.now(),
+          text: t('toast.quizCompletedXp', state.lang, {
+            modul: moduleTitle,
+            xp: earnedXp,
+            score: scorePct
+          }),
+          timestamp: new Date()
+        };
+
+        setTimeout(() => {
+          if (state.realtimeToast && Date.now() - state.realtimeToast.id >= 4500) {
+            state.realtimeToast = null;
+            renderApp();
+          }
+        }, 5000);
       }
 
       // Save to Supabase Cloud if user is authenticated

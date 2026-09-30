@@ -386,6 +386,28 @@ async function runAudit() {
 
       const retryBtn = await page.$('#btn-retry-quiz');
       recordCheck('Quiz Retry Button available after evaluation', !!retryBtn);
+
+      const studentXpAfterQuiz = await page.evaluate(() => window.__netverseState.userProfile?.total_xp || 0);
+      recordCheck('Quiz submission awards XP according to score obtained', studentXpAfterQuiz > 250, `XP increased from 250 to ${studentXpAfterQuiz} (+${studentXpAfterQuiz - 250} XP)`);
+
+      // Test retrying and answering again to confirm every quiz answer awards XP
+      if (retryBtn) {
+        await retryBtn.click();
+        await page.waitForTimeout(200);
+
+        for (let q = 0; q < 5; q++) {
+          const opt = await page.$(`[data-quiz-q="${q}"][data-quiz-opt="0"]`);
+          if (opt) {
+            await opt.click();
+            await page.waitForTimeout(50);
+          }
+        }
+        await page.click('#btn-submit-quiz');
+        await page.waitForTimeout(300);
+
+        const studentXpAfterRetry = await page.evaluate(() => window.__netverseState.userProfile?.total_xp || 0);
+        recordCheck('Retrying quiz also awards XP according to score', studentXpAfterRetry > studentXpAfterQuiz, `XP increased from ${studentXpAfterQuiz} to ${studentXpAfterRetry} (+${studentXpAfterRetry - studentXpAfterQuiz} XP)`);
+      }
     }
 
     const shot4 = path.join(AUDIT_DIR, '04_kurikulum_module_quiz.png');

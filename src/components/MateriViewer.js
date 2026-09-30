@@ -25,7 +25,7 @@ export function renderMateriViewer(
     slug: 'media-transmisi-utp',
     judul: 'Media Transmisi & Standar Pengkabelan UTP',
     deskripsi: 'Kenali jenis kabel twisted pair (UTP/STP) dan urutan warna T568A serta T568B.',
-    xp_reward: 150,
+    xp_reward: 100,
     estimasi_menit: 15
   };
 
@@ -516,10 +516,18 @@ export function renderMateriViewer(
                   <p class="text-xs text-slate-400 mt-0.5">${t('materi.quizSubtitle', lang, { xp: currentModul.xp_reward || 100 })}</p>
                 </div>
                 ${quizSubmitted ? `
-                  <div class="px-3 py-1.5 rounded-md text-xs font-bold font-mono ${
-                    quizScore >= 75 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
-                  }">
-                    ${t('materi.quizScoreSummary', lang, { score: quizScore, correct: correctCount, total: quizzes.length })}
+                  <div class="flex flex-wrap items-center gap-2">
+                    <div class="px-3 py-1.5 rounded-md text-xs font-bold font-mono ${
+                      quizScore >= 75 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
+                    }">
+                      ${t('materi.quizScoreSummary', lang, { score: quizScore, correct: correctCount, total: quizzes.length })}
+                    </div>
+                    ${quizScore > 0 ? `
+                      <div class="px-2.5 py-1.5 rounded-md text-xs font-bold font-mono bg-amber-400/15 text-amber-300 border border-amber-400/40 flex items-center gap-1 shadow-sm">
+                        <span class="text-amber-400">⚡</span>
+                        <span>+${quizScore} XP</span>
+                      </div>
+                    ` : ''}
                   </div>
                 ` : ''}
               </div>
@@ -645,7 +653,7 @@ export function renderMateriViewer(
                   </button>
                   <span class="text-xs text-slate-400">${isAuthenticated ? t('materi.answerAllNotice', lang) : t('materi.guestQuizLockDesc', lang)}</span>
                 ` : `
-                  <div class="flex items-center gap-3">
+                  <div class="flex flex-wrap items-center gap-3">
                     <button
                       id="btn-retry-quiz"
                       class="rounded-lg px-4 py-2 bg-white/[0.08] hover:bg-white/[0.14] text-white text-xs font-medium transition-colors cursor-pointer"
@@ -657,6 +665,12 @@ export function renderMateriViewer(
                     ` : `
                       <span class="text-xs text-amber-400 font-medium">${t('materi.quizFailedNotice', lang)}</span>
                     `}
+                    ${quizScore > 0 ? `
+                      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-400/10 border border-amber-400/30 text-amber-300 font-mono font-bold text-xs">
+                        <span class="text-amber-400">⚡</span>
+                        <span>${t('materi.quizEarnedXpNotice', lang, { xp: quizScore })}</span>
+                      </span>
+                    ` : ''}
                   </div>
                 `}
               </div>

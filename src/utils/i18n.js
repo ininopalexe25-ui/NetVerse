@@ -137,11 +137,12 @@ export const translations = {
       checkpointTitle: 'Refleksi Sokratik',
       askAiButton: 'Diskusikan pertanyaan ini dengan Tutor AI',
       quizHeader: 'Kuis Evaluasi Diagnostik',
-      quizSubtitle: 'Jawab semua soal untuk menguji pemahamanmu dan mendapat XP.',
+      quizSubtitle: 'Jawab semua soal untuk menguji pemahamanmu dan mendapat XP sesuai nilai yang didapat.',
       quizScore: 'Nilai {score}% · {correct} dari {total} benar',
       submitQuiz: 'Periksa Jawaban',
       retryQuiz: 'Ulangi Kuis',
       quizCompletedNotice: 'Kuis berhasil diselesaikan!',
+      quizEarnedXpNotice: '+{xp} XP didapat sesuai nilai!',
       guestQuizLockTitle: 'Kuis Evaluasi Diagnostik Terkunci',
       guestQuizLockDesc: 'Anda bebas membaca materi teori dan menonton video praktik. Masuk dengan akun NetVerse untuk mengerjakan kuis diagnostik, menguji pemahaman konsep, dan mengumpulkan XP.',
       guestQuizLockBtn: 'Masuk untuk Mengerjakan Kuis',
@@ -263,7 +264,8 @@ export const translations = {
       latestActivity: 'Aktivitas lab terbaru',
       live: 'Langsung',
       close: 'Tutup Notifikasi',
-      completedFormat: '{name} baru saja menyelesaikan praktik {standard} dengan ketepatan {accuracy}% dalam {time} detik.'
+      completedFormat: '{name} baru saja menyelesaikan praktik {standard} dengan ketepatan {accuracy}% dalam {time} detik.',
+      quizCompletedXp: '🎉 Hebat! Kamu mendapatkan +{xp} XP dari Kuis {modul} (Nilai: {score}%)'
     },
     footer: {
       desc: 'Laboratorium jaringan 3D dengan tutor AI',
@@ -386,11 +388,12 @@ export const translations = {
       checkpointTitle: 'Socratic Reflection',
       askAiButton: 'Discuss this question with AI Tutor',
       quizHeader: 'Diagnostic Evaluation Quiz',
-      quizSubtitle: 'Answer all questions to test your conceptual knowledge and earn XP.',
+      quizSubtitle: 'Answer all questions to test your conceptual knowledge and earn XP according to your score.',
       quizScore: 'Score {score}% · {correct} of {total} correct',
       submitQuiz: 'Submit Answers',
       retryQuiz: 'Retry Quiz',
       quizCompletedNotice: 'Quiz completed successfully!',
+      quizEarnedXpNotice: '+{xp} XP earned based on your score!',
       guestQuizLockTitle: 'Diagnostic Evaluation Quiz Locked',
       guestQuizLockDesc: 'You can freely read the theory materials and watch practical videos. Log in with a NetVerse account to take the diagnostic quiz, test your concepts, and earn XP.',
       guestQuizLockBtn: 'Log In to Take Quiz',
@@ -512,7 +515,8 @@ export const translations = {
       latestActivity: 'Live Lab Activity',
       live: 'Live',
       close: 'Close notification',
-      completedFormat: '{name} just completed {standard} cable crimping with {accuracy}% accuracy in {time}s.'
+      completedFormat: '{name} just completed {standard} cable crimping with {accuracy}% accuracy in {time}s.',
+      quizCompletedXp: '🎉 Great job! You earned +{xp} XP from Quiz {modul} (Score: {score}%)'
     },
     footer: {
       desc: '3D Computer Network Laboratory with AI Tutor',
@@ -635,11 +639,12 @@ export const translations = {
       checkpointTitle: 'ソクラテス的探究',
       askAiButton: 'この問いをAIチューターと議論する',
       quizHeader: '診断評価クイズ',
-      quizSubtitle: 'すべての問題に回答して理解度を測定し、XPを獲得しましょう。',
+      quizSubtitle: 'すべての問題に回答して理解度を測定し、得点に応じたXPを獲得しましょう。',
       quizScore: '得点 {score}% · 正解 {correct}/{total}',
       submitQuiz: '回答を送信して採点',
       retryQuiz: '再挑戦',
       quizCompletedNotice: 'テスト完了！理解度が記録されました。',
+      quizEarnedXpNotice: '+{xp} XP 獲得（テスト得点）!',
       guestQuizLockTitle: '診断評価クイズ ロック中',
       guestQuizLockDesc: '講義テキストの閲覧や実践動画の視聴は自由に可能です。理解度テストへの解答やXPの獲得にはNetVerseアカウントへのログインが必要です。',
       guestQuizLockBtn: 'ログインしてクイズに挑戦',
@@ -761,7 +766,8 @@ export const translations = {
       latestActivity: '最新のラボアクティビティ',
       live: 'ライブ',
       close: '通知を閉じる',
-      completedFormat: '{name} さんが {standard} ケーブルの圧着を完了しました（正確度: {accuracy}%、タイム: {time}秒）。'
+      completedFormat: '{name} さんが {standard} ケーブルの圧着を完了しました（正確度: {accuracy}%、タイム: {time}秒）。',
+      quizCompletedXp: '🎉 お見事！クイズ「{modul}」で +{xp} XP を獲得しました（得点: {score}%）'
     },
     footer: {
       desc: 'AIチューター搭載 3Dコンピュータネットワーク学習プラットフォーム',
@@ -884,11 +890,12 @@ export const translations = {
       checkpointTitle: '苏格拉底式反思',
       askAiButton: '与 AI 助教深入探讨此问题',
       quizHeader: '阶段诊断测评',
-      quizSubtitle: '回答全部题目以检验理论掌握程度并获取经验值奖励。',
+      quizSubtitle: '回答全部题目以检验理论掌握程度，并根据测试得分获得对应XP奖励。',
       quizScore: '得分 {score}% · 正确 {correct}/{total}',
       submitQuiz: '提交批改',
       retryQuiz: '重新测试',
       quizCompletedNotice: '测评已完成！成绩已成功同步至云端。',
+      quizEarnedXpNotice: '+{xp} XP 已根据测验得分发放！',
       guestQuizLockTitle: '诊断评估测试已锁定',
       guestQuizLockDesc: '您可以自由浏览理论教材与观看实践视频。登录 NetVerse 账号后即可参与诊断测评、检验知识掌握度并获取课程经验值 (XP)。',
       guestQuizLockBtn: '立即登录参与测评',
@@ -1010,7 +1017,8 @@ export const translations = {
       latestActivity: '最新实验动态',
       live: '实时',
       close: '关闭通知',
-      completedFormat: '{name} 刚刚完成了 {standard} 网线制作，准确率 {accuracy}%，耗时 {time}秒。'
+      completedFormat: '{name} 刚刚完成了 {standard} 网线制作，准确率 {accuracy}%，耗时 {time}秒。',
+      quizCompletedXp: '🎉 太棒了！你在测验「{modul}」中获得了 +{xp} XP（得分：{score}%）'
     },
     footer: {
       desc: '搭载苏格拉底式 AI 助教的 3D 计算机网络技术虚拟实验室',

@@ -84,6 +84,8 @@ CREATE TABLE IF NOT EXISTS public.progres_belajar (
   user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   modul_id uuid NOT NULL REFERENCES public.modul(id) ON DELETE CASCADE,
   status text NOT NULL DEFAULT 'belum_mulai' CHECK (status IN ('belum_mulai', 'sedang_belajar', 'selesai')),
+  skor_quiz integer NOT NULL DEFAULT 0 CHECK (skor_quiz >= 0 AND skor_quiz <= 100),
+  xp_didapat integer NOT NULL DEFAULT 0 CHECK (xp_didapat >= 0),
   terakhir_dibaca timestamptz NOT NULL DEFAULT now(),
   CONSTRAINT uq_user_modul UNIQUE (user_id, modul_id)
 );
@@ -139,8 +141,8 @@ CREATE POLICY "Pengguna mengelola riwayat chat AI" ON public.ai_tutor_logs FOR A
 INSERT INTO public.modul (slug, judul, deskripsi, estimasi_menit, xp_reward, urutan)
 VALUES
   ('jaringan-dasar-topologi', 'Dasar jaringan dan topologi', 'Pelajari peran host dan bentuk topologi star, bus, serta mesh.', 10, 100, 1),
-  ('media-transmisi-utp', 'Kabel UTP dan urutan warnanya', 'Kenali susunan kawat dalam kabel UTP dan urutan warna T568A serta T568B.', 15, 150, 2),
-  ('perangkat-keras-jaringan', 'Mengenal router dan switch', 'Pelajari perbedaan fungsi switch Layer 2 dan router Layer 3.', 15, 150, 3)
+  ('media-transmisi-utp', 'Kabel UTP dan urutan warnanya', 'Kenali susunan kawat dalam kabel UTP dan urutan warna T568A serta T568B.', 15, 100, 2),
+  ('perangkat-keras-jaringan', 'Mengenal router dan switch', 'Pelajari perbedaan fungsi switch Layer 2 dan router Layer 3.', 15, 100, 3)
 ON CONFLICT (slug) DO UPDATE SET
   judul = EXCLUDED.judul,
   deskripsi = EXCLUDED.deskripsi;
