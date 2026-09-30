@@ -1,11 +1,68 @@
 /**
  * NetVerse - Video Learning Materials Registry
  * YouTube Practical Guides:
- * 1. Tutorial Crimping Kabel UTP LAN RJ45 (mr gion channel) - https://youtu.be/TrqZDU7Ywf4
- * 2. Cara Mudah Setting MikroTik dari Awal Sampai Bisa Online (GAPTEK AMATIR) - https://youtu.be/WKrRWSCXo38
+ * 1. Setting Dasar Jaringan & Router MikroTik untuk Distribusi WiFi (NanangMrk) - https://youtu.be/VW28Uqml3nE
+ * 2. Tutorial Crimping Kabel UTP LAN RJ45 (mr gion channel) - https://youtu.be/TrqZDU7Ywf4
+ * 3. Cara Mudah Setting MikroTik dari Awal Sampai Bisa Online (GAPTEK AMATIR) - https://youtu.be/WKrRWSCXo38
  */
 
 export const VIDEO_MATERIALS = [
+  {
+    id: 'video-dasar-topologi',
+    youtubeId: 'VW28Uqml3nE',
+    url: 'https://youtu.be/VW28Uqml3nE?si=U-SUjDe0yEaOSbvx',
+    title: {
+      id: 'Setting Dasar Jaringan & Router MikroTik untuk Distribusi Internet WiFi',
+      en: 'Basic Network & MikroTik Router Setup for WiFi Distribution',
+      jp: 'ネットワーク基礎・MikroTikルーターとWiFi配信の基本設定',
+      cn: '网络基础与MikroTik路由器WiFi分发实用配置教学'
+    },
+    channel: 'NanangMrk',
+    channelUrl: 'https://www.youtube.com/@NanangMrk',
+    modulSlug: 'jaringan-dasar-topologi',
+    modulIndex: 0, // 0-indexed: module 1
+    category: {
+      id: 'Dasar Jaringan & Topologi Distribusi',
+      en: 'Network Fundamentals & Distribution Topology',
+      jp: 'ネットワーク基礎と配信トポロジー',
+      cn: '网络基础与分发拓扑'
+    },
+    duration: {
+      id: '± 54 Menit',
+      en: '± 54 Mins',
+      jp: '約 54 分',
+      cn: '约 54 分钟'
+    },
+    summary: {
+      id: 'Panduan komprehensif implementasi topologi jaringan dan konfigurasi dasar router MikroTik untuk mendistribusikan koneksi internet ke access point dan klien rumah tangga/voucher, mencakup topologi star fisik, pembagian interface, alokasi IP gateway, dan routing dasar.',
+      en: 'Comprehensive guide implementing network topology and basic MikroTik router configuration to distribute internet access to APs and client devices, covering physical star topology, interface allocation, gateway IP, and basic routing.',
+      jp: '実用的なネットワークトポロジーの構築とMikroTikルーターの基本設定を解説。物理スター型トポロジー、インターフェース設計、デフォルトゲートウェイ、ルーティング基礎からアクセスポイントへのWiFi配信までを実践的に学習します。',
+      cn: '全面讲解真实网络拓扑架构与MikroTik路由器基础配置，涵盖物理星型拓扑搭建、接口规划、默认网关与基础路由，为无线AP与终端客户端实现稳定网络分发。'
+    },
+    keyTakeaways: [
+      {
+        title: { id: 'Topologi Fisik & Alur Distribusi', en: 'Physical Topology & Flow', jp: '物理トポロジーと配信フロー', cn: '物理拓扑与分发流向' },
+        desc: { id: 'Menyusun alur dari modem ISP masuk ke port WAN router, lalu didistribusikan ke access point dan switch menggunakan topologi star.', en: 'Structure network flow from ISP modem into WAN port, distributing to APs and switches via star topology.', jp: 'ISPモデムからルーターのWANポートへ接続し、スター型トポロジーでアクセスポイントやスイッチへ配信します。', cn: '梳理从ISP光猫接入路由器WAN口，再通过星型拓扑分发至无线AP与交换机的网络流向。' }
+      },
+      {
+        title: { id: 'Alokasi Port & IP Gateway', en: 'Port Allocation & Gateway IP', jp: 'ポート割り当てとゲートウェイIP', cn: '接口分配与网关IP规划' },
+        desc: { id: 'Menentukan subnet IP lokal terpisah untuk jaringan manajemen, komputer klien kabel, dan hotspot nirkabel.', en: 'Define dedicated subnets for network management, wired client devices, and wireless hotspot networks.', jp: '管理用ネットワーク、有線クライアント、無線ホットスポットごとに独立したIPサブネットを設計します。', cn: '为管理网段、有线客户端与无线热点规划划分独立的局域网IP子网。' }
+      },
+      {
+        title: { id: 'Konfigurasi Akses Internet', en: 'Internet Access Configuration', jp: 'インターネット接続の基本設定', cn: '互联网连接接入配置' },
+        desc: { id: 'Menyiapkan DNS resolver, default gateway (IP route), serta masquerade firewall agar setiap host dapat bertukar data ke internet.', en: 'Configure DNS resolver, default gateway route, and firewall NAT masquerade so all local hosts can reach external networks.', jp: 'DNSリゾルバ、デフォルトルート、ファイアウォールNATマスカレードを設定し、各ホストの外部通信を有効化します。', cn: '配置DNS解析、默认路由网关以及NAT伪装规则，确保局域网所有主机具备互联网通信能力。' }
+      },
+      {
+        title: { id: 'Manajemen Jaringan & Klien', en: 'Network & Client Management', jp: '帯域制御とクライアント管理', cn: '带宽控制与客户端管理' },
+        desc: { id: 'Membagi alokasi bandwidth secara proporsional dan mengisolasi lalu lintas klien agar performa jaringan tetap stabil.', en: 'Allocate bandwidth fairly across endpoints and isolate client traffic to keep network latency low and stable.', jp: '端末間の公平な帯域配分と通信の分離を行い、ネットワークの混雑と遅延を防止します。', cn: '按需分配合理带宽并做好客户端隔离，保障整体网络运行稳定流畅。' }
+      }
+    ],
+    actionLink: {
+      type: 'workbench',
+      deviceCode: 'router-mikrotik',
+      label: { id: 'Pelajari Komponen Router di Lab 3D', en: 'Explore Router in 3D Lab', jp: '3Dラボでルーターの構造を学ぶ', cn: '在3D实验台探究路由器' }
+    }
+  },
   {
     id: 'video-crimping-utp',
     youtubeId: 'TrqZDU7Ywf4',

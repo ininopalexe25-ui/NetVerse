@@ -457,6 +457,18 @@ async function runAudit() {
         recordCheck('YouTube Video Player switched to MikroTik Tutorial (WKrRWSCXo38)', updatedIframeSrc.includes('WKrRWSCXo38'), `src: ${updatedIframeSrc}`);
       }
 
+      // Verify Video 1 for Module 1 (Dasar Jaringan & Topologi - VW28Uqml3nE)
+      const selectVideo1Btn = await page.$('button[data-select-video="VW28Uqml3nE"]');
+      recordCheck('Video 1 (Dasar Jaringan & Topologi - VW28Uqml3nE) option rendered in selector', !!selectVideo1Btn);
+
+      if (selectVideo1Btn) {
+        await selectVideo1Btn.click();
+        await page.waitForTimeout(500);
+
+        const updatedIframeSrc1 = await page.$eval('#youtube-player-frame', el => el.getAttribute('src'));
+        recordCheck('YouTube Video Player switched to Dasar Jaringan Tutorial (VW28Uqml3nE)', updatedIframeSrc1.includes('VW28Uqml3nE'), `src: ${updatedIframeSrc1}`);
+      }
+
       const shot4b = path.join(AUDIT_DIR, '04b_youtube_video_materi.png');
       await page.screenshot({ path: shot4b });
       auditLog.screenshots.push('04b_youtube_video_materi.png');

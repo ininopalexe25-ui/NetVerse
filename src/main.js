@@ -70,7 +70,7 @@ const state = {
   theme: localStorage.getItem('netverse-theme') || 'dark',
   lang: initialLang,
   materiFormat: 'teori', // 'teori' | 'video'
-  activeVideoId: 'TrqZDU7Ywf4'
+  activeVideoId: 'VW28Uqml3nE'
 };
 
 // Returns user's dynamic display name if logged in, or 'User' if guest
@@ -1880,7 +1880,9 @@ function attachEvents() {
       const idx = parseInt(e.currentTarget.getAttribute('data-select-modul'), 10);
       state.selectedModulIndex = idx;
       state.quizMode = false;
-      if (idx === 1) {
+      if (idx === 0) {
+        state.activeVideoId = 'VW28Uqml3nE';
+      } else if (idx === 1) {
         state.activeVideoId = 'TrqZDU7Ywf4';
       } else if (idx === 2) {
         state.activeVideoId = 'WKrRWSCXo38';
@@ -1913,7 +1915,9 @@ function attachEvents() {
       state.materiFormat = 'video';
       state.activeTab = 'materi';
       state.quizMode = false;
-      if (videoId === 'TrqZDU7Ywf4') {
+      if (videoId === 'VW28Uqml3nE') {
+        state.selectedModulIndex = 0;
+      } else if (videoId === 'TrqZDU7Ywf4') {
         state.selectedModulIndex = 1;
       } else if (videoId === 'WKrRWSCXo38') {
         state.selectedModulIndex = 2;

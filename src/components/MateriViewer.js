@@ -143,7 +143,7 @@ export function renderMateriViewer(
                   <span class="text-red-500 text-xs">▶</span>
                   <h4 class="text-xs font-bold text-white uppercase tracking-wider">${t('materi.videoSidebarTitle', lang)}</h4>
                 </div>
-                <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-red-500/20 text-red-400 border border-red-500/30">2 Videos</span>
+                <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-red-500/20 text-red-400 border border-red-500/30">${VIDEO_MATERIALS.length} Videos</span>
               </div>
               <p class="text-[11px] text-slate-400 leading-relaxed">
                 ${t('materi.videoSidebarDesc', lang)}
