@@ -140,6 +140,28 @@ CREATE POLICY "Pengguna dapat menghapus skor sendiri" ON public.skor_minigame FO
 -- Pembersihan data legacy: Hanya pengguna terotentikasi yang disimpan di skor_minigame
 -- DELETE FROM public.skor_minigame WHERE player_name ILIKE 'user' OR (user_id IS NULL AND player_name = 'User');
 
+-- Sinkronisasi nama player jika profil diubah
+-- UPDATE public.skor_minigame SET player_name = 'Shiina' WHERE user_id = '9e3d7ba1-0bff-476d-b9e2-d1e153d77648';
+
+-- Otomasi sinkronisasi nama ke tabel skor_minigame saat profiles.nama_lengkap diupdate
+CREATE OR REPLACE FUNCTION public.sync_profile_name_to_scores()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.nama_lengkap IS DISTINCT FROM OLD.nama_lengkap THEN
+    UPDATE public.skor_minigame
+    SET player_name = NEW.nama_lengkap
+    WHERE user_id = NEW.id;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS trigger_sync_profile_name ON public.profiles;
+CREATE TRIGGER trigger_sync_profile_name
+AFTER UPDATE OF nama_lengkap ON public.profiles
+FOR EACH ROW
+EXECUTE FUNCTION public.sync_profile_name_to_scores();
+
 DROP POLICY IF EXISTS "Pengguna mengelola progres belajarnya" ON public.progres_belajar;
 CREATE POLICY "Pengguna mengelola progres belajarnya" ON public.progres_belajar FOR ALL USING (auth.uid() = user_id);
 

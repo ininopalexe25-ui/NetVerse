@@ -20,6 +20,9 @@ export function renderLeaderboard(scores = [], currentUser = {}, activeFilter = 
   // 2. Deduplicate by user: keep only each user's best score in the filtered category
   const bestScoreByUser = new Map();
   for (const s of filteredScores) {
+    if (currentUser?.id && s.user_id === currentUser.id && currentUser.nama_lengkap) {
+      s.player_name = currentUser.nama_lengkap;
+    }
     const rawName = (s.player_name || s.name || t('leaderboard.participantDefault', lang)).trim();
     if (rawName.toLowerCase() === 'user') continue;
     // Unique key: prefer user_id, fallback to normalized player name
@@ -90,7 +93,10 @@ export function renderLeaderboard(scores = [], currentUser = {}, activeFilter = 
 
   const displayScores = uniqueScores.length > 0 
     ? uniqueScores.map((s, idx) => {
-        const isCurrent = (s.player_name === currentUser.nama_lengkap) || (currentUser.id && s.user_id === currentUser.id);
+        const isCurrent = (currentUser.id && s.user_id === currentUser.id) || (currentUser.nama_lengkap && (s.player_name || '').trim().toLowerCase() === currentUser.nama_lengkap.trim().toLowerCase());
+        const displayName = (isCurrent && currentUser.nama_lengkap) 
+          ? currentUser.nama_lengkap 
+          : (s.player_name || s.name || t('leaderboard.participantDefault', lang));
         
         // Calculate combined XP from Crimping + Materi
         const crimpingXp = isCurrent
@@ -111,7 +117,7 @@ export function renderLeaderboard(scores = [], currentUser = {}, activeFilter = 
 
         return {
           rank: idx + 1,
-          name: s.player_name || s.name || t('leaderboard.participantDefault', lang),
+          name: displayName,
           level: level,
           standard: s.standar_kabel || s.standard || 'T568B',
           time: s.waktu_detik !== undefined ? `${s.waktu_detik} ${t('leaderboard.secondUnit', lang)}` : (s.time ? s.time.replace(/detik|s|秒/g, t('leaderboard.secondUnit', lang)) : `15 ${t('leaderboard.secondUnit', lang)}`),

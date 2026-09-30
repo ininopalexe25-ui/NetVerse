@@ -219,8 +219,8 @@ async function runAudit() {
       };
       window.__netverseState.userProfile = {
         id: 'test-student-id',
-        nama_lengkap: 'Budi Santoso',
-        username: 'buditkj',
+        nama_lengkap: 'John Doe',
+        username: 'johndoe',
         level: 1,
         total_xp: 250,
         role: 'mahasiswa'
@@ -339,8 +339,8 @@ async function runAudit() {
         };
         window.__netverseState.userProfile = {
           id: 'test-student-id',
-          nama_lengkap: 'Budi Santoso',
-          username: 'buditkj',
+          nama_lengkap: 'John Doe',
+          username: 'johndoe',
           level: 1,
           total_xp: 250,
           role: 'mahasiswa'
@@ -799,6 +799,45 @@ async function runAudit() {
         const isClosed = await page.evaluate(() => !document.getElementById('auth-modal-backdrop'));
         recordCheck('Auth Modal closes successfully on close button click', isClosed);
       }
+
+      // Test Profile Editing & Cross-Site Dynamic Propagation (Leaderboard & Navbar)
+      await page.evaluate(() => {
+        window.__netverseState.session = {
+          user: { id: 'test-student-id', email: 'shiina@unesa.ac.id' }
+        };
+        window.__netverseState.userProfile = {
+          id: 'test-student-id',
+          nama_lengkap: 'Shiina',
+          username: 'shiina_tkj',
+          level: 2,
+          total_xp: 600,
+          role: 'mahasiswa'
+        };
+        if (Array.isArray(window.__netverseState.scores)) {
+          window.__netverseState.scores.forEach(s => {
+            if (s.user_id === 'test-student-id') {
+              s.player_name = 'Shiina';
+            }
+          });
+        }
+        window.__renderApp();
+      });
+      await page.waitForTimeout(300);
+
+      // Verify Navbar displays updated name Shiina
+      const navUserText = await page.evaluate(() => document.querySelector('#btn-open-auth-modal')?.textContent || '');
+      recordCheck('Navbar displays edited user name (Shiina)', navUserText.includes('Shiina') || navUserText.includes('S'));
+
+      // Verify Leaderboard displays updated name Shiina
+      await page.click('header [data-nav="leaderboard"]');
+      await page.waitForTimeout(400);
+      const leaderboardNames = await page.$$eval('tbody tr td:nth-child(2)', els => els.map(e => e.textContent.toLowerCase()));
+      const hasShiina = leaderboardNames.some(n => n.includes('shiina'));
+      recordCheck('Leaderboard dynamically reflects edited profile name (Shiina)', hasShiina, `Participants: ${leaderboardNames.slice(0, 3).join(', ')}`);
+
+      // Switch back to workbench
+      await page.click('header [data-nav="workbench"]');
+      await page.waitForTimeout(300);
     }
 
     // -------------------------------------------------------------

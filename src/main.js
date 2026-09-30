@@ -176,6 +176,13 @@ async function loadUserProfile(userId) {
 
     if (profile) {
       state.userProfile = profile;
+      if (Array.isArray(state.scores)) {
+        state.scores.forEach(s => {
+          if (s.user_id === userId && profile.nama_lengkap) {
+            s.player_name = profile.nama_lengkap;
+          }
+        });
+      }
     } else if (state.session?.user) {
       // Create fresh profile if trigger was delayed
       const fallbackName = state.session.user.user_metadata?.full_name || 
@@ -571,8 +578,12 @@ function enrichScoresWithProfiles(scoresList = [], profilesList = []) {
         totalXp = crimpingXp + materiXp;
       }
 
+      // Dynamic Name Sync: Always use latest profile name if available
+      const effectiveName = (prof && prof.nama_lengkap?.trim()) ? prof.nama_lengkap.trim() : s.player_name;
+
       return {
         ...s,
+        player_name: effectiveName,
         total_xp: totalXp,
         crimpingXp: crimpingXp,
         materiXp: materiXp,
@@ -650,9 +661,31 @@ function handleRealtimeProfileUpdate(updatedProfile) {
   if (!updatedProfile) return;
 
   if (state.session?.user?.id && updatedProfile.id === state.session.user.id) {
-    state.userProfile = updatedProfile;
-    renderApp();
+    state.userProfile = {
+      ...state.userProfile,
+      ...updatedProfile
+    };
+    if (state.aiMessages.length === 1 && state.aiMessages[0].role === 'assistant') {
+      state.aiMessages[0].text = t('ai.greeting', state.lang, { name: updatedProfile.nama_lengkap });
+    }
   }
+
+  // Update in state.scores for any matching user_id so leaderboard reflects new name immediately
+  if (Array.isArray(state.scores)) {
+    state.scores.forEach(s => {
+      if (s.user_id === updatedProfile.id) {
+        s.player_name = updatedProfile.nama_lengkap || s.player_name;
+        if (updatedProfile.total_xp !== undefined) {
+          s.total_xp = Number(updatedProfile.total_xp);
+        }
+        if (updatedProfile.level !== undefined) {
+          s.level = updatedProfile.level;
+        }
+      }
+    });
+  }
+
+  renderApp();
 }
 
 // Fetch Latest Scores Manually & Enrich with Profiles Total XP
@@ -1536,10 +1569,52 @@ function attachEvents() {
           } else {
             state.userProfile.nama_lengkap = namaLengkap;
             state.userProfile.username = username;
+
+            // 1. Update Supabase Auth user metadata
+            try {
+              await supabase.auth.updateUser({
+                data: {
+                  full_name: namaLengkap,
+                  name: namaLengkap,
+                  username: username
+                }
+              });
+              if (state.session?.user?.user_metadata) {
+                state.session.user.user_metadata.full_name = namaLengkap;
+                state.session.user.user_metadata.name = namaLengkap;
+              }
+            } catch (authErr) {
+              console.warn('Auth user metadata update notice:', authErr);
+            }
+
+            // 2. Cascade updated name to all scores in skor_minigame
+            try {
+              await supabase
+                .from('skor_minigame')
+                .update({ player_name: namaLengkap })
+                .eq('user_id', state.session.user.id);
+            } catch (scoreErr) {
+              console.warn('Score player_name update notice:', scoreErr);
+            }
+
+            // 3. Immediately update in memory state.scores
+            if (Array.isArray(state.scores)) {
+              state.scores.forEach(s => {
+                if (s.user_id === state.session.user.id) {
+                  s.player_name = namaLengkap;
+                }
+              });
+            }
+
+            // 4. Update initial AI greeting if active
             if (state.aiMessages.length === 1 && state.aiMessages[0].role === 'assistant') {
               state.aiMessages[0].text = t('ai.greeting', state.lang, { name: namaLengkap });
             }
+
             state.authNotice = { type: 'success', message: t('authModal.profileUpdated', state.lang) };
+
+            // 5. Asynchronously refresh latest scores from database
+            fetchLatestScores();
           }
         }
       } catch (err) {
