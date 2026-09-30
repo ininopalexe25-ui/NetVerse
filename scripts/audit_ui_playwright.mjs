@@ -512,6 +512,13 @@ async function runAudit() {
     const tableRows = await page.$$('tbody tr');
     recordCheck('Leaderboard Rows rendered', tableRows.length > 0, `${tableRows.length} ranked students`);
 
+    // Verify Leaderboard displays combined XP from Crimping + Materi
+    const xpHeader = await page.$eval('thead th:last-child', el => el.textContent.trim());
+    recordCheck('Leaderboard Header indicates Combined XP (Rakit + Materi)', xpHeader.includes('Total XP') || xpHeader.includes('Rakit') || xpHeader.includes('Materi'), `Header: "${xpHeader}"`);
+
+    const breakdownText = await page.$$eval('.text-\\[10px\\].text-slate-400', els => els.length);
+    recordCheck('Leaderboard displays XP breakdown (Crimping + Materi)', breakdownText > 0, `${breakdownText} breakdown rows`);
+
     // Test Realtime Toast Banner
     await page.evaluate(() => {
       if (window.__netverseState) {

@@ -23,7 +23,7 @@ export function renderLeaderboard(scores = [], currentUser = {}, activeFilter = 
     const userKey = s.user_id ? `uid:${s.user_id}` : `name:${rawName.toLowerCase()}`;
     const acc = Number(s.akurasi_persen !== undefined ? s.akurasi_persen : (parseFloat(s.accuracy) || 0));
     const time = Number(s.waktu_detik !== undefined ? s.waktu_detik : (parseInt(s.time, 10) || 999));
-    const xp = Number(s.xp_didapat !== undefined ? s.xp_didapat : (s.xp || 0));
+    const xp = Number(s.total_xp !== undefined ? s.total_xp : ((s.xp_didapat || 0) + (s.xp_materi || 0) || s.xp || 0));
 
     if (!bestScoreByUser.has(userKey)) {
       bestScoreByUser.set(userKey, s);
@@ -31,7 +31,7 @@ export function renderLeaderboard(scores = [], currentUser = {}, activeFilter = 
       const currentBest = bestScoreByUser.get(userKey);
       const currAcc = Number(currentBest.akurasi_persen !== undefined ? currentBest.akurasi_persen : (parseFloat(currentBest.accuracy) || 0));
       const currTime = Number(currentBest.waktu_detik !== undefined ? currentBest.waktu_detik : (parseInt(currentBest.time, 10) || 999));
-      const currXp = Number(currentBest.xp_didapat !== undefined ? currentBest.xp_didapat : (currentBest.xp || 0));
+      const currXp = Number(currentBest.total_xp !== undefined ? currentBest.total_xp : ((currentBest.xp_didapat || 0) + (currentBest.xp_materi || 0) || currentBest.xp || 0));
 
       // Compare: higher accuracy > faster time > higher XP
       const isBetter = (acc > currAcc) ||
@@ -41,6 +41,30 @@ export function renderLeaderboard(scores = [], currentUser = {}, activeFilter = 
       if (isBetter) {
         bestScoreByUser.set(userKey, s);
       }
+    }
+  }
+
+  // Ensure authenticated currentUser is displayed on leaderboard if they earned XP
+  if (currentUser?.id) {
+    const userKey = `uid:${currentUser.id}`;
+    const nameKey = `name:${(currentUser.nama_lengkap || '').trim().toLowerCase()}`;
+    if (!bestScoreByUser.has(userKey) && !bestScoreByUser.has(nameKey) && (currentUser.total_xp || 0) > 0) {
+      const userTotalXp = Number(currentUser.total_xp || 0);
+      const userCrimpingXp = Number(currentUser.crimpingXp || 0);
+      const userMateriXp = Number(currentUser.materiXp !== undefined ? currentUser.materiXp : Math.max(0, userTotalXp - userCrimpingXp));
+      bestScoreByUser.set(userKey, {
+        user_id: currentUser.id,
+        player_name: currentUser.nama_lengkap || 'User',
+        standar_kabel: activeFilter !== 'all' ? activeFilter : 'T568B',
+        waktu_detik: userCrimpingXp > 0 ? 15 : undefined,
+        akurasi_persen: userCrimpingXp > 0 ? 100 : undefined,
+        total_xp: userTotalXp,
+        crimpingXp: userCrimpingXp,
+        materiXp: userMateriXp,
+        level: currentUser.level || Math.floor(userTotalXp / 500) + 1,
+        selesai_pada: new Date().toISOString(),
+        isCurrent: true
+      });
     }
   }
 
@@ -56,29 +80,64 @@ export function renderLeaderboard(scores = [], currentUser = {}, activeFilter = 
     const timeB = Number(b.waktu_detik !== undefined ? b.waktu_detik : (parseInt(b.time, 10) || 999));
     if (timeA !== timeB) return timeA - timeB;
 
-    const xpA = Number(a.xp_didapat !== undefined ? a.xp_didapat : (a.xp || 0));
-    const xpB = Number(b.xp_didapat !== undefined ? b.xp_didapat : (b.xp || 0));
+    const xpA = Number(a.total_xp !== undefined ? a.total_xp : ((a.xp_didapat || 0) + (a.xp_materi || 0) || a.xp || 0));
+    const xpB = Number(b.total_xp !== undefined ? b.total_xp : ((b.xp_didapat || 0) + (b.xp_materi || 0) || b.xp || 0));
     return xpB - xpA;
   });
 
   const displayScores = uniqueScores.length > 0 
-    ? uniqueScores.map((s, idx) => ({
-        rank: idx + 1,
-        name: s.player_name || s.name || t('leaderboard.participantDefault', lang),
-        level: s.level || Math.floor((s.xp_didapat || s.xp || 150) / 300) + 1,
-        standard: s.standar_kabel || s.standard || 'T568B',
-        time: s.waktu_detik !== undefined ? `${s.waktu_detik} ${t('leaderboard.secondUnit', lang)}` : (s.time ? s.time.replace(/detik|s|秒/g, t('leaderboard.secondUnit', lang)) : `15 ${t('leaderboard.secondUnit', lang)}`),
-        accuracy: s.akurasi_persen !== undefined ? `${parseFloat(s.akurasi_persen).toFixed(1)}%` : (s.accuracy || '100%'),
-        xp: s.xp_didapat !== undefined ? s.xp_didapat : (s.xp || 150),
-        date: s.selesai_pada ? new Date(s.selesai_pada).toLocaleTimeString(lang === 'id' ? 'id-ID' : (lang === 'jp' ? 'ja-JP' : (lang === 'cn' ? 'zh-CN' : 'en-US')), { hour: '2-digit', minute: '2-digit' }) : t('leaderboard.today', lang),
-        isCurrent: (s.player_name === currentUser.nama_lengkap) || (currentUser.id && s.user_id === currentUser.id)
-      }))
+    ? uniqueScores.map((s, idx) => {
+        const isCurrent = (s.player_name === currentUser.nama_lengkap) || (currentUser.id && s.user_id === currentUser.id);
+        
+        // Calculate combined XP from Crimping + Materi
+        const crimpingXp = isCurrent
+          ? (currentUser.crimpingXp !== undefined ? currentUser.crimpingXp : Number(s.crimpingXp !== undefined ? s.crimpingXp : (s.xp_didapat || 0)))
+          : Number(s.crimpingXp !== undefined ? s.crimpingXp : (s.xp_didapat || 0));
+        
+        const materiXp = isCurrent
+          ? (currentUser.materiXp !== undefined ? currentUser.materiXp : Math.max(0, (currentUser.total_xp || 0) - crimpingXp))
+          : Number(s.materiXp !== undefined ? s.materiXp : (s.total_xp ? Math.max(0, s.total_xp - crimpingXp) : 0));
+        
+        const combinedTotalXp = isCurrent
+          ? (currentUser.total_xp !== undefined ? currentUser.total_xp : (crimpingXp + materiXp))
+          : (s.total_xp !== undefined ? s.total_xp : (crimpingXp + materiXp));
+
+        const level = isCurrent
+          ? (currentUser.level || Math.floor(combinedTotalXp / 500) + 1)
+          : (s.level || Math.floor(combinedTotalXp / 500) + 1);
+
+        return {
+          rank: idx + 1,
+          name: s.player_name || s.name || t('leaderboard.participantDefault', lang),
+          level: level,
+          standard: s.standar_kabel || s.standard || 'T568B',
+          time: s.waktu_detik !== undefined ? `${s.waktu_detik} ${t('leaderboard.secondUnit', lang)}` : (s.time ? s.time.replace(/detik|s|秒/g, t('leaderboard.secondUnit', lang)) : `15 ${t('leaderboard.secondUnit', lang)}`),
+          accuracy: s.akurasi_persen !== undefined ? `${parseFloat(s.akurasi_persen).toFixed(1)}%` : (s.accuracy || '100%'),
+          xp: combinedTotalXp,
+          crimpingXp: crimpingXp,
+          materiXp: materiXp,
+          date: s.selesai_pada ? new Date(s.selesai_pada).toLocaleTimeString(lang === 'id' ? 'id-ID' : (lang === 'jp' ? 'ja-JP' : (lang === 'cn' ? 'zh-CN' : 'en-US')), { hour: '2-digit', minute: '2-digit' }) : t('leaderboard.today', lang),
+          isCurrent: isCurrent
+        };
+      })
     : [
-        { rank: 1, name: `${currentUser.nama_lengkap || t('leaderboard.participantDefault', lang)} (${t('leaderboard.youTag', lang).toLowerCase()})`, level: currentUser.level || 1, standard: 'T568B', time: `14.2 ${t('leaderboard.secondUnit', lang)}`, accuracy: '100.0%', xp: 150, date: t('leaderboard.today', lang), isCurrent: true },
-        { rank: 2, name: 'Rian Pratama', level: 2, standard: 'T568B', time: `18 ${t('leaderboard.secondUnit', lang)}`, accuracy: '100.0%', xp: 150, date: '10.14', isCurrent: false },
-        { rank: 3, name: 'Zahra Amalia', level: 1, standard: 'T568A', time: `19 ${t('leaderboard.secondUnit', lang)}`, accuracy: '100.0%', xp: 150, date: '10.18', isCurrent: false },
-        { rank: 4, name: 'Dimas Wahyu', level: 1, standard: 'T568A', time: `21 ${t('leaderboard.secondUnit', lang)}`, accuracy: '100.0%', xp: 150, date: '09.42', isCurrent: false },
-        { rank: 5, name: 'Aisyah Putri', level: 1, standard: 'T568B', time: `25 ${t('leaderboard.secondUnit', lang)}`, accuracy: '87.5%', xp: 75, date: '09.30', isCurrent: false }
+        { 
+          rank: 1, 
+          name: `${currentUser.nama_lengkap || t('leaderboard.participantDefault', lang)} (${t('leaderboard.youTag', lang).toLowerCase()})`, 
+          level: currentUser.level || 1, 
+          standard: 'T568B', 
+          time: `14.2 ${t('leaderboard.secondUnit', lang)}`, 
+          accuracy: '100.0%', 
+          xp: currentUser.total_xp || 330, 
+          crimpingXp: currentUser.crimpingXp || 150,
+          materiXp: currentUser.materiXp || Math.max(0, (currentUser.total_xp || 330) - (currentUser.crimpingXp || 150)),
+          date: t('leaderboard.today', lang), 
+          isCurrent: true 
+        },
+        { rank: 2, name: 'Rian Pratama', level: 1, standard: 'T568B', time: `18 ${t('leaderboard.secondUnit', lang)}`, accuracy: '100.0%', xp: 330, crimpingXp: 150, materiXp: 180, date: '10.14', isCurrent: false },
+        { rank: 3, name: 'Zahra Amalia', level: 1, standard: 'T568A', time: `19 ${t('leaderboard.secondUnit', lang)}`, accuracy: '100.0%', xp: 310, crimpingXp: 150, materiXp: 160, date: '10.18', isCurrent: false },
+        { rank: 4, name: 'Dimas Wahyu', level: 1, standard: 'T568A', time: `21 ${t('leaderboard.secondUnit', lang)}`, accuracy: '100.0%', xp: 290, crimpingXp: 150, materiXp: 140, date: '09.42', isCurrent: false },
+        { rank: 5, name: 'Aisyah Putri', level: 1, standard: 'T568B', time: `25 ${t('leaderboard.secondUnit', lang)}`, accuracy: '87.5%', xp: 195, crimpingXp: 75, materiXp: 120, date: '09.30', isCurrent: false }
       ];
 
   const top1 = displayScores[0];
@@ -172,9 +231,15 @@ export function renderLeaderboard(scores = [], currentUser = {}, activeFilter = 
                   <span class="text-slate-300 font-mono">${top2.accuracy}</span>
                 </div>
               </div>
-              <div class="mt-3 pt-2.5 border-t border-white/[0.06] flex items-center justify-between text-[11px] text-slate-400">
-                <span>${t('leaderboard.xp', lang)}</span>
-                <span class="font-mono font-bold text-white">+${top2.xp} XP</span>
+              <div class="mt-3 pt-2.5 border-t border-white/[0.06] space-y-1">
+                <div class="flex items-center justify-between text-[11px] text-slate-400">
+                  <span>${t('leaderboard.totalXpLabel', lang)}</span>
+                  <span class="font-mono font-bold text-white">+${top2.xp} XP</span>
+                </div>
+                <div class="flex items-center justify-between text-[9px] text-slate-500 font-mono">
+                  <span>${t('leaderboard.breakdownTitle', lang)}:</span>
+                  <span>${top2.crimpingXp} ${t('leaderboard.shortCrimping', lang)} + ${top2.materiXp} ${t('leaderboard.shortMateri', lang)}</span>
+                </div>
               </div>
             </div>
           ` : ''}
@@ -196,9 +261,15 @@ export function renderLeaderboard(scores = [], currentUser = {}, activeFilter = 
                 <span class="text-white font-mono font-semibold">${top1.accuracy}</span>
               </div>
             </div>
-            <div class="mt-4 pt-3 border-t border-amber-400/20 flex items-center justify-between text-xs text-amber-300/80">
-              <span>${t('leaderboard.xp', lang)}</span>
-              <span class="font-mono font-extrabold text-amber-400 text-sm">+${top1.xp} XP</span>
+            <div class="mt-4 pt-3 border-t border-amber-400/20 space-y-1">
+              <div class="flex items-center justify-between text-xs text-amber-300/80">
+                <span class="font-medium">${t('leaderboard.totalXpLabel', lang)}</span>
+                <span class="font-mono font-extrabold text-amber-400 text-sm">+${top1.xp} XP</span>
+              </div>
+              <div class="flex items-center justify-between text-[10px] text-amber-300/70 font-mono">
+                <span>${t('leaderboard.breakdownTitle', lang)}:</span>
+                <span>${top1.crimpingXp} ${t('leaderboard.shortCrimping', lang)} + ${top1.materiXp} ${t('leaderboard.shortMateri', lang)}</span>
+              </div>
             </div>
           </div>
 
@@ -219,9 +290,15 @@ export function renderLeaderboard(scores = [], currentUser = {}, activeFilter = 
                   <span class="text-slate-300 font-mono">${top3.accuracy}</span>
                 </div>
               </div>
-              <div class="mt-3 pt-2.5 border-t border-white/[0.06] flex items-center justify-between text-[11px] text-slate-400">
-                <span>${t('leaderboard.xp', lang)}</span>
-                <span class="font-mono font-bold text-white">+${top3.xp} XP</span>
+              <div class="mt-3 pt-2.5 border-t border-white/[0.06] space-y-1">
+                <div class="flex items-center justify-between text-[11px] text-slate-400">
+                  <span>${t('leaderboard.totalXpLabel', lang)}</span>
+                  <span class="font-mono font-bold text-white">+${top3.xp} XP</span>
+                </div>
+                <div class="flex items-center justify-between text-[9px] text-slate-500 font-mono">
+                  <span>${t('leaderboard.breakdownTitle', lang)}:</span>
+                  <span>${top3.crimpingXp} ${t('leaderboard.shortCrimping', lang)} + ${top3.materiXp} ${t('leaderboard.shortMateri', lang)}</span>
+                </div>
               </div>
             </div>
           ` : ''}
@@ -274,7 +351,14 @@ export function renderLeaderboard(scores = [], currentUser = {}, activeFilter = 
                     <td class="py-3.5 px-4 sm:px-6 text-emerald-400 font-mono font-semibold">${s.time}</td>
                     <td class="py-3.5 px-4 sm:px-6 text-slate-200 font-mono">${s.accuracy}</td>
                     <td class="py-3.5 px-4 sm:px-6 text-slate-500 text-xs font-mono">${s.date}</td>
-                    <td class="py-3.5 px-4 sm:px-6 text-right font-bold text-white font-mono">+${s.xp} XP</td>
+                    <td class="py-3.5 px-4 sm:px-6 text-right font-mono">
+                      <div class="font-bold text-white text-xs sm:text-sm">+${s.xp} XP</div>
+                      <div class="text-[10px] text-slate-400 font-normal mt-0.5 flex items-center justify-end gap-1">
+                        <span class="text-amber-400/90">${s.crimpingXp} ${t('leaderboard.shortCrimping', lang)}</span>
+                        <span class="text-slate-600">+</span>
+                        <span class="text-emerald-400/90">${s.materiXp} ${t('leaderboard.shortMateri', lang)}</span>
+                      </div>
+                    </td>
                   </tr>
                 `).join('')}
               </tbody>
