@@ -137,8 +137,14 @@ async function runAudit() {
     await page.screenshot({ path: shot1, fullPage: false });
     auditLog.screenshots.push('01_workbench_desktop.png');
 
+    // Verify Homepage Enhancements (Revisi 1)
+    const bentoCards = await page.$$('[class*="md:col-span-"]');
+    recordCheck('Homepage Bento Grid cards rendered', bentoCards.length >= 4, `${bentoCards.length} bento cards`);
+    const curriculumJourney = await page.$('text=Kurikulum Kejuruan TKJ') || await page.$('text=Alur Pembelajaran');
+    recordCheck('Curriculum Journey Roadmap rendered on Beranda', !!curriculumJourney);
+
     // -------------------------------------------------------------
-    // PHASE 2: 3D Hardware Selector Switch
+    // PHASE 2: 3D Hardware Selector Switch & Deep Specs (Revisi 4)
     // -------------------------------------------------------------
     console.log('\n2. Auditing 3D Hardware Selector & Native Model Switch...');
     const deviceOptions = await page.$$('#device-selector option');
@@ -160,12 +166,18 @@ async function runAudit() {
       await page.waitForTimeout(800);
     }
 
-      const deviceTitle = await page.$eval('.bezel-core h2', el => el.textContent.trim());
-      recordCheck('Switched to Tang Crimping Model', deviceTitle.includes('Tang Crimping') || deviceTitle.includes('Crimping'), deviceTitle);
+    const deviceTitle = await page.$eval('.bezel-core h2', el => el.textContent.trim());
+    recordCheck('Switched to Tang Crimping Model', deviceTitle.includes('Tang Crimping') || deviceTitle.includes('Crimping'), deviceTitle);
 
-      const shot2 = path.join(AUDIT_DIR, '02_device_tang_crimping.png');
-      await page.screenshot({ path: shot2 });
-      auditLog.screenshots.push('02_device_tang_crimping.png');
+    // Check Deep Technical Specs & SOP Guide (Revisi 4)
+    const specsTable = await page.$('text=Spesifikasi Teknis Mendalam') || await page.$('text=Parameter Rekayasa');
+    recordCheck('Deep Engineering Hardware Specs rendered', !!specsTable);
+    const sopGuide = await page.$('text=Prosedur Operasional Standar') || await page.$('text=SOP Lab');
+    recordCheck('Hardware SOP Practical Guide rendered', !!sopGuide);
+
+    const shot2 = path.join(AUDIT_DIR, '02_device_tang_crimping.png');
+    await page.screenshot({ path: shot2 });
+    auditLog.screenshots.push('02_device_tang_crimping.png');
 
     // -------------------------------------------------------------
     // PHASE 3: Crimping Master Minigame Simulation
@@ -261,6 +273,29 @@ async function runAudit() {
 
       const perfectMsg = await page.$('text=SESUAI') || await page.$('text=SEMPURNA');
       recordCheck('100% Accuracy Perfect Match validated', !!perfectMsg);
+
+      // Test intentional incorrect crimping sequence to audit the Wire Correction Guide (Revisi 5)
+      await page.evaluate(() => {
+        window.__netverseState.crimpingSlots = ['w-orange-stripe', 'w-orange-stripe', 'w-green-stripe', 'w-blue-stripe', 'w-blue-stripe', 'w-green', 'w-brown-stripe', 'w-brown'];
+        window.__renderApp();
+      });
+      await page.waitForTimeout(300);
+      await page.click('#btn-verify-crimping');
+      await page.waitForTimeout(600);
+
+      const correctionGuide = await page.$('text=Evaluasi Pin') || await page.$('text=Panduan Pembenaran Urutan Kawat') || await page.$('#btn-apply-correct-crimping');
+      recordCheck('Crimping Wire Correction Guide rendered on error', !!correctionGuide);
+
+      const applyCorrectBtn = await page.$('#btn-apply-correct-crimping');
+      recordCheck('Apply Correct Sequence button present', !!applyCorrectBtn);
+
+      if (applyCorrectBtn) {
+        await page.click('#btn-apply-correct-crimping');
+        await page.waitForTimeout(300);
+        const correctedSlots = await page.evaluate(() => window.__netverseState.crimpingSlots);
+        const isAllFilledCorrect = Array.isArray(correctedSlots) && correctedSlots.every((s) => s !== null);
+        recordCheck('Auto-apply correct sequence populates all 8 pins', isAllFilledCorrect);
+      }
 
       const shot3 = path.join(AUDIT_DIR, '03_crimping_assembled_tested.png');
       await page.screenshot({ path: shot3 });
@@ -479,6 +514,76 @@ async function runAudit() {
         await formatTeoriBtn.click();
         await page.waitForTimeout(400);
       }
+    }
+
+    // -------------------------------------------------------------
+    // Auditing 3D Hardware in Materi (Revisi 2)
+    // -------------------------------------------------------------
+    console.log('\n4c. Auditing 3D Hardware in Materi Module...');
+    const format3dBtn = await page.$('button[data-materi-format="3d"]');
+    recordCheck('Materi Format Switcher (3D Hardware) button rendered', !!format3dBtn);
+
+    if (format3dBtn) {
+      await format3dBtn.click();
+      await page.waitForTimeout(600);
+
+      const modelViewerInMateri = await page.$('#tkj-model-viewer') || await page.$('.bezel-core iframe') || await page.$('iframe[title]');
+      recordCheck('3D Hardware Model Viewer active in Materi', !!modelViewerInMateri);
+
+      const deepSpecsInMateri = await page.$('table') || await page.$('text=Spesifikasi') || await page.$('text=Arsitektur');
+      recordCheck('Deep Hardware Specs & Architecture rendered in Materi', !!deepSpecsInMateri);
+    }
+
+    // -------------------------------------------------------------
+    // Auditing 35-Question Adaptive Exam with AI Grading (Revisi 3)
+    // -------------------------------------------------------------
+    console.log('\n4d. Auditing 35-Question Adaptive Exam (25 PG + 10 Essay AI)...');
+    const formatExamBtn = await page.$('button[data-materi-format="soal"]');
+    recordCheck('Materi Format Switcher (Soal Evaluasi) button rendered', !!formatExamBtn);
+
+    if (formatExamBtn) {
+      await formatExamBtn.click();
+      await page.waitForTimeout(600);
+
+      // Verify 25 Multiple Choice questions rendered
+      const pgOptions = await page.$$('[data-exam-pg]');
+      recordCheck('25 Multiple Choice questions rendered in Exam', pgOptions.length >= 25, `${pgOptions.length} option buttons`);
+
+      // Verify 10 Essay questions rendered
+      const essayInputs = await page.$$('textarea[data-essay-input]');
+      recordCheck('10 Essay questions with textareas rendered', essayInputs.length === 10, `${essayInputs.length} essays`);
+
+      // Answer question 1
+      const firstPgOpt = await page.$('[data-exam-pg="pg-1"][data-exam-opt-idx="1"]') || await page.$('[data-exam-pg]');
+      if (firstPgOpt) {
+        await firstPgOpt.click();
+        await page.waitForTimeout(300);
+      }
+
+      // Fill an essay answer and trigger AI evaluation
+      const firstEssay = await page.$('textarea[data-essay-input="essay-1"]') || await page.$('textarea[data-essay-input]');
+      if (firstEssay) {
+        await firstEssay.fill('Near-End Crosstalk (NEXT) terjadi akibat kopling induktif dan kapasitif antar kawat tembaga. Pitch lilitan yang berbeda menjaga simetri medan elektromagnetik.');
+        await page.waitForTimeout(200);
+
+        const aiGradeBtn = await page.$('button[data-grade-essay="essay-1"]') || await page.$('button[data-grade-essay]');
+        recordCheck('AI Essay Grader button present', !!aiGradeBtn);
+
+        if (aiGradeBtn) {
+          await aiGradeBtn.click();
+          await page.waitForTimeout(500);
+
+          const aiFeedback = await page.$('text=Analisis AI Assistant:');
+          recordCheck('AI Assistant semantic grading feedback rendered', !!aiFeedback);
+
+          const conceptKey = await page.$('text=Lihat Panduan Konsep Ideal 🔑');
+          recordCheck('Ideal concept guide accordion rendered', !!conceptKey);
+        }
+      }
+
+      // Verify Submit Exam button
+      const submitExamBtn = await page.$('#btn-submit-exam');
+      recordCheck('Submit Exam button present', !!submitExamBtn);
     }
 
     // -------------------------------------------------------------

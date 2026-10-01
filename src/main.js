@@ -9,6 +9,7 @@ import { renderFloatingAiTutor } from './components/FloatingAiTutor.js';
 import { renderAuthModal } from './components/AuthModal.js';
 import { renderNetVerseLogo } from './components/Logo.js';
 import { getModuleQuizzes } from './data/moduleQuizzes.js';
+import { ASSESSMENT_MULTIPLE_CHOICE, ASSESSMENT_ESSAYS, gradeEssayWithAi } from './data/assessmentQuestions.js';
 import { t, getLocalizedModule } from './utils/i18n.js';
 
 const initialLang = localStorage.getItem('netverse-lang') || 'id';
@@ -36,6 +37,12 @@ const state = {
   quizAnswers: {},      // { [modul_id]: { [qIdx]: optIdx } }
   quizSubmitted: {},    // { [modul_id]: boolean }
   quizMode: false,
+
+  // Comprehensive Adaptive Exam State (Revisi 3)
+  examAnswers: {},      // { [qId]: optIdx }
+  examEssayAnswers: {}, // { [essayId]: text }
+  examEssayResults: {}, // { [essayId]: { skor, feedback, kunciKonsep } }
+  examSubmitted: false,
 
   moduls: [],
   selectedModulIndex: 0,
@@ -69,7 +76,7 @@ const state = {
   realtimeChannel: null,
   theme: localStorage.getItem('netverse-theme') || 'dark',
   lang: initialLang,
-  materiFormat: 'teori', // 'teori' | 'video'
+  materiFormat: 'teori', // 'teori' | 'video' | '3d' | 'soal'
   activeVideoId: 'VW28Uqml3nE'
 };
 
@@ -1001,7 +1008,15 @@ function renderApp() {
         state.lang,
         state.materiFormat,
         state.activeVideoId,
-        !!state.session
+        !!state.session,
+        state.devices,
+        state.activeDeviceIndex,
+        state.selectedHotspot,
+        state.examAnswers || {},
+        state.examEssayAnswers || {},
+        state.examEssayResults || {},
+        state.examSubmitted || false,
+        state.userProfile?.level || 1
       );
       break;
     }
@@ -1889,6 +1904,30 @@ function attachEvents() {
     btnVerify.addEventListener('click', verifyCrimping);
   }
 
+  // Apply correct crimping wire sequence (Study Mode from diagnostic guide)
+  const applyCorrectCrimpingBtn = document.getElementById('btn-apply-correct-crimping');
+  if (applyCorrectCrimpingBtn) {
+    applyCorrectCrimpingBtn.addEventListener('click', () => {
+      const currentStandard = state.crimpingStandard || 'T568B';
+      const targetPins = STANDARDS[currentStandard] || STANDARDS['T568B'];
+      state.crimpingSlots = [...targetPins];
+      state.crimpingResult = null;
+      renderApp();
+    });
+  }
+
+  // Clear & retry crimping from diagnostic guide
+  const retryCrimpingGuideBtn = document.getElementById('btn-retry-crimping');
+  if (retryCrimpingGuideBtn) {
+    retryCrimpingGuideBtn.addEventListener('click', () => {
+      stopCrimpingTimer();
+      state.crimpingSlots = [null, null, null, null, null, null, null, null];
+      state.crimpingElapsedSeconds = 0;
+      state.crimpingResult = null;
+      renderApp();
+    });
+  }
+
   // Module reading selection
   document.querySelectorAll('[data-select-modul]').forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -2140,6 +2179,196 @@ function attachEvents() {
       state.quizSubmitted[mId] = false;
       state.quizAnswers[mId] = {};
       renderApp();
+    });
+  }
+
+  // Guest unlock exam button
+  const guestUnlockExam = document.getElementById('btn-guest-unlock-exam');
+  if (guestUnlockExam) {
+    guestUnlockExam.addEventListener('click', () => {
+      state.authModalOpen = true;
+      state.authMode = 'login';
+      state.authNotice = {
+        type: 'warning',
+        message: t('authModal.loginRequiredQuiz', state.lang)
+      };
+      renderApp();
+    });
+  }
+
+  // Exam Multiple Choice Answer Click
+  document.querySelectorAll('[data-exam-pg]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      if (!state.session) {
+        state.authModalOpen = true;
+        state.authMode = 'login';
+        state.authNotice = {
+          type: 'warning',
+          message: t('authModal.loginRequiredQuiz', state.lang)
+        };
+        renderApp();
+        return;
+      }
+      const qId = e.currentTarget.getAttribute('data-exam-pg');
+      const optIdx = parseInt(e.currentTarget.getAttribute('data-exam-opt-idx'), 10);
+      if (!qId || isNaN(optIdx)) return;
+      if (!state.examAnswers) state.examAnswers = {};
+      state.examAnswers[qId] = optIdx;
+      renderApp();
+    });
+  });
+
+  // Exam Essay Textarea Input
+  document.querySelectorAll('textarea[data-essay-input]').forEach(textarea => {
+    textarea.addEventListener('input', (e) => {
+      const essayId = e.currentTarget.getAttribute('data-essay-input');
+      if (!essayId) return;
+      if (!state.examEssayAnswers) state.examEssayAnswers = {};
+      state.examEssayAnswers[essayId] = e.currentTarget.value;
+    });
+
+    textarea.addEventListener('focus', () => {
+      if (!state.session) {
+        state.authModalOpen = true;
+        state.authMode = 'login';
+        state.authNotice = {
+          type: 'warning',
+          message: t('authModal.loginRequiredQuiz', state.lang)
+        };
+        renderApp();
+      }
+    });
+  });
+
+  // Exam Essay AI Auto-grader Trigger
+  document.querySelectorAll('[data-grade-essay]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      if (!state.session) {
+        state.authModalOpen = true;
+        state.authMode = 'login';
+        state.authNotice = {
+          type: 'warning',
+          message: t('authModal.loginRequiredQuiz', state.lang)
+        };
+        renderApp();
+        return;
+      }
+
+      const essayId = e.currentTarget.getAttribute('data-grade-essay');
+      if (!essayId) return;
+      const essayObj = ASSESSMENT_ESSAYS.find(item => item.id === essayId);
+      if (!essayObj) return;
+
+      const studentAns = (state.examEssayAnswers && state.examEssayAnswers[essayId]) || '';
+      if (!studentAns.trim()) {
+        alert(state.lang === 'en' ? 'Please write your response before evaluating with AI Assistant!' : 'Silakan ketikkan jawaban Anda terlebih dahulu sebelum meminta koreksi AI Assistant!');
+        return;
+      }
+
+      const result = gradeEssayWithAi(essayObj, studentAns, state.lang);
+      if (!state.examEssayResults) state.examEssayResults = {};
+      state.examEssayResults[essayId] = result;
+      renderApp();
+    });
+  });
+
+  // Submit Exam & Claim XP Boost
+  const btnSubmitExam = document.getElementById('btn-submit-exam');
+  if (btnSubmitExam) {
+    btnSubmitExam.addEventListener('click', async () => {
+      if (!state.session) {
+        state.authModalOpen = true;
+        state.authMode = 'login';
+        state.authNotice = {
+          type: 'warning',
+          message: t('authModal.loginRequiredQuiz', state.lang)
+        };
+        renderApp();
+        return;
+      }
+
+      const answeredPgCount = Object.keys(state.examAnswers || {}).length;
+      if (answeredPgCount < ASSESSMENT_MULTIPLE_CHOICE.length) {
+        const confirmSubmit = confirm(
+          state.lang === 'en'
+            ? `You have answered ${answeredPgCount} of ${ASSESSMENT_MULTIPLE_CHOICE.length} multiple choice questions. Are you sure you want to finalize and submit?`
+            : `Anda baru menjawab ${answeredPgCount} dari ${ASSESSMENT_MULTIPLE_CHOICE.length} soal pilihan ganda. Yakin ingin mengumpulkan ujian sekarang?`
+        );
+        if (!confirmSubmit) return;
+      }
+
+      // Automatically evaluate any answered essays that haven't been evaluated yet
+      ASSESSMENT_ESSAYS.forEach(essay => {
+        const studentAns = (state.examEssayAnswers && state.examEssayAnswers[essay.id]) || '';
+        if (studentAns.trim() && (!state.examEssayResults || !state.examEssayResults[essay.id])) {
+          if (!state.examEssayResults) state.examEssayResults = {};
+          state.examEssayResults[essay.id] = gradeEssayWithAi(essay, studentAns, state.lang);
+        }
+      });
+
+      // Calculate PG score
+      let pgCorrect = 0;
+      ASSESSMENT_MULTIPLE_CHOICE.forEach(q => {
+        if (state.examAnswers && state.examAnswers[q.id] === q.jawaban_benar) {
+          pgCorrect++;
+        }
+      });
+      const pgScore = Math.round((pgCorrect / ASSESSMENT_MULTIPLE_CHOICE.length) * 100);
+
+      // Calculate Essay score
+      let totalEssayScore = 0;
+      let gradedCount = 0;
+      ASSESSMENT_ESSAYS.forEach(essay => {
+        if (state.examEssayResults && state.examEssayResults[essay.id]) {
+          totalEssayScore += state.examEssayResults[essay.id].skor || 0;
+          gradedCount++;
+        }
+      });
+      const avgEssayScore = gradedCount > 0 ? Math.round(totalEssayScore / gradedCount) : 0;
+
+      // Combined exam score (50% PG + 50% Essay if essays graded, else 100% PG)
+      const finalExamScore = gradedCount > 0
+        ? Math.round(pgScore * 0.5 + avgEssayScore * 0.5)
+        : pgScore;
+
+      // Difficulty level multiplier (Level 1: 1.0x, Level 2: 1.15x, Level 3: 1.3x, etc.)
+      const userLevel = state.userProfile?.level || 1;
+      const levelMultiplier = 1 + (userLevel - 1) * 0.15;
+      const earnedXp = Math.max(30, Math.round(finalExamScore * 3.5 * levelMultiplier));
+
+      state.examSubmitted = true;
+
+      if (earnedXp > 0) {
+        await syncProfileXp(earnedXp);
+
+        if (state.session?.user?.id) {
+          const currentName = getEffectiveUserName().trim().toLowerCase();
+          const userIdx = state.scores.findIndex(s => s.user_id === state.session.user.id || (currentName !== 'user' && (s.player_name || '').trim().toLowerCase() === currentName));
+          if (userIdx !== -1) {
+            state.scores[userIdx].total_xp = state.userProfile.total_xp;
+            state.scores[userIdx].materiXp = (state.scores[userIdx].materiXp || 0) + earnedXp;
+            state.scores[userIdx].level = state.userProfile.level;
+          }
+        }
+
+        state.realtimeToast = {
+          id: Date.now(),
+          text: state.lang === 'en'
+            ? `🏆 Comprehensive Exam Completed! Score: ${finalExamScore}% (+${earnedXp} XP Boost - Level ${userLevel})`
+            : `🏆 Ujian Komprehensif Selesai! Skor: ${finalExamScore}% (+${earnedXp} XP Boost - Level ${userLevel})`,
+          timestamp: new Date()
+        };
+
+        setTimeout(() => {
+          if (state.realtimeToast && Date.now() - state.realtimeToast.id >= 4500) {
+            state.realtimeToast = null;
+            renderApp();
+          }
+        }, 5000);
+      }
+
+      renderApp();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   }
 

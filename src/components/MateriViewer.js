@@ -1,10 +1,12 @@
 import { getModuleQuizzes } from '../data/moduleQuizzes.js';
 import { VIDEO_MATERIALS, getVideoByModulSlug, getVideoById } from '../data/videoMaterials.js';
+import { renderVirtualLab3D } from './VirtualLab3D.js';
+import { ASSESSMENT_MULTIPLE_CHOICE, ASSESSMENT_ESSAYS } from '../data/assessmentQuestions.js';
 import { t, getLocalizedModule } from '../utils/i18n.js';
 
 /**
  * NetVerse - MateriViewer Component
- * Modul Pembelajaran Interaktif TKJ (Opsi Teks Bacaan & Video Praktik YouTube) & Kuis Diagnostik
+ * Modul Pembelajaran Interaktif TKJ (Opsi Teks Bacaan, Video Praktik YouTube, 3D Hardware Spasial, Kuis Cepat, & Soal Evaluasi 35 Soal dengan Koreksi AI)
  * Strictly adheres to Anti-Rounded Rules (max 12px containers, 8px buttons/inputs, 6px tags/badges).
  */
 
@@ -18,7 +20,15 @@ export function renderMateriViewer(
   lang = 'id',
   materiFormat = 'teori',
   activeVideoId = null,
-  isAuthenticated = false
+  isAuthenticated = false,
+  devices = [],
+  activeDeviceIdx = 0,
+  selectedHotspot = null,
+  examAnswers = {},
+  examEssayAnswers = {},
+  examEssayResults = {},
+  examSubmitted = false,
+  userLevel = 1
 ) {
   const rawCurrentModul = moduls[selectedIndex] || {
     id: 'default-modul',
@@ -68,6 +78,59 @@ export function renderMateriViewer(
     quizScore = Math.round((correctCount / quizzes.length) * 100);
   }
 
+  // 3D Relevant hardware filtering for this module
+  const moduleDeviceMap = {
+    'jaringan-dasar-topologi': ['switch-manageable', 'router-wifi', 'server-rack', 'lan-tester'],
+    'media-transmisi-utp': ['crimping-tool', 'konektor-rj45', 'lan-tester'],
+    'perangkat-keras-jaringan': ['switch-manageable', 'router-wifi', 'server-rack']
+  };
+  const relevantCodes = moduleDeviceMap[rawCurrentModul.slug] || [];
+  const relevantDevices = devices.length > 0
+    ? (devices.filter(d => relevantCodes.includes(d.kode)).length > 0
+        ? devices.filter(d => relevantCodes.includes(d.kode))
+        : devices)
+    : [];
+
+  // Calculate exam stats
+  const totalPgAnswered = Object.keys(examAnswers).length;
+  let pgCorrectCount = 0;
+  ASSESSMENT_MULTIPLE_CHOICE.forEach(q => {
+    if (examAnswers[q.id] === q.jawaban_benar) {
+      pgCorrectCount++;
+    }
+  });
+  const pgScore = Math.round((pgCorrectCount / ASSESSMENT_MULTIPLE_CHOICE.length) * 100);
+
+  const totalEssayAnswered = Object.keys(examEssayAnswers).filter(k => examEssayAnswers[k]?.trim()).length;
+  const totalEssayGraded = Object.keys(examEssayResults).length;
+  const essayScoreSum = Object.values(examEssayResults).reduce((acc, r) => acc + (r.skor || 0), 0);
+  const avgEssayScore = totalEssayGraded > 0 ? Math.round(essayScoreSum / totalEssayGraded) : 0;
+
+  const totalExamScore = Math.round((pgScore * 0.5) + (avgEssayScore * 0.5));
+  const levelMultiplier = 1 + (Math.max(1, userLevel) - 1) * 0.15;
+  const potentialXp = Math.max(50, Math.round(totalExamScore * 3.5 * levelMultiplier));
+
+  // Dynamic question sorting based on user level (Revisi 3: semakin tinggi level, soal & kuis semakin susah)
+  const sortedPgQuestions = [...ASSESSMENT_MULTIPLE_CHOICE].sort((a, b) => {
+    if (userLevel >= 4) {
+      const order = { mahir: 0, menengah: 1, dasar: 2 };
+      return (order[a.difficulty] ?? 1) - (order[b.difficulty] ?? 1);
+    } else if (userLevel >= 2) {
+      const order = { menengah: 0, mahir: 1, dasar: 2 };
+      return (order[a.difficulty] ?? 1) - (order[b.difficulty] ?? 1);
+    }
+    const order = { dasar: 0, menengah: 1, mahir: 2 };
+    return (order[a.difficulty] ?? 1) - (order[b.difficulty] ?? 1);
+  });
+
+  const sortedEssayQuestions = [...ASSESSMENT_ESSAYS].sort((a, b) => {
+    if (userLevel >= 3) {
+      const order = { mahir: 0, menengah: 1, dasar: 2 };
+      return (order[a.difficulty] ?? 1) - (order[b.difficulty] ?? 1);
+    }
+    return 0;
+  });
+
   const relatedActionLabel = lang === 'en' ? '3D Crimping Simulator' : (lang === 'jp' ? '3D圧着シミュレータ' : (lang === 'cn' ? '3D网线压接实训' : 'simulasi crimping'));
 
   return `
@@ -103,7 +166,7 @@ export function renderMateriViewer(
                 return `
                   <button
                     data-select-modul="${idx}"
-                    class="w-full text-left p-3.5 rounded-lg text-xs transition-all border ${
+                    class="w-full text-left p-3.5 rounded-lg text-xs transition-all border cursor-pointer ${
                       isSelected
                         ? 'bg-white/10 text-white border-white/20 shadow-md font-semibold'
                         : 'text-slate-400 hover:text-white hover:bg-white/[0.04] border-transparent'
@@ -169,7 +232,7 @@ export function renderMateriViewer(
                         <div class="text-[10px] text-slate-400 flex items-center gap-1 mt-0.5">
                           <span>${v.channel}</span>
                           <span>•</span>
-                          <span class="font-mono text-amber-400">${v.duration}</span>
+                          <span class="font-mono text-amber-400">${typeof v.duration === 'object' ? (v.duration[lang] || v.duration.id) : v.duration}</span>
                         </div>
                       </div>
                       <span class="text-slate-400 shrink-0 text-xs">&rarr;</span>
@@ -184,7 +247,7 @@ export function renderMateriViewer(
 
       </aside>
 
-      <!-- Main Reading & Quiz Canvas (8 cols) -->
+      <!-- Main Reading & Learning Canvas (8 cols) -->
       <main class="${quizOnly ? '' : 'lg:col-span-8'} bezel-shell">
         <div class="bezel-core p-6 sm:p-10 space-y-8">
           
@@ -225,9 +288,11 @@ export function renderMateriViewer(
                 ${content.intro || currentModul.deskripsi || ''}
               </p>
 
-              <!-- Learning Format Selector (Theory vs YouTube Video) -->
+              <!-- Learning Format Selector (Theory, Video, 3D Hardware, Soal Evaluasi) -->
               <div class="pt-2 flex flex-wrap items-center justify-between gap-3">
-                <div class="inline-flex items-center p-1 rounded-xl bg-white/[0.04] border border-white/10" role="tablist" aria-label="${lang === 'en' ? 'Learning Format' : (lang === 'jp' ? '学習フォーマット' : (lang === 'cn' ? '学习形式' : 'Format Materi'))}">
+                <div class="inline-flex flex-wrap items-center p-1 rounded-xl bg-white/[0.04] border border-white/10" role="tablist" aria-label="Format Materi">
+                  
+                  <!-- Teori Tab -->
                   <button
                     type="button"
                     data-materi-format="teori"
@@ -242,6 +307,8 @@ export function renderMateriViewer(
                     <span>📖</span>
                     <span>${t('materi.modeTheory', lang)}</span>
                   </button>
+
+                  <!-- Video Tab -->
                   <button
                     type="button"
                     data-materi-format="video"
@@ -260,6 +327,44 @@ export function renderMateriViewer(
                       materiFormat === 'video' ? 'bg-black/40 text-white' : 'bg-red-500/20 text-red-400 border border-red-500/30'
                     }">YouTube</span>
                   </button>
+
+                  <!-- 3D Hardware Tab (Revisi 2) -->
+                  <button
+                    type="button"
+                    data-materi-format="3d"
+                    role="tab"
+                    aria-selected="${materiFormat === '3d'}"
+                    class="min-h-11 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-2 cursor-pointer ${
+                      materiFormat === '3d'
+                        ? 'bg-amber-400 text-black shadow-md font-bold'
+                        : 'text-slate-400 hover:text-white hover:bg-white/[0.05]'
+                    }"
+                  >
+                    <span>🧊</span>
+                    <span>3D Hardware</span>
+                    <span class="px-1.5 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase ${
+                      materiFormat === '3d' ? 'bg-black/30 text-amber-950' : 'bg-amber-400/20 text-amber-300 border border-amber-400/30'
+                    }">Interaktif</span>
+                  </button>
+
+                  <!-- Soal Evaluasi & Ujian AI Tab (Revisi 3) -->
+                  <button
+                    type="button"
+                    data-materi-format="soal"
+                    role="tab"
+                    aria-selected="${materiFormat === 'soal'}"
+                    class="min-h-11 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-2 cursor-pointer ${
+                      materiFormat === 'soal'
+                        ? 'bg-purple-600 text-white shadow-md font-bold'
+                        : 'text-slate-400 hover:text-white hover:bg-white/[0.05]'
+                    }"
+                  >
+                    <span>📝</span>
+                    <span>Soal Evaluasi</span>
+                    <span class="px-1.5 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase ${
+                      materiFormat === 'soal' ? 'bg-black/40 text-white' : 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
+                    }">35 Soal + AI</span>
+                  </button>
                 </div>
 
                 ${matchingVideo && materiFormat === 'teori' ? `
@@ -277,7 +382,297 @@ export function renderMateriViewer(
             ` : ''}
           </header>
 
-          <!-- VIDEO LEARNING CANVAS -->
+          <!-- 1. 3D HARDWARE INTERACTIVE CANVAS (Revisi 2) -->
+          ${materiFormat === '3d' && !quizOnly ? `
+            <section class="space-y-6 animate-fadeIn">
+              <div class="flex items-center justify-between border-b border-white/[0.08] pb-3">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-sm bg-amber-400"></span>
+                    <h2 class="text-base font-bold text-white tracking-tight uppercase">
+                      ${lang === 'en' ? 'Interactive 3D Hardware Lab' : (lang === 'jp' ? '3D 機器空間実習ラボ' : (lang === 'cn' ? '3D 硬件空间交互实训' : 'Laboratorium Perangkat Keras 3D Interaktif'))}
+                    </h2>
+                  </div>
+                  <p class="text-xs text-slate-400 mt-0.5">
+                    ${lang === 'en' ? `Inspecting hardware relevant to: ${currentModul.judul}` : (lang === 'jp' ? `${currentModul.judul} に関連する実機モデル` : (lang === 'cn' ? `与 ${currentModul.judul} 紧密相关的核心网络设备` : `Model perangkat yang relevan dengan topik: ${currentModul.judul}`))}
+                  </p>
+                </div>
+              </div>
+
+              ${renderVirtualLab3D(relevantDevices, activeDeviceIdx, selectedHotspot, lang)}
+            </section>
+          ` : ''}
+
+          <!-- 2. SOAL EVALUASI & UJIAN KOMPREHENSIF (Revisi 3: 25 PG + 10 Uraian AI) -->
+          ${materiFormat === 'soal' && !quizOnly ? `
+            <section class="space-y-8 animate-fadeIn">
+              
+              <!-- Header with Difficulty Level -->
+              <div class="p-5 rounded-xl bg-gradient-to-r from-purple-500/10 via-purple-600/5 to-transparent border border-purple-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg">
+                <div class="space-y-1">
+                  <div class="flex items-center gap-2">
+                    <span class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-purple-500/20 text-purple-300 border border-purple-500/40">
+                      Ujian Komprehensif Adaptif
+                    </span>
+                    <span class="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-amber-400/20 text-amber-300 border border-amber-400/30">
+                      Level ${userLevel || 1}
+                    </span>
+                  </div>
+                  <h3 class="text-base sm:text-lg font-bold text-white tracking-tight">
+                    Evaluasi Kompetensi Jaringan Komputer (25 PG + 10 Uraian AI)
+                  </h3>
+                  <p class="text-xs text-slate-300 leading-relaxed max-w-2xl">
+                    Uji pemahaman mendalam Anda melalui 25 soal pilihan ganda dan 10 soal uraian terstandar. Jawaban uraian akan dikoreksi dan dianalisis secara semantik oleh <strong>Asisten AI NetVerse</strong> untuk memberikan umpan balik personal dan boost XP level.
+                  </p>
+                </div>
+
+                <!-- Exam Score / Progress Badge -->
+                <div class="flex flex-col items-end gap-1.5 shrink-0 font-mono text-xs">
+                  <div class="px-3 py-1.5 rounded-lg bg-black/60 border border-white/10 text-white font-bold flex items-center gap-2">
+                    <span class="text-amber-400">⚡ PG: ${totalPgAnswered}/25</span>
+                    <span class="text-slate-600">•</span>
+                    <span class="text-purple-400">🤖 Esai: ${totalEssayGraded}/10</span>
+                  </div>
+                  <span class="text-[10px] text-emerald-400 font-semibold">Estimasi Reward: Hingga +${potentialXp} XP</span>
+                </div>
+              </div>
+
+              ${!isAuthenticated ? `
+                <!-- Guest Exam Lock Banner -->
+                <div class="rounded-xl p-4 sm:p-5 bg-gradient-to-r from-amber-500/10 via-amber-600/5 to-transparent border border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg shadow-amber-500/5">
+                  <div class="flex items-start gap-3.5">
+                    <div class="w-10 h-10 rounded-lg bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-amber-400 text-lg shrink-0 mt-0.5">
+                      🔒
+                    </div>
+                    <div class="space-y-1">
+                      <div class="flex items-center gap-2">
+                        <h4 class="text-sm font-bold text-white tracking-tight">${lang === 'en' ? 'Sign in Required for Comprehensive Exam' : (lang === 'jp' ? '総合試験を受けるにはログインが必要です' : (lang === 'cn' ? '需登录账号方可参加综合测评考试' : 'Login Diperlukan untuk Mengerjakan Soal Evaluasi'))}</h4>
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-amber-400/20 text-amber-300 border border-amber-400/30">${t('crimping.guestBadge', lang)}</span>
+                      </div>
+                      <p class="text-xs text-slate-300 leading-relaxed max-w-2xl">
+                        ${lang === 'en' ? 'Guest users can preview questions. To submit answers, receive AI semantic essay evaluations, and earn XP to rank up on the Leaderboard, please log in or create an account.' : 'Pengguna tamu (User) hanya dapat melihat daftar soal. Untuk menjawab, mendapatkan koreksi semantik otomatis dari Asisten AI, serta memperoleh boost XP ke Leaderboard, silakan masuk ke akun Anda.'}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    id="btn-guest-unlock-exam"
+                    class="rounded-lg px-4 py-2.5 bg-amber-400 hover:bg-amber-300 text-black text-xs font-bold transition-all shadow-md active:scale-95 shrink-0 flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <span>${t('materi.guestQuizLockBtn', lang)}</span>
+                    <span>&rarr;</span>
+                  </button>
+                </div>
+              ` : ''}
+
+              <!-- BAGIAN A: 25 SOAL PILIHAN GANDA -->
+              <div class="space-y-6">
+                <div class="flex items-center justify-between border-b border-white/[0.08] pb-3">
+                  <div class="flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-md bg-white/10 text-white font-bold text-xs flex items-center justify-center">A</span>
+                    <h4 class="text-sm font-bold text-white uppercase tracking-wider">Bagian 1: 25 Soal Pilihan Ganda</h4>
+                  </div>
+                  <span class="text-xs font-mono text-slate-400">${pgCorrectCount} / 25 Benar</span>
+                </div>
+
+                <div class="space-y-4">
+                  ${sortedPgQuestions.map((q, idx) => {
+                    const selectedOpt = examAnswers[q.id];
+                    const isAnswered = selectedOpt !== undefined;
+                    const isCorrect = isAnswered && selectedOpt === q.jawaban_benar;
+
+                    return `
+                      <div class="p-4 sm:p-5 rounded-xl bg-white/[0.02] border border-white/[0.06] space-y-3">
+                        <div class="flex items-start justify-between gap-3">
+                          <div class="flex items-start gap-3">
+                            <span class="w-6 h-6 rounded-md bg-white/10 text-white text-xs font-bold font-mono flex items-center justify-center shrink-0 mt-0.5">
+                              ${idx + 1}
+                            </span>
+                            <div class="space-y-1">
+                              <div class="flex items-center gap-2">
+                                <span class="text-[9px] font-semibold px-2 py-0.2 rounded-full uppercase font-mono ${
+                                  q.difficulty === 'mahir' ? 'bg-rose-500/15 text-rose-300 border border-rose-500/30' : (q.difficulty === 'menengah' ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30' : 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30')
+                                }">${q.difficulty}</span>
+                                <span class="text-[10px] text-slate-500">•</span>
+                                <span class="text-[10px] text-slate-400 font-medium">${q.konsep}</span>
+                              </div>
+                              <p class="text-xs sm:text-sm font-medium text-slate-200 leading-relaxed">
+                                ${q.soal[lang] || q.soal.id}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Options -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 pl-9">
+                          ${(q.pilihan[lang] || q.pilihan.id).map((optText, optIdx) => {
+                            const isChosen = selectedOpt === optIdx;
+                            let optClass = 'bg-white/[0.02] border-white/10 text-slate-300 hover:border-amber-400/50 hover:bg-white/[0.05]';
+                            if (examSubmitted) {
+                              if (optIdx === q.jawaban_benar) {
+                                optClass = 'bg-emerald-500/15 border-emerald-500/60 text-emerald-200 font-bold';
+                              } else if (isChosen && !isCorrect) {
+                                optClass = 'bg-rose-500/15 border-rose-500/60 text-rose-200';
+                              } else {
+                                optClass = 'bg-white/[0.01] border-white/[0.04] text-slate-500 opacity-60';
+                              }
+                            } else if (isChosen) {
+                              optClass = 'bg-amber-400/15 border-amber-400 text-white font-semibold shadow-sm';
+                            }
+
+                            return `
+                              <button
+                                type="button"
+                                data-exam-pg="${q.id}"
+                                data-exam-opt-idx="${optIdx}"
+                                class="p-2.5 rounded-lg border text-xs text-left transition-all flex items-center gap-2 cursor-pointer ${optClass}"
+                              >
+                                <span class="w-5 h-5 rounded-md ${isChosen ? 'bg-amber-400 text-black font-bold' : 'bg-white/10 text-slate-400'} text-[10px] flex items-center justify-center shrink-0">
+                                  ${['A', 'B', 'C', 'D'][optIdx]}
+                                </span>
+                                <span class="leading-relaxed">${optText}</span>
+                              </button>
+                            `;
+                          }).join('')}
+                        </div>
+
+                        ${examSubmitted ? `
+                          <div class="pl-9 pt-2">
+                            <div class="p-3 rounded-lg border text-xs leading-relaxed ${isCorrect ? 'bg-emerald-950/20 border-emerald-500/30 text-emerald-200' : 'bg-rose-950/20 border-rose-500/30 text-rose-200'}">
+                              <span class="font-bold block mb-0.5">${isCorrect ? '✓ Jawaban Anda Benar' : '✗ Jawaban Belum Tepat'}</span>
+                              <p class="text-[11px] opacity-90">${q.penjelasan[lang] || q.penjelasan.id}</p>
+                            </div>
+                          </div>
+                        ` : ''}
+
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              </div>
+
+              <!-- BAGIAN B: 10 SOAL URAIAN (KOREKSI AI SOKRATIK) -->
+              <div class="space-y-6 pt-6 border-t border-white/[0.08]">
+                <div class="flex items-center justify-between border-b border-white/[0.08] pb-3">
+                  <div class="flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-md bg-purple-500/20 text-purple-300 font-bold text-xs flex items-center justify-center">B</span>
+                    <h4 class="text-sm font-bold text-white uppercase tracking-wider">Bagian 2: 10 Soal Uraian (Koreksi Otomatis AI)</h4>
+                  </div>
+                  <span class="text-xs font-mono text-purple-400">${totalEssayGraded} / 10 Dikoreksi AI</span>
+                </div>
+
+                <div class="space-y-6">
+                  ${sortedEssayQuestions.map((essay, idx) => {
+                    const studentAns = examEssayAnswers[essay.id] || '';
+                    const gradeResult = examEssayResults[essay.id] || null;
+
+                    return `
+                      <div class="p-5 rounded-xl bg-white/[0.02] border border-white/[0.08] space-y-4">
+                        <div class="flex items-start gap-3">
+                          <span class="w-6 h-6 rounded-md bg-purple-500/20 text-purple-300 text-xs font-bold font-mono flex items-center justify-center shrink-0 mt-0.5">
+                            ${idx + 1}
+                          </span>
+                          <div class="space-y-1">
+                            <div class="flex items-center gap-2">
+                              <span class="text-[9px] font-semibold px-2 py-0.2 rounded-full uppercase font-mono ${
+                                essay.difficulty === 'mahir' ? 'bg-rose-500/15 text-rose-300 border border-rose-500/30' : 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
+                              }">${essay.difficulty}</span>
+                              <span class="text-[10px] text-slate-500">•</span>
+                              <span class="text-[10px] text-slate-300 font-bold">${essay.judul[lang] || essay.judul.id}</span>
+                            </div>
+                            <p class="text-xs sm:text-sm font-medium text-slate-100 leading-relaxed">
+                              ${essay.pertanyaan[lang] || essay.pertanyaan.id}
+                            </p>
+                          </div>
+                        </div>
+
+                        <!-- Textarea Answer Box -->
+                        <div class="pl-9 space-y-3">
+                          <textarea
+                            data-essay-input="${essay.id}"
+                            rows="4"
+                            placeholder="${lang === 'en' ? 'Type your comprehensive engineering explanation here...' : (lang === 'jp' ? 'ここに技術的見解や解説を入力してください...' : (lang === 'cn' ? '在此撰写您的详细技术论述与原理解析...' : 'Ketikkan penjelasan teknis mendalam Anda di sini...'))}"
+                            class="w-full p-3.5 rounded-lg bg-black/50 border border-white/10 text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-colors leading-relaxed"
+                          >${studentAns}</textarea>
+
+                          <div class="flex flex-wrap items-center justify-between gap-3">
+                            <button
+                              type="button"
+                              data-grade-essay="${essay.id}"
+                              class="min-h-10 px-4 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs transition-all shadow-md active:scale-95 flex items-center gap-2 cursor-pointer"
+                            >
+                              <span>🤖</span>
+                              <span>${lang === 'en' ? 'Evaluate with AI Grader' : (lang === 'jp' ? 'AI 採点エンジンで評価' : (lang === 'cn' ? '提交 AI 智能批改' : 'Koreksi Jawaban dengan AI'))}</span>
+                            </button>
+
+                            ${gradeResult ? `
+                              <div class="flex items-center gap-2">
+                                <span class="px-3 py-1 rounded-md text-xs font-bold font-mono ${
+                                  gradeResult.skor >= 75 ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' : (gradeResult.skor >= 50 ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30' : 'bg-rose-500/15 text-rose-300 border border-rose-500/30')
+                                }">
+                                  Nilai AI: ${gradeResult.skor} / 100
+                                </span>
+                              </div>
+                            ` : ''}
+                          </div>
+
+                          <!-- AI Feedback Card -->
+                          ${gradeResult ? `
+                            <div class="p-4 rounded-lg bg-black/40 border border-purple-500/30 space-y-2.5 animate-fadeIn">
+                              <div class="flex items-center gap-2 text-xs font-bold text-purple-300">
+                                <span class="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
+                                <span>Analisis AI Assistant:</span>
+                              </div>
+                              <p class="text-xs text-slate-300 leading-relaxed">
+                                ${gradeResult.feedback}
+                              </p>
+                              
+                              <!-- Accordion / Concept Key -->
+                              <div class="pt-2 border-t border-white/[0.06] text-xs">
+                                <details class="cursor-pointer text-slate-400 hover:text-slate-200">
+                                  <summary class="font-medium text-amber-400/90 hover:underline">
+                                    Lihat Panduan Konsep Ideal 🔑
+                                  </summary>
+                                  <div class="mt-2 p-3 rounded bg-white/[0.02] border border-white/[0.04] text-[11px] text-slate-300 leading-relaxed">
+                                    ${gradeResult.kunciKonsep}
+                                  </div>
+                                </details>
+                              </div>
+                            </div>
+                          ` : ''}
+
+                        </div>
+
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              </div>
+
+              <!-- Exam Final Action Bar -->
+              <div class="p-6 rounded-xl bg-black/60 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h3 class="text-sm font-bold text-white">Selesaikan Ujian & Klaim Hadiah XP</h3>
+                  <p class="text-xs text-slate-400 mt-0.5">
+                    Total Skor Anda: <strong class="text-white">${totalExamScore}%</strong> (PG: ${pgScore}% • Esai: ${avgEssayScore}%)
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  id="btn-submit-exam"
+                  class="min-h-12 px-6 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs sm:text-sm transition-all shadow-lg active:scale-95 flex items-center gap-2 shrink-0 cursor-pointer"
+                >
+                  <span>🏆</span>
+                  <span>${examSubmitted ? 'Perbarui Hasil Ujian & XP' : `Kumpulkan Ujian & Dapatkan +${potentialXp} XP`}</span>
+                  <span>&rarr;</span>
+                </button>
+              </div>
+
+            </section>
+          ` : ''}
+
+          <!-- 3. VIDEO LEARNING CANVAS -->
           ${materiFormat === 'video' && !quizOnly ? `
             <section class="space-y-6 animate-fadeIn">
               
@@ -329,13 +724,12 @@ export function renderMateriViewer(
                       </div>
                     </div>
                   </div>
-                  
+
                   ${currentVideo.actionLink ? `
                     <button
                       type="button"
-                      data-nav="${currentVideo.actionLink.type}"
-                      ${currentVideo.actionLink.deviceCode ? `data-device-code="${currentVideo.actionLink.deviceCode}"` : ''}
-                      class="rounded-lg px-4 py-2.5 bg-white text-black hover:bg-slate-200 text-xs font-semibold transition-all shadow-md inline-flex items-center gap-1.5 shrink-0 cursor-pointer"
+                      data-nav="${currentVideo.actionLink.nav}"
+                      class="min-h-10 px-3.5 rounded-lg bg-white/[0.06] hover:bg-white/10 text-white font-semibold text-xs border border-white/10 transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
                     >
                       <span>${currentVideo.actionLink.label[lang] || currentVideo.actionLink.label.id}</span>
                       <span>&rarr;</span>
@@ -415,7 +809,7 @@ export function renderMateriViewer(
             </section>
           ` : ''}
 
-          <!-- READING & THEORY SECTIONS (When in 'teori' format) -->
+          <!-- 4. READING & THEORY SECTIONS (When in 'teori' format) -->
           ${materiFormat === 'teori' && !quizOnly ? `
             <div class="space-y-8 animate-fadeIn">
               
@@ -485,6 +879,49 @@ export function renderMateriViewer(
                   <span class="text-[11px] text-slate-400">${t('materi.discussDesc', lang)}</span>
                 </div>
               </section>
+
+              <!-- Practice & Examination Portals -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                
+                <!-- 3D Hardware Invitation Card -->
+                <div class="p-5 rounded-xl bg-white/[0.03] border border-white/10 flex flex-col justify-between space-y-3">
+                  <div>
+                    <div class="text-amber-400 text-lg mb-1">🧊</div>
+                    <h3 class="text-sm font-bold text-white">Inspeksi 3D Hardware</h3>
+                    <p class="mt-1 text-xs text-slate-400 leading-relaxed">
+                      Jelajahi model 3D perangkat terkait topik modul ini secara langsung.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    data-materi-format="3d"
+                    class="min-h-11 px-4 rounded-lg bg-amber-400 text-black hover:bg-amber-300 text-xs font-bold transition-all shadow-md active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <span>Buka 3D Hardware</span>
+                    <span>&rarr;</span>
+                  </button>
+                </div>
+
+                <!-- 35-Question Exam Portal Card -->
+                <div class="p-5 rounded-xl bg-purple-500/[0.04] border border-purple-500/20 flex flex-col justify-between space-y-3">
+                  <div>
+                    <div class="text-purple-400 text-lg mb-1">📝</div>
+                    <h3 class="text-sm font-bold text-white">Soal Evaluasi Adaptif (35 Soal)</h3>
+                    <p class="mt-1 text-xs text-slate-400 leading-relaxed">
+                      25 pilihan ganda & 10 uraian dengan koreksi otomatis AI dan boost XP.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    data-materi-format="soal"
+                    class="min-h-11 px-4 rounded-lg bg-purple-600 text-white hover:bg-purple-500 text-xs font-bold transition-all shadow-md active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <span>Mulai Ujian Evaluasi</span>
+                    <span>&rarr;</span>
+                  </button>
+                </div>
+
+              </div>
 
               <!-- Quiz Invitation Banner -->
               ${quizzes.length >= 5 ? `
@@ -603,13 +1040,12 @@ export function renderMateriViewer(
                               type="button"
                               data-quiz-q="${qIdx}"
                               data-quiz-opt="${optIdx}"
-                              ${quizSubmitted ? 'disabled' : ''}
-                              class="w-full text-left p-3 rounded-md border text-xs transition-all flex items-start gap-2.5 cursor-pointer ${optionClasses}"
+                              class="w-full text-left p-3 rounded-lg border text-xs transition-all flex items-center space-x-2.5 cursor-pointer ${optionClasses}"
                             >
-                              <span class="w-4 h-4 rounded-sm border flex items-center justify-center shrink-0 text-[10px] font-mono mt-0.5 ${
-                                isOptionChosen ? 'border-amber-400 bg-amber-400 text-black font-bold' : 'border-white/20 text-slate-400'
+                              <span class="w-4 h-4 rounded-full border border-white/20 flex items-center justify-center text-[10px] shrink-0 ${
+                                isOptionChosen ? 'border-amber-400 bg-amber-400 text-black font-bold' : 'text-slate-400'
                               }">
-                                ${String.fromCharCode(65 + optIdx)}
+                                ${['A', 'B', 'C', 'D'][optIdx]}
                               </span>
                               <span class="leading-relaxed">${pilihanText}</span>
                             </button>

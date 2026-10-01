@@ -265,6 +265,124 @@ export function renderCrimpingMaster(state, lang = state.lang || 'id') {
                     </div>
                   </div>
                 </div>
+
+                <!-- Wire Sequence Correction & Pedagogical Guide (When Errors Exist) -->
+                ${!result.success ? `
+                  <div class="p-4 sm:p-5 rounded-xl bg-gradient-to-b from-rose-500/10 via-amber-500/5 to-transparent border border-rose-500/30 space-y-4 animate-fadeIn shadow-lg">
+                    
+                    <!-- Guide Header -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-rose-500/20 pb-3">
+                      <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-sm bg-rose-400 animate-pulse"></span>
+                        <h4 class="text-xs sm:text-sm font-bold text-white tracking-tight flex items-center gap-1.5">
+                          <span>${lang === 'en' ? 'Diagnostic Analysis & Correct Wire Sequence' : (lang === 'jp' ? '結線診断分析 & 正しい芯線配列ガイド' : (lang === 'cn' ? '引脚线序诊断分析与官方标准接线指导' : `Analisis Diagnostik & Pembenaran Urutan Kabel (${currentStandard})`))}</span>
+                        </h4>
+                      </div>
+                      <span class="text-[10px] font-semibold text-rose-300 px-2 py-0.5 rounded bg-rose-500/15 border border-rose-500/30">
+                        ${lang === 'en' ? `${result.wrongPins ? result.wrongPins.length : 0} Pins Need Correction` : (lang === 'jp' ? `${result.wrongPins ? result.wrongPins.length : 0} 本のピン配列に誤りがあります` : (lang === 'cn' ? `${result.wrongPins ? result.wrongPins.length : 0} 个引脚接线错误` : `${result.wrongPins ? result.wrongPins.length : 0} Pin Keliru / Tertukar`))}
+                      </span>
+                    </div>
+
+                    <!-- Comparison Table of Pins -->
+                    <div class="space-y-2">
+                      <div class="text-[11px] font-semibold text-slate-300">
+                        ${lang === 'en' ? 'Side-by-Side Pinout Comparison (Your Placement vs Standard):' : (lang === 'jp' ? '配列比較（あなたの配線 vs 正しい標準配線）:' : (lang === 'cn' ? '引脚线序逐位对照（实际摆放 vs 标准线序）：' : 'Perbandingan Urutan Kawat (Susunan Anda vs Standar Resmi):'))}
+                      </div>
+
+                      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        ${targetSequence.map((targetWireId, idx) => {
+                          const targetWire = getLocalizedWire(targetWireId, lang);
+                          const userWireId = userSlots[idx];
+                          const userWire = userWireId ? getLocalizedWire(userWireId, lang) : null;
+                          const isMatch = userWireId === targetWireId;
+
+                          return `
+                            <div class="p-2.5 rounded-lg border text-xs flex flex-col justify-between ${
+                              isMatch 
+                                ? 'bg-emerald-500/[0.06] border-emerald-500/30' 
+                                : 'bg-rose-500/[0.08] border-rose-500/40'
+                            }">
+                              <div class="flex items-center justify-between mb-1.5">
+                                <span class="font-mono font-bold text-[10px] ${isMatch ? 'text-emerald-400' : 'text-rose-400'}">${t('crimping.pin', lang)} ${idx + 1}</span>
+                                <span class="text-[9px] font-semibold px-1.5 py-0.2 rounded ${isMatch ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}">
+                                  ${isMatch ? '✓ Benar' : '✗ Keliru'}
+                                </span>
+                              </div>
+
+                              <div class="space-y-1">
+                                <div class="flex items-center gap-1.5">
+                                  <div class="w-2.5 h-3.5 rounded-xs shrink-0 ${targetWire.stripeClass}"></div>
+                                  <span class="text-[10px] text-white font-semibold truncate">${targetWire.name}</span>
+                                </div>
+                                
+                                ${!isMatch ? `
+                                  <div class="text-[9px] text-slate-400 border-t border-white/[0.06] pt-1">
+                                    <span>Dipasang: </span>
+                                    <span class="text-rose-300 font-medium">${userWire ? userWire.name : 'Kosong'}</span>
+                                  </div>
+                                ` : ''}
+                              </div>
+                            </div>
+                          `;
+                        }).join('')}
+                      </div>
+                    </div>
+
+                    <!-- Electrical & Signal Transmission Explanation -->
+                    <div class="p-3.5 rounded-lg bg-black/40 border border-white/[0.06] space-y-2 text-xs">
+                      <div class="font-bold text-amber-300 flex items-center gap-1.5 text-[11px]">
+                        <span>⚡</span>
+                        <span>${lang === 'en' ? 'Why This Sequence is Critical (Physics of Differential Signaling):' : (lang === 'jp' ? 'なぜこの配列順序が重要なのか（差動信号伝送の物理原理）:' : (lang === 'cn' ? '为什么线序必须严格遵守标准（差分高频信号物理机理）：' : `Mengapa Urutan Standar ${currentStandard} Wajib Diikuti:`))}</span>
+                      </div>
+                      <p class="text-slate-300 leading-relaxed text-[11px]">
+                        ${currentStandard === 'T568B' ? `
+                          Pada <strong>Standar T568B</strong>, Pin 1 (Putih-Oranye) dan Pin 2 (Oranye) bertindak sebagai pasangan <strong>Transmit (Tx+ dan Tx-)</strong>, sedangkan Pin 3 (Putih-Hijau) dan Pin 6 (Hijau) bertindak sebagai pasangan <strong>Receive (Rx+ dan Rx-)</strong>. 
+                          Pasangan kawat pin 3 dan 6 sengaja <em>membelah</em> pasangan kawat biru (pin 4 & 5) untuk mempertahankan simetri elektromagnetik dan membatalkan <strong>Near-End Crosstalk (NEXT)</strong>.
+                        ` : `
+                          Pada <strong>Standar T568A</strong>, posisi pasangan Hijau dan Oranye saling ditukar. Pin 1 (Putih-Hijau) dan Pin 2 (Hijau) bertindak sebagai Transmit (Tx), sedangkan Pin 3 (Putih-Oranye) dan Pin 6 (Oranye) bertindak sebagai Receive (Rx). 
+                          Posisi pasangan kawat Biru (pin 4 & 5) dan Cokelat (pin 7 & 8) tetap sama persis dengan standar T568B.
+                        `}
+                      </p>
+                    </div>
+
+                    <!-- Mnemonic & Quick Tip -->
+                    <div class="p-3 rounded-lg bg-emerald-500/[0.04] border border-emerald-500/20 text-xs text-slate-300 flex items-start gap-2.5">
+                      <span class="text-amber-400 font-bold shrink-0 text-sm">💡</span>
+                      <div class="space-y-0.5 text-[11px]">
+                        <span class="font-bold text-emerald-300">Tips Menghafal Cepat (Jembatan Keledai):</span>
+                        <p class="text-slate-300 leading-relaxed">
+                          ${currentStandard === 'T568B' ? `
+                            Pasangan <strong>Cokelat (7 & 8)</strong> selalu di ujung kanan. Pasangan <strong>Biru (4 & 5)</strong> selalu di tengah dengan kawat solid mendahului kawat belang (Biru dulu, baru Putih-Biru). Pasangan <strong>Hijau terbelah</strong> mengapit pasangan Biru (Pin 3 Putih-Hijau, Pin 6 Hijau).
+                          ` : `
+                            Cukup hafalkan susunan T568B, lalu <strong>tukar setiap warna Oranye dengan warna Hijau</strong>! Kawat Biru (4 & 5) dan Cokelat (7 & 8) posisinya tidak pernah berubah.
+                          `}
+                        </p>
+                      </div>
+                    </div>
+
+                    <!-- Interactive Quick Action Buttons -->
+                    <div class="flex flex-wrap items-center gap-2 pt-1">
+                      <button
+                        type="button"
+                        id="btn-apply-correct-crimping"
+                        class="min-h-11 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold transition-all shadow-md active:scale-95 flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <span>✨</span>
+                        <span>${lang === 'en' ? 'Apply Correct Sequence (Study Mode)' : (lang === 'jp' ? '正しい配列を適用（学習モード）' : (lang === 'cn' ? '一键填充正确线序（学习模式）' : 'Terapkan Urutan yang Benar (Mode Belajar)'))}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        id="btn-retry-crimping"
+                        class="min-h-11 px-4 py-2 rounded-lg bg-white/[0.05] hover:bg-white/10 text-white text-xs font-semibold border border-white/10 transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <span>🔄</span>
+                        <span>${lang === 'en' ? 'Clear & Practice Again' : (lang === 'jp' ? 'リセットして再挑戦' : (lang === 'cn' ? '清空引脚重新实操' : 'Atur Ulang & Coba Rakit Sendiri'))}</span>
+                      </button>
+                    </div>
+
+                  </div>
+                ` : ''}
               ` : ''}
             </div>
 
