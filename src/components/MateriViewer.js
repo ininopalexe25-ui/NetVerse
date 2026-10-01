@@ -2,7 +2,7 @@ import { getModuleQuizzes } from '../data/moduleQuizzes.js';
 import { VIDEO_MATERIALS, getVideoByModulSlug, getVideoById } from '../data/videoMaterials.js';
 import { renderVirtualLab3D } from './VirtualLab3D.js';
 import { ASSESSMENT_MULTIPLE_CHOICE, ASSESSMENT_ESSAYS } from '../data/assessmentQuestions.js';
-import { t, getLocalizedModule } from '../utils/i18n.js';
+import { t, getLocalizedModule, MODULE_SECTION_IMAGES } from '../utils/i18n.js';
 
 /**
  * NetVerse - MateriViewer Component
@@ -843,17 +843,45 @@ export function renderMateriViewer(
 
               <!-- Reading Sections -->
               <div class="space-y-8 text-slate-300 text-sm leading-relaxed article-measure">
-                ${sections.map((sec) => `
-                  <section class="space-y-3">
-                    <div class="flex items-center gap-2">
-                      <span class="w-1 h-4 rounded-sm bg-amber-400"></span>
-                      <h2 class="text-base sm:text-lg font-bold text-white tracking-tight">${sec.title}</h2>
-                    </div>
-                    <p class="text-slate-300 leading-relaxed text-xs sm:text-sm pl-3 border-l border-white/[0.06]">
-                      ${sec.body}
-                    </p>
-                  </section>
-                `).join('')}
+                ${sections.map((sec, idx) => {
+                  const img = sec.image || (MODULE_SECTION_IMAGES[currentModul.slug] || [])[idx];
+                  return `
+                    <section class="space-y-4">
+                      <div class="flex items-center gap-2">
+                        <span class="w-1 h-4 rounded-sm bg-amber-400"></span>
+                        <h2 class="text-base sm:text-lg font-bold text-white tracking-tight">${sec.title}</h2>
+                      </div>
+                      
+                      ${img ? `
+                        <figure class="materi-section-photo my-4 rounded-xl overflow-hidden bg-black/60 border border-white/10 shadow-lg group">
+                          <div class="relative overflow-hidden aspect-[16/9] sm:aspect-[21/9] bg-slate-900">
+                            <img 
+                              src="${img.url}" 
+                              alt="${img.alt}" 
+                              loading="lazy"
+                              class="w-full h-full object-cover object-center filter saturate-[0.95] contrast-[1.05] group-hover:scale-[1.02] transition-transform duration-700 ease-out"
+                            />
+                            <div class="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-black/80 backdrop-blur-md border border-white/15 text-[10px] font-mono font-semibold text-amber-300">
+                              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                              <span>${typeof img.tag === 'object' ? (img.tag[lang] || img.tag.en || img.tag.id) : img.tag}</span>
+                            </div>
+                            <div class="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-black/80 backdrop-blur-sm text-[9px] font-mono text-slate-400 border border-white/10">
+                              ${img.source}
+                            </div>
+                          </div>
+                          <figcaption class="p-3 bg-white/[0.02] border-t border-white/[0.06] text-xs text-slate-300 flex items-start gap-2">
+                            <span class="text-amber-400 font-bold shrink-0 mt-0.5">ℹ</span>
+                            <span class="leading-relaxed text-slate-300 text-[11px] sm:text-xs">${typeof img.caption === 'object' ? (img.caption[lang] || img.caption.en || img.caption.id) : img.caption}</span>
+                          </figcaption>
+                        </figure>
+                      ` : ''}
+
+                      <p class="text-slate-300 leading-relaxed text-xs sm:text-sm pl-3 border-l border-white/[0.06]">
+                        ${sec.body}
+                      </p>
+                    </section>
+                  `;
+                }).join('')}
               </div>
 
               <!-- Socratic Checkpoint Callout -->

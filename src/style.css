@@ -1000,3 +1000,52 @@ header > div > div,
               border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
               color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
+/* Anti-AI Slop Engineering UI Utilities */
+.bg-tech-grid {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+html.light .bg-tech-grid {
+  background-image: radial-gradient(rgba(15, 23, 42, 0.08) 1px, transparent 1px);
+}
+
+/* Custom Slim Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+/* Hardware Link LED Keyframes */
+@keyframes led-flash {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.2; transform: scale(0.92); }
+}
+
+@keyframes led-flutter {
+  0%, 100% { opacity: 1; }
+  20% { opacity: 0.3; }
+  40% { opacity: 0.9; }
+  60% { opacity: 0.15; }
+  80% { opacity: 0.85; }
+}
+
+.animate-led-activity {
+  animation: led-flash 1.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-led-fast {
+  animation: led-flutter 0.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+

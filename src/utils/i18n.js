@@ -1,17 +1,25 @@
-/**
- * NetVerse - Internationalization (i18n) Engine
- * Comprehensive multi-language support:
- *   - 'id': Bahasa Indonesia (Default)
- *   - 'en': English
- *   - 'jp': 日本語 (Japanese)
- *   - 'cn': 简体中文 (Simplified Chinese)
- */
+import { MODULE_SECTION_IMAGES } from '../data/moduleImages.js';
+import { extraTranslations } from '../data/translationsExtra.js';
+
+export { MODULE_SECTION_IMAGES };
 
 export const SUPPORTED_LANGS = [
-  { code: 'id', label: 'Indonesia', short: 'ID', flag: '🇮🇩' },
   { code: 'en', label: 'English', short: 'EN', flag: '🇬🇧' },
+  { code: 'id', label: 'Indonesia', short: 'ID', flag: '🇮🇩' },
+  { code: 'es', label: 'Español', short: 'ES', flag: '🇪🇸' },
+  { code: 'cn', label: '简体中文', short: 'CN', flag: '🇨🇳' },
+  { code: 'hi', label: 'हिन्दी', short: 'HI', flag: '🇮🇳' },
+  { code: 'ar', label: 'العربية', short: 'AR', flag: '🇸🇦' },
+  { code: 'fr', label: 'Français', short: 'FR', flag: '🇫🇷' },
+  { code: 'pt', label: 'Português', short: 'PT', flag: '🇧🇷' },
+  { code: 'ru', label: 'Русский', short: 'RU', flag: '🇷🇺' },
   { code: 'jp', label: '日本語', short: 'JP', flag: '🇯🇵' },
-  { code: 'cn', label: '中文', short: 'CN', flag: '🇨🇳' }
+  { code: 'de', label: 'Deutsch', short: 'DE', flag: '🇩🇪' },
+  { code: 'ko', label: '한국어', short: 'KO', flag: '🇰🇷' },
+  { code: 'vi', label: 'Tiếng Việt', short: 'VI', flag: '🇻🇳' },
+  { code: 'it', label: 'Italiano', short: 'IT', flag: '🇮🇹' },
+  { code: 'tr', label: 'Türkçe', short: 'TR', flag: '🇹🇷' },
+  { code: 'nl', label: 'Nederlands', short: 'NL', flag: '🇳🇱' }
 ];
 
 export const SUPPORTED_THEMES = [
@@ -1040,7 +1048,8 @@ export const translations = {
       desc: '搭载苏格拉底式 AI 助教的 3D 计算机网络技术虚拟实验室',
       dept: 'UNESA 信息技术教育系'
     }
-  }
+  },
+  ...extraTranslations
 };
 
 /**
@@ -1598,35 +1607,55 @@ export const WIRE_DEFINITIONS_MULTILINGUAL = [
 /**
  * Helper to get localized wire details
  */
-export function getLocalizedWire(wireId, lang = 'id') {
-  const currentLang = ['id', 'en', 'jp', 'cn'].includes(lang) ? lang : 'id';
+export function getLocalizedWire(wireId, lang = 'en') {
+  const currentLang = ['id', 'en', 'jp', 'cn'].includes(lang) ? lang : 'en';
   const wire = WIRE_DEFINITIONS_MULTILINGUAL.find(w => w.id === wireId);
   if (!wire) return null;
   return {
     ...wire,
-    name: wire.name[currentLang] || wire.name.id
+    name: wire.name[currentLang] || wire.name.en || wire.name.id
   };
 }
 
 /**
- * Helper to get localized module metadata & content
+ * Helper to get localized module metadata & content with authentic educational photography
  */
-export function getLocalizedModule(modul, lang = 'id') {
+export function getLocalizedModule(modul, lang = 'en') {
   if (!modul) return null;
-  const currentLang = ['id', 'en', 'jp', 'cn'].includes(lang) ? lang : 'id';
   const slug = modul.slug;
   const trans = MODULE_TRANSLATIONS[slug];
+  const images = MODULE_SECTION_IMAGES[slug] || [];
 
-  if (!trans) return modul;
+  if (!trans) {
+    if (modul.konten && Array.isArray(modul.konten.sections)) {
+      return {
+        ...modul,
+        konten: {
+          ...modul.konten,
+          sections: modul.konten.sections.map((sec, idx) => ({
+            ...sec,
+            image: images[idx] || null
+          }))
+        }
+      };
+    }
+    return modul;
+  }
+
+  const rawSections = trans.sections[lang] || trans.sections.en || trans.sections.id || [];
+  const enrichedSections = rawSections.map((sec, idx) => ({
+    ...sec,
+    image: images[idx] || null
+  }));
 
   return {
     ...modul,
-    judul: trans.judul[currentLang] || trans.judul.id || modul.judul,
-    deskripsi: trans.deskripsi[currentLang] || trans.deskripsi.id || modul.deskripsi,
+    judul: trans.judul[lang] || trans.judul.en || trans.judul.id || modul.judul,
+    deskripsi: trans.deskripsi[lang] || trans.deskripsi.en || trans.deskripsi.id || modul.deskripsi,
     konten: {
-      intro: trans.deskripsi[currentLang] || trans.deskripsi.id || modul.deskripsi,
-      sections: trans.sections[currentLang] || trans.sections.id,
-      checkpointQuestion: trans.checkpointQuestion[currentLang] || trans.checkpointQuestion.id
+      intro: trans.deskripsi[lang] || trans.deskripsi.en || trans.deskripsi.id || modul.deskripsi,
+      sections: enrichedSections,
+      checkpointQuestion: trans.checkpointQuestion[lang] || trans.checkpointQuestion.en || trans.checkpointQuestion.id
     }
   };
 }
@@ -1634,9 +1663,9 @@ export function getLocalizedModule(modul, lang = 'id') {
 /**
  * Helper to get localized 3D device metadata & hotspots
  */
-export function getLocalizedDevice(device, lang = 'id') {
+export function getLocalizedDevice(device, lang = 'en') {
   if (!device) return null;
-  const currentLang = ['id', 'en', 'jp', 'cn'].includes(lang) ? lang : 'id';
+  const currentLang = ['id', 'en', 'jp', 'cn'].includes(lang) ? lang : 'en';
   const kode = device.kode;
   const trans = DEVICE_TRANSLATIONS[kode];
 
@@ -1644,17 +1673,17 @@ export function getLocalizedDevice(device, lang = 'id') {
 
   return {
     ...device,
-    nama: trans.nama[currentLang] || trans.nama.id || device.nama,
-    deskripsi: trans.deskripsi[currentLang] || trans.deskripsi.id || device.deskripsi,
-    hotspots: trans.hotspots[currentLang] || trans.hotspots.id || device.hotspots
+    nama: trans.nama[currentLang] || trans.nama.en || trans.nama.id || device.nama,
+    deskripsi: trans.deskripsi[currentLang] || trans.deskripsi.en || trans.deskripsi.id || device.deskripsi,
+    hotspots: trans.hotspots[currentLang] || trans.hotspots.en || trans.hotspots.id || device.hotspots
   };
 }
 
 /**
  * Get translation by nested key path, e.g. t('nav.workbench', 'en')
  */
-export function t(key, lang = 'id', params = {}) {
-  const currentLang = translations[lang] ? lang : 'id';
+export function t(key, lang = 'en', params = {}) {
+  const currentLang = translations[lang] ? lang : 'en';
   const keys = key.split('.');
   let val = translations[currentLang];
 
@@ -1662,16 +1691,29 @@ export function t(key, lang = 'id', params = {}) {
     if (val && typeof val === 'object' && k in val) {
       val = val[k];
     } else {
-      // Fallback to Indonesian if key missing in selected language
-      let fallbackVal = translations.id;
+      // Fallback first to English, then Indonesian
+      let fallbackVal = translations.en;
       for (const fk of keys) {
         if (fallbackVal && typeof fallbackVal === 'object' && fk in fallbackVal) {
           fallbackVal = fallbackVal[fk];
         } else {
-          return key;
+          fallbackVal = null;
+          break;
         }
       }
-      val = fallbackVal;
+      if (!fallbackVal) {
+        let idVal = translations.id;
+        for (const ik of keys) {
+          if (idVal && typeof idVal === 'object' && ik in idVal) {
+            idVal = idVal[ik];
+          } else {
+            return key;
+          }
+        }
+        val = idVal;
+      } else {
+        val = fallbackVal;
+      }
       break;
     }
   }

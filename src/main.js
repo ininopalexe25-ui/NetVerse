@@ -12,11 +12,12 @@ import { getModuleQuizzes } from './data/moduleQuizzes.js';
 import { ASSESSMENT_MULTIPLE_CHOICE, ASSESSMENT_ESSAYS, gradeEssayWithAi } from './data/assessmentQuestions.js';
 import { t, getLocalizedModule } from './utils/i18n.js';
 
-const initialLang = localStorage.getItem('netverse-lang') || 'id';
+const initialLang = localStorage.getItem('netverse-lang') || 'en';
 
 // Application State
 const state = {
   activeTab: 'workbench', // 'workbench' | 'crimping' | 'materi' | 'leaderboard'
+  activePort: 1, // 1..8 for Interactive Switch Diagnostics
   session: null,
   userProfile: {
     id: null,
@@ -148,7 +149,26 @@ function toggleTheme() {
   renderApp();
 }
 
-// Language Manager (ID, EN, JP, CN)
+const LANG_ATTR_MAP = {
+  en: 'en',
+  id: 'id',
+  es: 'es',
+  cn: 'zh-CN',
+  hi: 'hi',
+  ar: 'ar',
+  fr: 'fr',
+  pt: 'pt',
+  ru: 'ru',
+  jp: 'ja',
+  de: 'de',
+  ko: 'ko',
+  vi: 'vi',
+  it: 'it',
+  tr: 'tr',
+  nl: 'nl'
+};
+
+// Language Manager (16 World Languages)
 function setLanguage(lang) {
   state.lang = lang;
   try {
@@ -156,8 +176,7 @@ function setLanguage(lang) {
   } catch (e) {}
 
   const htmlEl = document.documentElement;
-  const langAttr = lang === 'cn' ? 'zh-CN' : (lang === 'jp' ? 'ja' : (lang === 'en' ? 'en' : 'id'));
-  htmlEl.setAttribute('lang', langAttr);
+  htmlEl.setAttribute('lang', LANG_ATTR_MAP[lang] || 'en');
 
   // Update initial greeting if user hasn't started talking yet
   if (state.aiMessages.length === 1 && state.aiMessages[0].role === 'assistant') {
@@ -170,7 +189,7 @@ function setLanguage(lang) {
 
 // Initial theme & lang apply
 applyTheme(state.theme);
-document.documentElement.setAttribute('lang', state.lang === 'cn' ? 'zh-CN' : (state.lang === 'jp' ? 'ja' : (state.lang === 'en' ? 'en' : 'id')));
+document.documentElement.setAttribute('lang', LANG_ATTR_MAP[state.lang] || 'en');
 
 // Profile Loader from Supabase
 async function loadUserProfile(userId) {
@@ -988,7 +1007,7 @@ function renderApp() {
   let mainContent = '';
   switch (state.activeTab) {
     case 'workbench':
-      mainContent = renderDashboard(state.moduls, state.devices, state.activeDeviceIndex, state.selectedHotspot, state.learningProgress, state.lang);
+      mainContent = renderDashboard(state.moduls, state.devices, state.activeDeviceIndex, state.selectedHotspot, state.learningProgress, state.lang, state.activePort || 1);
       break;
 
     case 'crimping':
@@ -1251,6 +1270,17 @@ function attachEvents() {
         }
       }
       if (target) navigate(target);
+    });
+  });
+
+  // Interactive 8-Port Switch Simulator Port Selector
+  document.querySelectorAll('[data-interactive-port]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const portNum = Number(e.currentTarget.getAttribute('data-interactive-port'));
+      if (portNum >= 1 && portNum <= 8) {
+        state.activePort = portNum;
+        renderApp();
+      }
     });
   });
 

@@ -60,17 +60,17 @@ export function renderNavbar(activeTab, onNavigate, userProfile, session, theme 
                 aria-label="${t('lang.label', lang)}"
                 aria-expanded="false"
               >
-                <span class="text-sm leading-none">${currentLangObj.flag}</span>
+                <span class="text-sm leading-none flex items-center gap-0.5 select-none">🌐${currentLangObj.flag}</span>
                 <span class="font-mono text-[11px] font-bold tracking-wider">${currentLangObj.short}</span>
                 <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
               </button>
 
-              <!-- Language Dropdown Popover -->
+              <!-- Language Dropdown Popover (16 Languages) -->
               <div 
                 id="lang-dropdown-menu" 
-                class="hidden absolute right-0 mt-2 w-44 rounded-xl bg-black/95 dark:bg-black/95 backdrop-blur-2xl border border-white/10 shadow-[0_16px_40px_rgba(0,0,0,0.7)] p-1.5 space-y-1 z-50 text-xs"
+                class="hidden absolute right-0 mt-2 w-52 max-h-80 overflow-y-auto custom-scrollbar rounded-xl bg-black/95 dark:bg-black/95 backdrop-blur-2xl border border-white/10 shadow-[0_16px_40px_rgba(0,0,0,0.7)] p-1.5 space-y-1 z-50 text-xs"
               >
                 ${SUPPORTED_LANGS.map(l => {
                   const isSelected = l.code === lang;
@@ -85,8 +85,8 @@ export function renderNavbar(activeTab, onNavigate, userProfile, session, theme 
                       }"
                     >
                       <div class="flex items-center gap-2">
-                        <span class="text-base">${l.flag}</span>
-                        <span>${l.label}</span>
+                        <span class="text-sm select-none">🌐${l.flag}</span>
+                        <span class="text-xs font-medium">${l.label}</span>
                       </div>
                       ${isSelected ? '<span class="text-amber-400 font-bold">✓</span>' : ''}
                     </button>
@@ -224,22 +224,25 @@ export function renderNavbar(activeTab, onNavigate, userProfile, session, theme 
             </div>
           </div>
 
-          <!-- Language Selection in Mobile Menu -->
+          <!-- Language Selection in Mobile Menu (16 World Languages) -->
           <div class="pt-2 border-t border-white/[0.08] space-y-1.5 px-1">
-            <span class="text-[11px] font-medium text-slate-400">${t('lang.label', lang)}</span>
-            <div class="grid grid-cols-4 gap-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-medium text-slate-400">${t('lang.label', lang)}</span>
+              <span class="text-[10px] font-mono text-amber-400">16 Languages</span>
+            </div>
+            <div class="grid grid-cols-4 gap-1.5 max-h-48 overflow-y-auto custom-scrollbar p-0.5">
               ${SUPPORTED_LANGS.map(l => `
                 <button 
                   type="button"
                   data-select-lang="${l.code}"
-                  class="px-2 py-1.5 rounded-lg text-[11px] font-medium border text-center transition-all flex items-center justify-center gap-1 ${
+                  class="px-2 py-1.5 rounded-lg text-[11px] font-medium border text-center transition-all flex items-center justify-center gap-1 cursor-pointer ${
                     l.code === lang 
                       ? 'bg-amber-400/20 text-amber-300 font-bold border-amber-400/50' 
                       : 'bg-white/[0.05] text-slate-300 border-white/10 hover:bg-white/10'
                   }"
                 >
-                  <span>${l.flag}</span>
-                  <span>${l.short}</span>
+                  <span class="text-xs select-none">🌐${l.flag}</span>
+                  <span class="font-mono text-[10px] font-bold">${l.short}</span>
                 </button>
               `).join('')}
             </div>
