@@ -1137,57 +1137,154 @@ html.sakura #auth-modal-backdrop input:focus {
 
 /* -------------------------------------------------------------
  * UNIQUE THEMATIC ATMOSPHERIC ELEMENTS (Midnight, Emerald, Violet, Sakura)
- * Zero overhead GPU-accelerated CSS animations
+ * Zero overhead GPU-accelerated CSS animations with rich vibrant ("jreng") lighting
  * ------------------------------------------------------------- */
 @keyframes star-twinkle {
-  0%, 100% { opacity: 0.15; transform: scale(0.8); }
-  50% { opacity: 0.95; transform: scale(1.2); }
+  0%, 100% { opacity: 0.2; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1.3); filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.9)); }
 }
 
 @keyframes moon-halo {
-  0%, 100% { filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.35)); }
-  50% { filter: drop-shadow(0 0 28px rgba(56, 189, 248, 0.7)); }
+  0%, 100% { filter: drop-shadow(0 0 18px rgba(56, 189, 248, 0.45)); transform: scale(1); }
+  50% { filter: drop-shadow(0 0 35px rgba(56, 189, 248, 0.85)); transform: scale(1.02); }
+}
+
+@keyframes meteor-pass-1 {
+  0% { transform: translate3d(250px, -120px, 0) rotate(-35deg) scaleX(0); opacity: 0; }
+  1% { opacity: 1; transform: translate3d(200px, -70px, 0) rotate(-35deg) scaleX(1); }
+  6% { transform: translate3d(-200px, 350px, 0) rotate(-35deg) scaleX(1.8); opacity: 0.95; filter: drop-shadow(0 0 8px #38bdf8); }
+  10% { transform: translate3d(-460px, 600px, 0) rotate(-35deg) scaleX(0.2); opacity: 0; }
+  100% { transform: translate3d(-460px, 600px, 0) rotate(-35deg) scaleX(0); opacity: 0; }
+}
+
+@keyframes meteor-pass-2 {
+  0% { transform: translate3d(320px, -60px, 0) rotate(-40deg) scaleX(0); opacity: 0; }
+  1% { opacity: 1; transform: translate3d(260px, 0px, 0) rotate(-40deg) scaleX(1); }
+  7% { transform: translate3d(-180px, 440px, 0) rotate(-40deg) scaleX(1.6); opacity: 0.9; filter: drop-shadow(0 0 8px #06b6d4); }
+  11% { transform: translate3d(-400px, 660px, 0) rotate(-40deg) scaleX(0.2); opacity: 0; }
+  100% { transform: translate3d(-400px, 660px, 0) rotate(-40deg) scaleX(0); opacity: 0; }
+}
+
+@keyframes aurora-shimmer {
+  0%, 100% { transform: translate3d(0, 0, 0) scaleY(1); opacity: 0.35; }
+  50% { transform: translate3d(-25px, -15px, 0) scaleY(1.25); opacity: 0.65; filter: drop-shadow(0 0 25px rgba(56, 189, 248, 0.4)); }
+}
+
+@keyframes diamond-twinkle {
+  0%, 100% { transform: scale(0.6) rotate(0deg); opacity: 0.25; }
+  50% { transform: scale(1.4) rotate(90deg); opacity: 1; filter: drop-shadow(0 0 8px currentColor); }
 }
 
 @keyframes firefly-rise {
-  0% { transform: translateY(0) translateX(0); opacity: 0.15; }
-  50% { transform: translateY(-50px) translateX(18px); opacity: 0.85; }
-  100% { transform: translateY(-110px) translateX(-12px); opacity: 0; }
+  0% { transform: translateY(0) translateX(0); opacity: 0.2; }
+  50% { transform: translateY(-60px) translateX(22px); opacity: 1; filter: drop-shadow(0 0 10px #10b981); }
+  100% { transform: translateY(-130px) translateX(-15px); opacity: 0; }
+}
+
+@keyframes firefly-path-1 {
+  0% { transform: translate3d(0, 0, 0); opacity: 0.25; }
+  22% { transform: translate3d(24px, -40px, 0); opacity: 1; filter: drop-shadow(0 0 12px #34d399); }
+  52% { transform: translate3d(-20px, -95px, 0); opacity: 0.55; }
+  82% { transform: translate3d(30px, -155px, 0); opacity: 0.95; filter: drop-shadow(0 0 10px #10b981); }
+  100% { transform: translate3d(5px, -210px, 0); opacity: 0; }
+}
+
+@keyframes firefly-path-2 {
+  0% { transform: translate3d(0, 0, 0); opacity: 0.2; }
+  28% { transform: translate3d(-32px, -50px, 0); opacity: 1; filter: drop-shadow(0 0 12px #a3e635); }
+  58% { transform: translate3d(22px, -105px, 0); opacity: 0.5; }
+  88% { transform: translate3d(-28px, -165px, 0); opacity: 0.95; filter: drop-shadow(0 0 10px #2dd4bf); }
+  100% { transform: translate3d(0, -220px, 0); opacity: 0; }
+}
+
+@keyframes firefly-pulse-glow {
+  0%, 100% { transform: scale(0.85); opacity: 0.35; }
+  50% { transform: scale(1.4); opacity: 1; filter: drop-shadow(0 0 12px #34d399); }
+}
+
+@keyframes mist-drift {
+  0%, 100% { transform: translate3d(0, 0, 0); opacity: 0.4; }
+  50% { transform: translate3d(-45px, -6px, 0); opacity: 0.75; }
 }
 
 @keyframes nebula-pulse {
-  0%, 100% { opacity: 0.22; transform: scale(1) rotate(0deg); }
-  50% { opacity: 0.42; transform: scale(1.06) rotate(2deg); }
+  0%, 100% { opacity: 0.3; transform: scale(1) rotate(0deg); }
+  50% { opacity: 0.58; transform: scale(1.08) rotate(2deg); filter: drop-shadow(0 0 35px rgba(168, 85, 247, 0.45)); }
 }
 
 @keyframes crystal-drift {
-  0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.3; }
-  50% { transform: translateY(-18px) rotate(12deg); opacity: 0.8; }
+  0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.35; }
+  50% { transform: translateY(-22px) rotate(16deg); opacity: 0.95; filter: drop-shadow(0 0 12px rgba(192, 132, 252, 0.65)); }
+}
+
+@keyframes cyber-beam-pulse {
+  0% { transform: translateY(-100%); opacity: 0; }
+  20% { opacity: 0.9; }
+  80% { opacity: 0.9; }
+  100% { transform: translateY(240%); opacity: 0; }
 }
 
 @keyframes sakura-fall {
-  0% { transform: translate3d(0, -30px, 0) rotate(0deg); opacity: 0; }
-  10% { opacity: 0.85; }
-  90% { opacity: 0.75; }
-  100% { transform: translate3d(80px, 105vh, 0) rotate(420deg); opacity: 0; }
+  0% { transform: translate3d(0, -35px, 0) rotate(0deg); opacity: 0; }
+  10% { opacity: 0.95; }
+  90% { opacity: 0.8; }
+  100% { transform: translate3d(90px, 105vh, 0) rotate(420deg); opacity: 0; }
 }
 
+@keyframes sakura-tumble-1 {
+  0% { transform: translate3d(0, -40px, 0) rotateZ(0deg) rotateY(0deg); opacity: 0; }
+  8% { opacity: 0.95; }
+  50% { transform: translate3d(70px, 50vh, 0) rotateZ(210deg) rotateY(180deg); opacity: 0.88; }
+  90% { opacity: 0.78; }
+  100% { transform: translate3d(140px, 105vh, 0) rotateZ(420deg) rotateY(360deg); opacity: 0; }
+}
+
+@keyframes sakura-tumble-2 {
+  0% { transform: translate3d(0, -40px, 0) rotateZ(45deg) rotateX(0deg); opacity: 0; }
+  10% { opacity: 0.92; }
+  45% { transform: translate3d(-55px, 45vh, 0) rotateZ(240deg) rotateX(180deg); opacity: 0.82; }
+  88% { opacity: 0.72; }
+  100% { transform: translate3d(35px, 105vh, 0) rotateZ(480deg) rotateX(360deg); opacity: 0; }
+}
+
+@keyframes sakura-pollen-glow {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(0.85); opacity: 0.3; }
+  50% { transform: translate3d(20px, -32px, 0) scale(1.3); opacity: 1; filter: drop-shadow(0 0 10px #f472b6); }
+}
+
+/* Animation Utility Classes */
 .anim-star-1 { animation: star-twinkle 2.8s ease-in-out infinite; }
 .anim-star-2 { animation: star-twinkle 3.6s ease-in-out infinite 0.9s; }
 .anim-star-3 { animation: star-twinkle 4.2s ease-in-out infinite 1.8s; }
+.anim-diamond-1 { animation: diamond-twinkle 3.2s ease-in-out infinite; }
+.anim-diamond-2 { animation: diamond-twinkle 4.5s ease-in-out infinite 1.6s; }
 .anim-moon { animation: moon-halo 5s ease-in-out infinite; }
+.anim-meteor-1 { animation: meteor-pass-1 8.5s ease-in infinite; }
+.anim-meteor-2 { animation: meteor-pass-2 13s ease-in infinite 4.2s; }
+.anim-aurora { animation: aurora-shimmer 7.5s ease-in-out infinite; }
 
 .anim-firefly-1 { animation: firefly-rise 6.5s ease-in-out infinite; }
 .anim-firefly-2 { animation: firefly-rise 8.2s ease-in-out infinite 2s; }
 .anim-firefly-3 { animation: firefly-rise 7.4s ease-in-out infinite 3.8s; }
+.anim-firefly-drift-1 { animation: firefly-path-1 7.2s ease-in-out infinite; }
+.anim-firefly-drift-2 { animation: firefly-path-2 9.5s ease-in-out infinite 1.6s; }
+.anim-firefly-drift-3 { animation: firefly-path-1 8.4s ease-in-out infinite 3.7s; }
+.anim-spore-pulse { animation: firefly-pulse-glow 4.2s ease-in-out infinite; }
+.anim-mist-drift { animation: mist-drift 11s ease-in-out infinite; }
 
 .anim-nebula { animation: nebula-pulse 10s ease-in-out infinite; }
 .anim-crystal-1 { animation: crystal-drift 6s ease-in-out infinite; }
 .anim-crystal-2 { animation: crystal-drift 8s ease-in-out infinite 2.5s; }
+.anim-cyber-beam { animation: cyber-beam-pulse 4.5s linear infinite; }
 
 .anim-sakura-1 { animation: sakura-fall 11s linear infinite; }
 .anim-sakura-2 { animation: sakura-fall 14s linear infinite 3s; }
 .anim-sakura-3 { animation: sakura-fall 12.5s linear infinite 6s; }
 .anim-sakura-4 { animation: sakura-fall 16s linear infinite 1.5s; }
 .anim-sakura-5 { animation: sakura-fall 13s linear infinite 8s; }
+.anim-sakura-fall-1 { animation: sakura-tumble-1 10s linear infinite; }
+.anim-sakura-fall-2 { animation: sakura-tumble-2 13.5s linear infinite 2.8s; }
+.anim-sakura-fall-3 { animation: sakura-tumble-1 11.8s linear infinite 5.5s; }
+.anim-sakura-fall-4 { animation: sakura-tumble-2 15.5s linear infinite 8.2s; }
+.anim-pollen-drift { animation: sakura-pollen-glow 4.8s ease-in-out infinite; }
 
