@@ -1094,7 +1094,67 @@ async function runAudit() {
         auditLog.screenshots.push('12_emerald_theme_workbench.png');
       }
 
-      // 5. Select Dark Theme (Default)
+      // 5. Select Cyber Violet (Ungu Gelap) Theme
+      await openThemeDropdown();
+      const btnViolet = await page.$('button[data-set-theme="violet"]');
+      recordCheck('Cyber Violet (Ungu Gelap) option present in dropdown', !!btnViolet);
+      if (btnViolet) {
+        await btnViolet.click();
+        await page.waitForTimeout(400);
+
+        const violetThemeState = await page.evaluate(() => {
+          const isHtmlViolet = document.documentElement.classList.contains('violet');
+          const isHtmlDark = document.documentElement.classList.contains('dark');
+          const themeAttr = document.documentElement.getAttribute('data-theme');
+          const storageVal = localStorage.getItem('netverse-theme');
+          const hasAtmosphere = !!document.querySelector('#theme-atmosphere .anim-nebula');
+          return { isHtmlViolet, isHtmlDark, themeAttr, storageVal, hasAtmosphere };
+        });
+
+        recordCheck(
+          'Theme switches to Cyber Violet Mode (dominant cosmic violet)',
+          violetThemeState.isHtmlViolet && violetThemeState.themeAttr === 'violet',
+          `Class: violet, dark; data-theme: ${violetThemeState.themeAttr}`
+        );
+        recordCheck('Theme preference saved to localStorage as violet', violetThemeState.storageVal === 'violet');
+        recordCheck('Atmospheric ambient elements active for Cyber Violet', violetThemeState.hasAtmosphere);
+
+        const shotViolet = path.join(AUDIT_DIR, '12c_violet_theme_workbench.png');
+        await page.screenshot({ path: shotViolet });
+        auditLog.screenshots.push('12c_violet_theme_workbench.png');
+      }
+
+      // 6. Select Neon Sakura (Pink) Theme
+      await openThemeDropdown();
+      const btnSakura = await page.$('button[data-set-theme="sakura"]');
+      recordCheck('Neon Sakura (Pink) option present in dropdown', !!btnSakura);
+      if (btnSakura) {
+        await btnSakura.click();
+        await page.waitForTimeout(400);
+
+        const sakuraThemeState = await page.evaluate(() => {
+          const isHtmlSakura = document.documentElement.classList.contains('sakura');
+          const isHtmlDark = document.documentElement.classList.contains('dark');
+          const themeAttr = document.documentElement.getAttribute('data-theme');
+          const storageVal = localStorage.getItem('netverse-theme');
+          const hasAtmosphere = !!document.querySelector('#theme-atmosphere .anim-sakura-1');
+          return { isHtmlSakura, isHtmlDark, themeAttr, storageVal, hasAtmosphere };
+        });
+
+        recordCheck(
+          'Theme switches to Neon Sakura Mode (dominant cyber pink)',
+          sakuraThemeState.isHtmlSakura && sakuraThemeState.themeAttr === 'sakura',
+          `Class: sakura, dark; data-theme: ${sakuraThemeState.themeAttr}`
+        );
+        recordCheck('Theme preference saved to localStorage as sakura', sakuraThemeState.storageVal === 'sakura');
+        recordCheck('Atmospheric ambient elements active for Neon Sakura', sakuraThemeState.hasAtmosphere);
+
+        const shotSakura = path.join(AUDIT_DIR, '12d_sakura_theme_workbench.png');
+        await page.screenshot({ path: shotSakura });
+        auditLog.screenshots.push('12d_sakura_theme_workbench.png');
+      }
+
+      // 7. Select Dark Theme (Default)
       await openThemeDropdown();
       const btnDark = await page.$('button[data-set-theme="dark"]');
       recordCheck('Dark Theme option present in dropdown', !!btnDark);
@@ -1106,11 +1166,13 @@ async function runAudit() {
           const isHtmlDark = document.documentElement.classList.contains('dark');
           const themeAttr = document.documentElement.getAttribute('data-theme');
           const storageVal = localStorage.getItem('netverse-theme');
-          return { isHtmlDark, themeAttr, storageVal };
+          const atmosphereChildren = document.querySelector('#theme-atmosphere')?.children?.length || 0;
+          return { isHtmlDark, themeAttr, storageVal, atmosphereChildren };
         });
 
         recordCheck('Theme returns to Dark Mode cleanly', darkThemeState.isHtmlDark && darkThemeState.themeAttr === 'dark');
         recordCheck('Theme preference updated in localStorage as dark', darkThemeState.storageVal === 'dark');
+        recordCheck('Dark Theme has zero extra ambient elements (clean minimal substrate)', darkThemeState.atmosphereChildren === 0);
 
         const shot12b = path.join(AUDIT_DIR, '12b_dark_theme_restored.png');
         await page.screenshot({ path: shot12b });

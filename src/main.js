@@ -8,6 +8,7 @@ import { renderLeaderboard } from './components/Leaderboard.js';
 import { renderFloatingAiTutor } from './components/FloatingAiTutor.js';
 import { renderAuthModal } from './components/AuthModal.js';
 import { renderNetVerseLogo } from './components/Logo.js';
+import { renderThemeAtmosphere } from './components/ThemeAtmosphere.js';
 import { getModuleQuizzes } from './data/moduleQuizzes.js';
 import { ASSESSMENT_MULTIPLE_CHOICE, ASSESSMENT_ESSAYS, gradeEssayWithAi } from './data/assessmentQuestions.js';
 import { t, getLocalizedModule } from './utils/i18n.js';
@@ -94,7 +95,7 @@ function getEffectiveUserName() {
   return 'User';
 }
 
-// Theme Manager (Light, Dark, Midnight Blue, Dark Emerald)
+// Theme Manager (Light, Dark, Midnight Blue, Dark Emerald, Cyber Violet, Neon Sakura)
 function applyTheme(theme) {
   state.theme = theme;
   try {
@@ -104,36 +105,37 @@ function applyTheme(theme) {
   const htmlEl = document.documentElement;
   const bodyEl = document.body;
 
-  htmlEl.classList.remove('light', 'dark', 'midnight', 'emerald');
+  const allThemes = ['light', 'dark', 'midnight', 'emerald', 'violet', 'sakura'];
+  htmlEl.classList.remove(...allThemes);
   if (bodyEl) {
-    bodyEl.classList.remove('light', 'dark', 'midnight', 'emerald');
+    bodyEl.classList.remove(...allThemes);
   }
 
   if (theme === 'light') {
     htmlEl.classList.add('light');
     htmlEl.setAttribute('data-theme', 'light');
-    if (bodyEl) {
-      bodyEl.classList.add('light');
-    }
+    if (bodyEl) bodyEl.classList.add('light');
   } else if (theme === 'midnight') {
     htmlEl.classList.add('midnight', 'dark');
     htmlEl.setAttribute('data-theme', 'midnight');
-    if (bodyEl) {
-      bodyEl.classList.add('midnight', 'dark');
-    }
+    if (bodyEl) bodyEl.classList.add('midnight', 'dark');
   } else if (theme === 'emerald') {
     htmlEl.classList.add('emerald', 'dark');
     htmlEl.setAttribute('data-theme', 'emerald');
-    if (bodyEl) {
-      bodyEl.classList.add('emerald', 'dark');
-    }
+    if (bodyEl) bodyEl.classList.add('emerald', 'dark');
+  } else if (theme === 'violet') {
+    htmlEl.classList.add('violet', 'dark');
+    htmlEl.setAttribute('data-theme', 'violet');
+    if (bodyEl) bodyEl.classList.add('violet', 'dark');
+  } else if (theme === 'sakura') {
+    htmlEl.classList.add('sakura', 'dark');
+    htmlEl.setAttribute('data-theme', 'sakura');
+    if (bodyEl) bodyEl.classList.add('sakura', 'dark');
   } else {
     // default dark
     htmlEl.classList.add('dark');
     htmlEl.setAttribute('data-theme', 'dark');
-    if (bodyEl) {
-      bodyEl.classList.add('dark');
-    }
+    if (bodyEl) bodyEl.classList.add('dark');
   }
 }
 
@@ -143,7 +145,14 @@ function setTheme(theme) {
 }
 
 function toggleTheme() {
-  const cycle = { dark: 'light', light: 'midnight', midnight: 'emerald', emerald: 'dark' };
+  const cycle = {
+    dark: 'light',
+    light: 'midnight',
+    midnight: 'emerald',
+    emerald: 'violet',
+    violet: 'sakura',
+    sakura: 'dark'
+  };
   const nextTheme = cycle[state.theme] || 'dark';
   applyTheme(nextTheme);
   renderApp();
@@ -177,6 +186,7 @@ function setLanguage(lang) {
 
   const htmlEl = document.documentElement;
   htmlEl.setAttribute('lang', LANG_ATTR_MAP[lang] || 'en');
+  htmlEl.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
 
   // Update initial greeting if user hasn't started talking yet
   if (state.aiMessages.length === 1 && state.aiMessages[0].role === 'assistant') {
@@ -190,6 +200,7 @@ function setLanguage(lang) {
 // Initial theme & lang apply
 applyTheme(state.theme);
 document.documentElement.setAttribute('lang', LANG_ATTR_MAP[state.lang] || 'en');
+document.documentElement.setAttribute('dir', state.lang === 'ar' ? 'rtl' : 'ltr');
 
 // Profile Loader from Supabase
 async function loadUserProfile(userId) {
@@ -1056,47 +1067,50 @@ function renderApp() {
   }
 
   app.innerHTML = `
-    <div class="min-h-screen text-slate-100 flex flex-col font-sans">
-      ${renderNavbar(state.activeTab, navigate, state.userProfile, state.session, state.theme, state.lang)}
+    <div class="min-h-screen text-slate-100 flex flex-col font-sans relative">
+      ${renderThemeAtmosphere(state.theme)}
+      <div class="relative z-10 flex-1 flex flex-col">
+        ${renderNavbar(state.activeTab, navigate, state.userProfile, state.session, state.theme, state.lang)}
 
-      ${state.realtimeToast ? `
-        <div class="max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-24 pb-2">
-          <div id="realtime-toast-banner" class="ml-auto max-w-sm p-4 rounded-xl bg-black/95 border border-amber-400/50 shadow-[0_16px_40px_rgba(245,158,11,0.18)] text-xs text-white flex items-start gap-3 animate-fadeIn" role="status" aria-live="polite">
-            <div class="w-2.5 h-2.5 rounded-sm bg-amber-400 mt-1 shrink-0 animate-pulse"></div>
-            <div class="flex-1 min-w-0">
-              <div class="font-bold text-amber-400 text-[10px] tracking-wider uppercase mb-0.5 flex items-center gap-1.5">
-                <span>${t('toast.latestActivity', state.lang)}</span>
-                <span class="text-slate-500">•</span>
-                <span class="text-slate-400 font-mono text-[9px]">${t('toast.live', state.lang)}</span>
+        ${state.realtimeToast ? `
+          <div class="max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-24 pb-2">
+            <div id="realtime-toast-banner" class="ml-auto max-w-sm p-4 rounded-xl bg-black/95 border border-amber-400/50 shadow-[0_16px_40px_rgba(245,158,11,0.18)] text-xs text-white flex items-start gap-3 animate-fadeIn" role="status" aria-live="polite">
+              <div class="w-2.5 h-2.5 rounded-sm bg-amber-400 mt-1 shrink-0 animate-pulse"></div>
+              <div class="flex-1 min-w-0">
+                <div class="font-bold text-amber-400 text-[10px] tracking-wider uppercase mb-0.5 flex items-center gap-1.5">
+                  <span>${t('toast.latestActivity', state.lang)}</span>
+                  <span class="text-slate-500">•</span>
+                  <span class="text-slate-400 font-mono text-[9px]">${t('toast.live', state.lang)}</span>
+                </div>
+                <p class="leading-relaxed text-slate-100 font-medium">${state.realtimeToast.text}</p>
               </div>
-              <p class="leading-relaxed text-slate-100 font-medium">${state.realtimeToast.text}</p>
+              <button id="btn-close-toast" type="button" class="min-h-11 min-w-11 -mr-2 -mt-2 rounded-md text-slate-400 hover:text-white hover:bg-white/10 transition-colors flex items-center justify-center" aria-label="${t('toast.close', state.lang)}">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
             </div>
-            <button id="btn-close-toast" type="button" class="min-h-11 min-w-11 -mr-2 -mt-2 rounded-md text-slate-400 hover:text-white hover:bg-white/10 transition-colors flex items-center justify-center" aria-label="${t('toast.close', state.lang)}">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-              </svg>
-            </button>
           </div>
-        </div>
-      ` : ''}
-      
-      <main class="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-8">
-        ${mainContent}
-      </main>
+        ` : ''}
+        
+        <main class="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-8">
+          ${mainContent}
+        </main>
 
-      <footer class="border-t border-white/[0.06] py-12 text-xs text-slate-400">
-        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 px-6">
-          <div class="flex items-center space-x-2.5">
-            ${renderNetVerseLogo({ size: 24, className: 'w-6 h-6 rounded-md shadow-sm' })}
-            <span class="font-semibold text-white">NetVerse</span>
-            <span class="text-slate-400">•</span>
-            <span>${t('footer.dept', state.lang)}</span>
+        <footer class="border-t border-white/[0.06] py-12 text-xs text-slate-400">
+          <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 px-6">
+            <div class="flex items-center space-x-2.5">
+              ${renderNetVerseLogo({ size: 24, className: 'w-6 h-6 rounded-md shadow-sm' })}
+              <span class="font-semibold text-white">NetVerse</span>
+              <span class="text-slate-400">•</span>
+              <span>${t('footer.dept', state.lang)}</span>
+            </div>
+            <div class="text-slate-400">
+              ${t('footer.desc', state.lang)}
+            </div>
           </div>
-          <div class="text-slate-400">
-            ${t('footer.desc', state.lang)}
-          </div>
-        </div>
-      </footer>
+        </footer>
+      </div>
 
       ${renderFloatingAiTutor(state.aiChatOpen, state.aiMessages, activeContextName, state.aiLoading, state.aiDynamicChips, state.lang)}
       ${renderAuthModal(state)}

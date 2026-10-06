@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="id" class="dark">
+<html lang="en" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NetVerse | Lab Jaringan Komputer 3D</title>
+  <title>NetVerse | 3D Computer Network Lab</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   
   <script>
     (function() {
       try {
         const savedTheme = localStorage.getItem('netverse-theme');
-        document.documentElement.classList.remove('dark', 'light', 'midnight', 'emerald');
+        document.documentElement.classList.remove('dark', 'light', 'midnight', 'emerald', 'violet', 'sakura');
         if (savedTheme === 'light') {
           document.documentElement.classList.add('light');
           document.documentElement.setAttribute('data-theme', 'light');
@@ -20,21 +20,30 @@
         } else if (savedTheme === 'emerald') {
           document.documentElement.classList.add('emerald', 'dark');
           document.documentElement.setAttribute('data-theme', 'emerald');
+        } else if (savedTheme === 'violet') {
+          document.documentElement.classList.add('violet', 'dark');
+          document.documentElement.setAttribute('data-theme', 'violet');
+        } else if (savedTheme === 'sakura') {
+          document.documentElement.classList.add('sakura', 'dark');
+          document.documentElement.setAttribute('data-theme', 'sakura');
         } else {
           document.documentElement.classList.add('dark');
           document.documentElement.setAttribute('data-theme', 'dark');
         }
 
-        const savedLang = localStorage.getItem('netverse-lang') || 'id';
+        const savedLang = localStorage.getItem('netverse-lang') || 'en';
         document.documentElement.setAttribute('lang', savedLang);
+        if (savedLang === 'ar') {
+          document.documentElement.setAttribute('dir', 'rtl');
+        }
       } catch (e) {}
     })();
   </script>
 
-  <!-- Typography: Plus Jakarta Sans for UI + JetBrains Mono for Engineering Telemetry -->
+  <!-- Typography: Multi-script Global Fonts (Arabic, Devanagari, East Asian CJK, Cyrillic, Latin) + JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Arabic:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- Google <model-viewer> for WebGL/WebXR 3D Object Exploration (Official Standard) -->
   <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>

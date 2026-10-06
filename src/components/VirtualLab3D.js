@@ -1,7 +1,7 @@
 import { t, getLocalizedDevice, CATEGORY_LABELS, SPECIFICATION_LABELS } from '../utils/i18n.js';
 import { HARDWARE_DETAILS } from '../data/hardwareDetails.js';
 
-export function renderVirtualLab3D(devices = [], activeDeviceIndex = 0, selectedHotspot = null, lang = 'id') {
+export function renderVirtualLab3D(devices = [], activeDeviceIndex = 0, selectedHotspot = null, lang = 'en') {
   if (devices.length === 0) {
     return `
       <div class="bezel-shell">
@@ -216,7 +216,7 @@ export function renderVirtualLab3D(devices = [], activeDeviceIndex = 0, selected
                 <div class="flex items-center gap-2">
                   <span class="w-2.5 h-2.5 rounded-sm bg-amber-400"></span>
                   <h3 class="text-xs font-bold text-white uppercase tracking-wider">
-                    ${lang === 'en' ? 'Deep Technical Specification & Architecture' : (lang === 'jp' ? '詳細仕様・内部アーキテクチャ・運用手引' : (lang === 'cn' ? '深度技术规格与机房运维技术标准' : 'Spesifikasi Teknis Mendalam & Panduan Praktik'))}
+                    ${t('virtualLab.specsTitle', lang)}
                   </h3>
                 </div>
                 <span class="text-[10px] font-mono text-emerald-400 px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20">
@@ -228,10 +228,10 @@ export function renderVirtualLab3D(devices = [], activeDeviceIndex = 0, selected
               <div class="p-4 rounded-xl bg-gradient-to-r from-white/[0.03] to-transparent border border-white/10 space-y-2">
                 <div class="text-xs font-bold text-amber-300 flex items-center gap-1.5">
                   <span>⚙️</span>
-                  <span>${lang === 'en' ? 'System Architecture & Internal Mechanics' : (lang === 'jp' ? 'システム内部アーキテクチャ' : (lang === 'cn' ? '底层架构与芯片工作机制' : 'Arsitektur Sistem & Mekanisme Internal'))}</span>
+                  <span>${t('virtualLab.architectureTitle', lang)}</span>
                 </div>
                 <p class="text-xs text-slate-300 leading-relaxed">
-                  ${deepDetail.arsitektur[lang] || deepDetail.arsitektur.id}
+                  ${deepDetail.arsitektur[lang] || deepDetail.arsitektur.en || deepDetail.arsitektur.id}
                 </p>
               </div>
 
@@ -242,12 +242,12 @@ export function renderVirtualLab3D(devices = [], activeDeviceIndex = 0, selected
                 <div class="md:col-span-6 space-y-2.5">
                   <h4 class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
                     <span class="text-amber-400">📊</span>
-                    <span>${lang === 'en' ? 'Hardware Engineering Metrics' : (lang === 'jp' ? '技術パラメータ一覧' : (lang === 'cn' ? '工业级硬件核心技术指标' : 'Parameter Rekayasa Perangkat Keras'))}</span>
+                    <span>${t('virtualLab.metricsTitle', lang)}</span>
                   </h4>
                   <div class="rounded-xl border border-white/[0.08] bg-black/40 overflow-hidden divide-y divide-white/[0.04]">
                     ${deepDetail.spesifikasiDetail.map(s => `
                       <div class="p-2.5 px-3 flex items-start justify-between gap-3 text-xs">
-                        <span class="text-slate-400 font-medium shrink-0">${s.label[lang] || s.label.id}</span>
+                        <span class="text-slate-400 font-medium shrink-0">${s.label[lang] || s.label.en || s.label.id}</span>
                         <span class="text-white font-mono font-semibold text-right">${s.value}</span>
                       </div>
                     `).join('')}
@@ -258,10 +258,10 @@ export function renderVirtualLab3D(devices = [], activeDeviceIndex = 0, selected
                 <div class="md:col-span-6 space-y-2.5">
                   <h4 class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
                     <span class="text-emerald-400">⚡</span>
-                    <span>${lang === 'en' ? 'Primary Operational Capabilities' : (lang === 'jp' ? '主要機能・活用メリット' : (lang === 'cn' ? '关键业务能力与实训应用' : 'Kapabilitas Utama & Fitur Unggulan'))}</span>
+                    <span>${t('virtualLab.capabilitiesTitle', lang)}</span>
                   </h4>
                   <div class="space-y-2">
-                    ${(deepDetail.fiturUtama[lang] || deepDetail.fiturUtama.id).map(feat => `
+                    ${(deepDetail.fiturUtama[lang] || deepDetail.fiturUtama.en || deepDetail.fiturUtama.id).map(feat => `
                       <div class="p-2.5 rounded-lg bg-white/[0.02] border border-white/[0.06] text-xs text-slate-300 flex items-start gap-2">
                         <span class="text-amber-400 font-bold shrink-0 mt-0.5">•</span>
                         <span class="leading-relaxed">${feat}</span>
@@ -279,10 +279,10 @@ export function renderVirtualLab3D(devices = [], activeDeviceIndex = 0, selected
                 <div class="md:col-span-6 p-4 rounded-xl bg-blue-500/[0.03] border border-blue-500/20 space-y-2">
                   <div class="text-xs font-bold text-blue-300 flex items-center gap-1.5">
                     <span>📋</span>
-                    <span>${lang === 'en' ? 'Standard Operating Procedure (SOP)' : (lang === 'jp' ? '現場運用・標準作業手順 (SOP)' : (lang === 'cn' ? '机房规范操作流程 (SOP)' : 'Prosedur Operasional Standar (SOP Lab)'))}</span>
+                    <span>${t('virtualLab.sopTitle', lang)}</span>
                   </div>
                   <p class="text-xs text-slate-300 leading-relaxed">
-                    ${deepDetail.panduanPraktis[lang] || deepDetail.panduanPraktis.id}
+                    ${deepDetail.panduanPraktis[lang] || deepDetail.panduanPraktis.en || deepDetail.panduanPraktis.id}
                   </p>
                 </div>
 
@@ -290,10 +290,10 @@ export function renderVirtualLab3D(devices = [], activeDeviceIndex = 0, selected
                 <div class="md:col-span-6 p-4 rounded-xl bg-amber-500/[0.03] border border-amber-500/20 space-y-2">
                   <div class="text-xs font-bold text-amber-300 flex items-center gap-1.5">
                     <span>🛠️</span>
-                    <span>${lang === 'en' ? 'Troubleshooting & Maintenance' : (lang === 'jp' ? 'トラブルシューティング・保守点検' : (lang === 'cn' ? '常见故障排查与维护' : 'Pemecahan Masalah & Diagnostik Lapangan'))}</span>
+                    <span>${t('virtualLab.troubleshootingTitle', lang)}</span>
                   </div>
                   <p class="text-xs text-slate-300 leading-relaxed">
-                    ${deepDetail.troubleshooting[lang] || deepDetail.troubleshooting.id}
+                    ${deepDetail.troubleshooting[lang] || deepDetail.troubleshooting.en || deepDetail.troubleshooting.id}
                   </p>
                 </div>
 

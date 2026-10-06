@@ -390,11 +390,11 @@ export function renderMateriViewer(
                   <div class="flex items-center gap-2">
                     <span class="w-2.5 h-2.5 rounded-sm bg-amber-400"></span>
                     <h2 class="text-base font-bold text-white tracking-tight uppercase">
-                      ${lang === 'en' ? 'Interactive 3D Hardware Lab' : (lang === 'jp' ? '3D 機器空間実習ラボ' : (lang === 'cn' ? '3D 硬件空间交互实训' : 'Laboratorium Perangkat Keras 3D Interaktif'))}
+                      ${t('materi.hardwareLabTitle', lang)}
                     </h2>
                   </div>
                   <p class="text-xs text-slate-400 mt-0.5">
-                    ${lang === 'en' ? `Inspecting hardware relevant to: ${currentModul.judul}` : (lang === 'jp' ? `${currentModul.judul} に関連する実機モデル` : (lang === 'cn' ? `与 ${currentModul.judul} 紧密相关的核心网络设备` : `Model perangkat yang relevan dengan topik: ${currentModul.judul}`))}
+                    ${t('materi.hardwareLabDesc', lang)} ${currentModul.judul}
                   </p>
                 </div>
               </div>
@@ -446,11 +446,11 @@ export function renderMateriViewer(
                     </div>
                     <div class="space-y-1">
                       <div class="flex items-center gap-2">
-                        <h4 class="text-sm font-bold text-white tracking-tight">${lang === 'en' ? 'Sign in Required for Comprehensive Exam' : (lang === 'jp' ? '総合試験を受けるにはログインが必要です' : (lang === 'cn' ? '需登录账号方可参加综合测评考试' : 'Login Diperlukan untuk Mengerjakan Soal Evaluasi'))}</h4>
+                        <h4 class="text-sm font-bold text-white tracking-tight">${t('materi.examGuestTitle', lang)}</h4>
                         <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-amber-400/20 text-amber-300 border border-amber-400/30">${t('crimping.guestBadge', lang)}</span>
                       </div>
                       <p class="text-xs text-slate-300 leading-relaxed max-w-2xl">
-                        ${lang === 'en' ? 'Guest users can preview questions. To submit answers, receive AI semantic essay evaluations, and earn XP to rank up on the Leaderboard, please log in or create an account.' : 'Pengguna tamu (User) hanya dapat melihat daftar soal. Untuk menjawab, mendapatkan koreksi semantik otomatis dari Asisten AI, serta memperoleh boost XP ke Leaderboard, silakan masuk ke akun Anda.'}
+                        ${t('materi.examGuestDesc', lang)}
                       </p>
                     </div>
                   </div>
@@ -591,7 +591,7 @@ export function renderMateriViewer(
                           <textarea
                             data-essay-input="${essay.id}"
                             rows="4"
-                            placeholder="${lang === 'en' ? 'Type your comprehensive engineering explanation here...' : (lang === 'jp' ? 'ここに技術的見解や解説を入力してください...' : (lang === 'cn' ? '在此撰写您的详细技术论述与原理解析...' : 'Ketikkan penjelasan teknis mendalam Anda di sini...'))}"
+                            placeholder="${t('materi.examEssayPlaceholder', lang)}"
                             class="w-full p-3.5 rounded-lg bg-black/50 border border-white/10 text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-colors leading-relaxed"
                           >${studentAns}</textarea>
 
@@ -602,7 +602,7 @@ export function renderMateriViewer(
                               class="min-h-10 px-4 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs transition-all shadow-md active:scale-95 flex items-center gap-2 cursor-pointer"
                             >
                               <span>🤖</span>
-                              <span>${lang === 'en' ? 'Evaluate with AI Grader' : (lang === 'jp' ? 'AI 採点エンジンで評価' : (lang === 'cn' ? '提交 AI 智能批改' : 'Koreksi Jawaban dengan AI'))}</span>
+                              <span>${t('materi.examAiGradingBtn', lang)}</span>
                             </button>
 
                             ${gradeResult ? `

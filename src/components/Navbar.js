@@ -203,7 +203,7 @@ export function renderNavbar(activeTab, onNavigate, userProfile, session, theme 
           <!-- Theme Selection in Mobile Menu -->
           <div class="pt-2 border-t border-white/[0.08] space-y-1.5 px-1">
             <span class="text-[11px] font-medium text-slate-400">${t('theme.label', lang)}</span>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
               ${SUPPORTED_THEMES.map(th => {
                 const isSelected = th.code === theme;
                 return `

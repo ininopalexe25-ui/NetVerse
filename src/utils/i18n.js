@@ -1,5 +1,6 @@
 import { MODULE_SECTION_IMAGES } from '../data/moduleImages.js';
 import { extraTranslations } from '../data/translationsExtra.js';
+import { THEME_TRANSLATIONS, DASHBOARD_TRANSLATIONS, COMMON_EXTRA_TRANSLATIONS } from '../data/translationsUI.js';
 
 export { MODULE_SECTION_IMAGES };
 
@@ -23,10 +24,12 @@ export const SUPPORTED_LANGS = [
 ];
 
 export const SUPPORTED_THEMES = [
-  { code: 'light', icon: '☀️', color: '#ffffff', border: '#cbd5e1', key: 'light' },
-  { code: 'dark', icon: '🌑', color: '#090a0f', border: '#f59e0b', key: 'dark' },
-  { code: 'midnight', icon: '🌌', color: '#060b18', border: '#38bdf8', key: 'midnight' },
-  { code: 'emerald', icon: '🌲', color: '#05130b', border: '#10b981', key: 'emerald' }
+  { code: 'light', icon: '☀️', color: '#ffffff', border: '#cbd5e1', key: 'light', name: 'Light' },
+  { code: 'dark', icon: '🌑', color: '#090a0f', border: '#f59e0b', key: 'dark', name: 'Dark' },
+  { code: 'midnight', icon: '🌌', color: '#060b18', border: '#38bdf8', key: 'midnight', name: 'Midnight Blue' },
+  { code: 'emerald', icon: '🌲', color: '#05130b', border: '#10b981', key: 'emerald', name: 'Dark Emerald' },
+  { code: 'violet', icon: '🔮', color: '#0b0617', border: '#a855f7', key: 'violet', name: 'Cyber Violet' },
+  { code: 'sakura', icon: '🌸', color: '#140710', border: '#ec4899', key: 'sakura', name: 'Neon Sakura' }
 ];
 
 export const translations = {
@@ -1052,6 +1055,47 @@ export const translations = {
   ...extraTranslations
 };
 
+// Deep merge theme, dashboard, and common extra translations across all 16 supported languages
+for (const lCode of Object.keys(translations)) {
+  if (THEME_TRANSLATIONS[lCode]) {
+    translations[lCode].theme = { ...translations[lCode].theme, ...THEME_TRANSLATIONS[lCode] };
+  } else if (THEME_TRANSLATIONS.en) {
+    translations[lCode].theme = { ...translations[lCode].theme, ...THEME_TRANSLATIONS.en };
+  }
+
+  if (DASHBOARD_TRANSLATIONS[lCode]) {
+    translations[lCode].dashboard = { ...translations[lCode].dashboard, ...DASHBOARD_TRANSLATIONS[lCode] };
+  } else if (DASHBOARD_TRANSLATIONS.en) {
+    translations[lCode].dashboard = { ...translations[lCode].dashboard, ...DASHBOARD_TRANSLATIONS.en };
+  }
+
+  if (COMMON_EXTRA_TRANSLATIONS[lCode]) {
+    if (COMMON_EXTRA_TRANSLATIONS[lCode].materi) {
+      translations[lCode].materi = { ...translations[lCode].materi, ...COMMON_EXTRA_TRANSLATIONS[lCode].materi };
+    }
+    if (COMMON_EXTRA_TRANSLATIONS[lCode].virtualLab) {
+      translations[lCode].virtualLab = { ...translations[lCode].virtualLab, ...COMMON_EXTRA_TRANSLATIONS[lCode].virtualLab };
+    }
+  } else if (COMMON_EXTRA_TRANSLATIONS.en) {
+    translations[lCode].materi = { ...translations[lCode].materi, ...COMMON_EXTRA_TRANSLATIONS.en.materi };
+    translations[lCode].virtualLab = { ...translations[lCode].virtualLab, ...COMMON_EXTRA_TRANSLATIONS.en.virtualLab };
+  }
+
+  // Ensure mandatory modules exist for all languages
+  if (!translations[lCode].ai && translations.en?.ai) {
+    translations[lCode].ai = { ...translations.en.ai };
+  }
+  if (!translations[lCode].authModal && translations.en?.authModal) {
+    translations[lCode].authModal = { ...translations.en.authModal };
+  }
+  if (!translations[lCode].toast && translations.en?.toast) {
+    translations[lCode].toast = { ...translations.en.toast };
+  }
+  if (!translations[lCode].footer && translations.en?.footer) {
+    translations[lCode].footer = { ...translations.en.footer };
+  }
+}
+
 /**
  * 3D Hardware Devices Dictionary (Multilingual)
  */
@@ -1665,7 +1709,6 @@ export function getLocalizedModule(modul, lang = 'en') {
  */
 export function getLocalizedDevice(device, lang = 'en') {
   if (!device) return null;
-  const currentLang = ['id', 'en', 'jp', 'cn'].includes(lang) ? lang : 'en';
   const kode = device.kode;
   const trans = DEVICE_TRANSLATIONS[kode];
 
@@ -1673,9 +1716,9 @@ export function getLocalizedDevice(device, lang = 'en') {
 
   return {
     ...device,
-    nama: trans.nama[currentLang] || trans.nama.en || trans.nama.id || device.nama,
-    deskripsi: trans.deskripsi[currentLang] || trans.deskripsi.en || trans.deskripsi.id || device.deskripsi,
-    hotspots: trans.hotspots[currentLang] || trans.hotspots.en || trans.hotspots.id || device.hotspots
+    nama: trans.nama[lang] || trans.nama.en || trans.nama.id || device.nama,
+    deskripsi: trans.deskripsi[lang] || trans.deskripsi.en || trans.deskripsi.id || device.deskripsi,
+    hotspots: trans.hotspots[lang] || trans.hotspots.en || trans.hotspots.id || device.hotspots
   };
 }
 

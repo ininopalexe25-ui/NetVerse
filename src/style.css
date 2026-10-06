@@ -55,7 +55,36 @@
     color-scheme: dark;
   }
 
+  html.violet,
+  [data-theme="violet"] {
+    --bg-base: #0b0617;
+    --bg-app: #0b0617;
+    --surface-card: #140c26;
+    --surface-bezel: #120922;
+    --border-hairline: rgba(168, 85, 247, 0.16);
+    --border-highlight: rgba(168, 85, 247, 0.32);
+    --text-primary: #faf5ff;
+    --text-secondary: #e9d5ff;
+    --copper-accent: #c084fc;
+    color-scheme: dark;
+  }
+
+  html.sakura,
+  [data-theme="sakura"] {
+    --bg-base: #140710;
+    --bg-app: #140710;
+    --surface-card: #200a1b;
+    --surface-bezel: #1b0816;
+    --border-hairline: rgba(244, 114, 182, 0.16);
+    --border-highlight: rgba(244, 114, 182, 0.32);
+    --text-primary: #fff1f2;
+    --text-secondary: #fbcfe8;
+    --copper-accent: #f472b6;
+    color-scheme: dark;
+  }
+
   body {
+    font-family: 'Plus Jakarta Sans', 'Noto Sans', 'Noto Sans Arabic', 'Noto Sans Devanagari', 'Noto Sans JP', 'Noto Sans KR', 'Noto Sans SC', system-ui, -apple-system, sans-serif;
     background-color: #090a0f;
     color: #f1f5f9;
     background-image: 
@@ -92,6 +121,26 @@
       radial-gradient(circle at 50% 0%, rgba(6, 78, 59, 0.42) 0%, transparent 60%),
       radial-gradient(circle at 85% 30%, rgba(16, 185, 129, 0.14) 0%, transparent 40%),
       radial-gradient(circle at 15% 75%, rgba(5, 150, 105, 0.1) 0%, transparent 50%) !important;
+  }
+
+  html.violet body,
+  body.violet {
+    background-color: #0b0617 !important;
+    color: #faf5ff !important;
+    background-image: 
+      radial-gradient(circle at 50% 0%, rgba(126, 34, 206, 0.35) 0%, transparent 60%),
+      radial-gradient(circle at 85% 30%, rgba(168, 85, 247, 0.15) 0%, transparent 40%),
+      radial-gradient(circle at 15% 75%, rgba(147, 51, 234, 0.12) 0%, transparent 50%) !important;
+  }
+
+  html.sakura body,
+  body.sakura {
+    background-color: #140710 !important;
+    color: #fff1f2 !important;
+    background-image: 
+      radial-gradient(circle at 50% 0%, rgba(190, 24, 93, 0.32) 0%, transparent 60%),
+      radial-gradient(circle at 85% 30%, rgba(236, 72, 153, 0.15) 0%, transparent 40%),
+      radial-gradient(circle at 15% 75%, rgba(244, 114, 182, 0.12) 0%, transparent 50%) !important;
   }
 
   /* Custom Smooth Scrollbar */
@@ -1048,4 +1097,97 @@ html.light .bg-tech-grid {
 .animate-led-fast {
   animation: led-flutter 0.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
+
+/* Violet & Sakura Modal Backdrops */
+html.violet #auth-modal-backdrop .bezel-shell {
+  background-color: #120922 !important;
+  border-color: rgba(168, 85, 247, 0.28) !important;
+  box-shadow: 0 24px 60px rgba(11, 6, 23, 0.95) !important;
+}
+html.violet #auth-modal-backdrop .bezel-core {
+  background-color: #120922 !important;
+}
+html.violet #auth-modal-backdrop input {
+  background-color: #0b0617 !important;
+  color: #faf5ff !important;
+  border-color: rgba(168, 85, 247, 0.22) !important;
+}
+html.violet #auth-modal-backdrop input:focus {
+  border-color: #c084fc !important;
+  box-shadow: 0 0 15px rgba(168, 85, 247, 0.28) !important;
+}
+
+html.sakura #auth-modal-backdrop .bezel-shell {
+  background-color: #1b0816 !important;
+  border-color: rgba(244, 114, 182, 0.28) !important;
+  box-shadow: 0 24px 60px rgba(20, 7, 16, 0.95) !important;
+}
+html.sakura #auth-modal-backdrop .bezel-core {
+  background-color: #1b0816 !important;
+}
+html.sakura #auth-modal-backdrop input {
+  background-color: #140710 !important;
+  color: #fff1f2 !important;
+  border-color: rgba(244, 114, 182, 0.22) !important;
+}
+html.sakura #auth-modal-backdrop input:focus {
+  border-color: #f472b6 !important;
+  box-shadow: 0 0 15px rgba(244, 114, 182, 0.28) !important;
+}
+
+/* -------------------------------------------------------------
+ * UNIQUE THEMATIC ATMOSPHERIC ELEMENTS (Midnight, Emerald, Violet, Sakura)
+ * Zero overhead GPU-accelerated CSS animations
+ * ------------------------------------------------------------- */
+@keyframes star-twinkle {
+  0%, 100% { opacity: 0.15; transform: scale(0.8); }
+  50% { opacity: 0.95; transform: scale(1.2); }
+}
+
+@keyframes moon-halo {
+  0%, 100% { filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.35)); }
+  50% { filter: drop-shadow(0 0 28px rgba(56, 189, 248, 0.7)); }
+}
+
+@keyframes firefly-rise {
+  0% { transform: translateY(0) translateX(0); opacity: 0.15; }
+  50% { transform: translateY(-50px) translateX(18px); opacity: 0.85; }
+  100% { transform: translateY(-110px) translateX(-12px); opacity: 0; }
+}
+
+@keyframes nebula-pulse {
+  0%, 100% { opacity: 0.22; transform: scale(1) rotate(0deg); }
+  50% { opacity: 0.42; transform: scale(1.06) rotate(2deg); }
+}
+
+@keyframes crystal-drift {
+  0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.3; }
+  50% { transform: translateY(-18px) rotate(12deg); opacity: 0.8; }
+}
+
+@keyframes sakura-fall {
+  0% { transform: translate3d(0, -30px, 0) rotate(0deg); opacity: 0; }
+  10% { opacity: 0.85; }
+  90% { opacity: 0.75; }
+  100% { transform: translate3d(80px, 105vh, 0) rotate(420deg); opacity: 0; }
+}
+
+.anim-star-1 { animation: star-twinkle 2.8s ease-in-out infinite; }
+.anim-star-2 { animation: star-twinkle 3.6s ease-in-out infinite 0.9s; }
+.anim-star-3 { animation: star-twinkle 4.2s ease-in-out infinite 1.8s; }
+.anim-moon { animation: moon-halo 5s ease-in-out infinite; }
+
+.anim-firefly-1 { animation: firefly-rise 6.5s ease-in-out infinite; }
+.anim-firefly-2 { animation: firefly-rise 8.2s ease-in-out infinite 2s; }
+.anim-firefly-3 { animation: firefly-rise 7.4s ease-in-out infinite 3.8s; }
+
+.anim-nebula { animation: nebula-pulse 10s ease-in-out infinite; }
+.anim-crystal-1 { animation: crystal-drift 6s ease-in-out infinite; }
+.anim-crystal-2 { animation: crystal-drift 8s ease-in-out infinite 2.5s; }
+
+.anim-sakura-1 { animation: sakura-fall 11s linear infinite; }
+.anim-sakura-2 { animation: sakura-fall 14s linear infinite 3s; }
+.anim-sakura-3 { animation: sakura-fall 12.5s linear infinite 6s; }
+.anim-sakura-4 { animation: sakura-fall 16s linear infinite 1.5s; }
+.anim-sakura-5 { animation: sakura-fall 13s linear infinite 8s; }
 
