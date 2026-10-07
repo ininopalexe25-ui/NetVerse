@@ -244,7 +244,11 @@ export function renderLeaderboard(scores = [], currentUser = {}, activeFilter = 
           
           <!-- #2 Runner Up -->
           ${top2 ? `
-            <div class="p-4 rounded-xl bg-white/[0.02] border border-white/10 flex flex-col justify-between order-2 sm:order-1 relative overflow-hidden">
+            <div 
+              data-view-profile="${top2.name}"
+              class="p-4 rounded-xl bg-white/[0.02] hover:bg-white/[0.06] border border-white/10 flex flex-col justify-between order-2 sm:order-1 relative overflow-hidden cursor-pointer transition-all hover:scale-[1.01]"
+              title="Klik untuk melihat profil ${top2.name}"
+            >
               <div class="flex items-center justify-between mb-3">
                 <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-400/10 text-slate-300 border border-slate-400/20">
                   ${t('leaderboard.runnerUpBadge', lang)}
@@ -252,7 +256,10 @@ export function renderLeaderboard(scores = [], currentUser = {}, activeFilter = 
                 <span class="text-xs font-mono font-semibold text-slate-400">${top2.standard}</span>
               </div>
               <div>
-                <div class="text-sm font-bold text-white truncate">${top2.name}</div>
+                <div class="text-sm font-bold text-white truncate flex items-center justify-between">
+                  <span>${top2.name}</span>
+                  <span class="text-[10px] text-amber-400 font-mono font-normal">Lihat Profil 👤</span>
+                </div>
                 <div class="flex items-center gap-2 mt-1 text-xs">
                   <span class="text-emerald-400 font-mono font-semibold">${top2.time}</span>
                   <span class="text-slate-600">•</span>
@@ -273,7 +280,11 @@ export function renderLeaderboard(scores = [], currentUser = {}, activeFilter = 
           ` : ''}
 
           <!-- #1 Champion -->
-          <div class="p-5 rounded-xl bg-gradient-to-b from-amber-500/15 via-amber-500/5 to-transparent border border-amber-400/30 flex flex-col justify-between order-1 sm:order-2 relative shadow-[0_12px_30px_rgba(245,158,11,0.08)]">
+          <div 
+            data-view-profile="${top1.name}"
+            class="p-5 rounded-xl bg-gradient-to-b from-amber-500/15 via-amber-500/5 to-transparent hover:from-amber-500/25 border border-amber-400/30 flex flex-col justify-between order-1 sm:order-2 relative shadow-[0_12px_30px_rgba(245,158,11,0.08)] cursor-pointer transition-all hover:scale-[1.01]"
+            title="Klik untuk melihat profil ${top1.name}"
+          >
             <div class="flex items-center justify-between mb-3">
               <span class="px-2.5 py-1 rounded-md text-[10px] font-bold bg-amber-400 text-black shadow-sm flex items-center gap-1">
                 <span>👑</span>
@@ -282,7 +293,10 @@ export function renderLeaderboard(scores = [], currentUser = {}, activeFilter = 
               <span class="text-xs font-mono font-semibold text-amber-400">${top1.standard}</span>
             </div>
             <div>
-              <div class="text-base font-bold text-white truncate">${top1.name}</div>
+              <div class="text-base font-bold text-white truncate flex items-center justify-between">
+                <span>${top1.name}</span>
+                <span class="text-[11px] text-amber-400 font-mono font-semibold">Lihat Profil 👤</span>
+              </div>
               <div class="flex items-center gap-2 mt-1.5 text-xs">
                 <span class="text-emerald-400 font-mono font-bold text-sm">${top1.time}</span>
                 <span class="text-slate-600">•</span>
@@ -303,7 +317,11 @@ export function renderLeaderboard(scores = [], currentUser = {}, activeFilter = 
 
           <!-- #3 Third Place -->
           ${top3 ? `
-            <div class="p-4 rounded-xl bg-white/[0.02] border border-white/10 flex flex-col justify-between order-3 sm:order-3 relative overflow-hidden">
+            <div 
+              data-view-profile="${top3.name}"
+              class="p-4 rounded-xl bg-white/[0.02] hover:bg-white/[0.06] border border-white/10 flex flex-col justify-between order-3 sm:order-3 relative overflow-hidden cursor-pointer transition-all hover:scale-[1.01]"
+              title="Klik untuk melihat profil ${top3.name}"
+            >
               <div class="flex items-center justify-between mb-3">
                 <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-700/20 text-amber-500 border border-amber-700/30">
                   ${t('leaderboard.thirdBadge', lang)}
@@ -311,7 +329,10 @@ export function renderLeaderboard(scores = [], currentUser = {}, activeFilter = 
                 <span class="text-xs font-mono font-semibold text-slate-400">${top3.standard}</span>
               </div>
               <div>
-                <div class="text-sm font-bold text-white truncate">${top3.name}</div>
+                <div class="text-sm font-bold text-white truncate flex items-center justify-between">
+                  <span>${top3.name}</span>
+                  <span class="text-[10px] text-amber-400 font-mono font-normal">Lihat Profil 👤</span>
+                </div>
                 <div class="flex items-center gap-2 mt-1 text-xs">
                   <span class="text-emerald-400 font-mono font-semibold">${top3.time}</span>
                   <span class="text-slate-600">•</span>
@@ -353,23 +374,28 @@ export function renderLeaderboard(scores = [], currentUser = {}, activeFilter = 
               </thead>
               <tbody class="divide-y divide-white/[0.04] text-slate-300">
                 ${displayScores.map(s => `
-                  <tr class="${s.isCurrent ? 'bg-amber-400/10 font-bold text-white' : 'hover:bg-white/[0.02] transition-colors'}">
+                  <tr 
+                    data-view-profile="${s.name}" 
+                    title="Klik untuk melihat profil ${s.name}"
+                    class="cursor-pointer transition-colors ${s.isCurrent ? 'bg-amber-400/10 font-bold text-white hover:bg-amber-400/20' : 'hover:bg-white/[0.04]'}"
+                  >
                     <td class="py-3.5 px-4 sm:px-6 font-mono font-bold ${
                       s.rank === 1 ? 'text-amber-400' : s.rank === 2 ? 'text-slate-300' : s.rank === 3 ? 'text-amber-600' : 'text-slate-500'
                     }">
                       #${s.rank}
                     </td>
                     <td class="py-3.5 px-4 sm:px-6 font-semibold flex items-center space-x-3">
-                      <div class="w-7 h-7 rounded-md ${s.isCurrent ? 'bg-amber-400 text-black' : 'bg-white/10 text-white'} flex items-center justify-center text-xs font-bold">
+                      <div class="w-7 h-7 rounded-md ${s.isCurrent ? 'bg-amber-400 text-black' : 'bg-white/10 text-white'} flex items-center justify-center text-xs font-bold shrink-0">
                         ${s.name.charAt(0)}
                       </div>
-                      <div class="flex items-center gap-1.5">
-                        <span>${s.name}</span>
+                      <div class="flex items-center gap-1.5 min-w-0">
+                        <span class="truncate">${s.name}</span>
                         ${s.isCurrent ? `
-                          <span class="px-1.5 py-0.2 rounded-sm text-[9px] font-bold bg-amber-400 text-black">
+                          <span class="px-1.5 py-0.2 rounded-sm text-[9px] font-bold bg-amber-400 text-black shrink-0">
                             ${t('leaderboard.youTag', lang)}
                           </span>
                         ` : ''}
+                        <span class="text-[10px] text-amber-400/80 font-mono ml-1 shrink-0 font-normal">👤</span>
                       </div>
                     </td>
                     <td class="py-3.5 px-4 sm:px-6 text-amber-400 font-medium font-mono text-xs">${t('leaderboard.level', lang)} ${s.level}</td>

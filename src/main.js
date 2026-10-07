@@ -7,23 +7,29 @@ import { renderCrimpingMaster, STANDARDS } from './components/CrimpingMaster.js'
 import { renderLeaderboard } from './components/Leaderboard.js';
 import { renderFloatingAiTutor } from './components/FloatingAiTutor.js';
 import { renderAuthModal } from './components/AuthModal.js';
+import { renderSocialHub } from './components/SocialHub.js';
+import { renderUserProfileModal } from './components/UserProfileModal.js';
 import { renderNetVerseLogo } from './components/Logo.js';
 import { renderThemeAtmosphere } from './components/ThemeAtmosphere.js';
 import { getModuleQuizzes } from './data/moduleQuizzes.js';
 import { ASSESSMENT_MULTIPLE_CHOICE, ASSESSMENT_ESSAYS, gradeEssayWithAi } from './data/assessmentQuestions.js';
 import { t, getLocalizedModule } from './utils/i18n.js';
+import { generatePermanentUID, validateTagname, extractProfileMetadata, sanitizePublicProfile } from './utils/userProfiles.js';
 
 const initialLang = localStorage.getItem('netverse-lang') || 'en';
 
 // Application State
 const state = {
-  activeTab: 'workbench', // 'workbench' | 'crimping' | 'materi' | 'leaderboard'
+  activeTab: 'workbench', // 'workbench' | 'crimping' | 'materi' | 'leaderboard' | 'social'
   activePort: 1, // 1..8 for Interactive Switch Diagnostics
   session: null,
   userProfile: {
     id: null,
     nama_lengkap: 'User',
+    nickname: 'User',
     username: 'user',
+    tagname: 'NV001',
+    uid: 'NV-100001',
     level: 1,
     total_xp: 0,
     role: 'tamu'
@@ -33,6 +39,93 @@ const state = {
   authLoading: false,
   authNotice: null, // { type: 'error' | 'success', message: '' }
   showPassword: false,
+
+  // Social Hub & Realtime Chat State (Revisi 4)
+  socialSearchQuery: '',
+  activeChatTarget: 'global',
+  chatMessages: JSON.parse(localStorage.getItem('netverse_chat_messages') || 'null') || [
+    {
+      id: 'msg-seed-1',
+      sender: 'Shiina',
+      senderUid: 'NV-849201',
+      recipient: 'global',
+      text: 'Halo semua! Ada yang sedang latihan crimping standar T568B?',
+      time: '10:15',
+      timestamp: Date.now() - 3600000,
+      isSelf: false
+    },
+    {
+      id: 'msg-seed-2',
+      sender: 'abduljabar',
+      senderUid: 'NV-482910',
+      recipient: 'global',
+      text: 'Halo Shiina! Pastikan pin 3 (putih hijau) dan pin 6 (hijau) mengapit kawat biru ya.',
+      time: '10:20',
+      timestamp: Date.now() - 3300000,
+      isSelf: false
+    },
+    {
+      id: 'msg-seed-3',
+      sender: 'Dimas Wahyu',
+      senderUid: 'NV-739102',
+      recipient: 'global',
+      text: 'Mantap penjelasannya! Akurasi 100% langsung tercapai dalam 21 detik 🎯',
+      time: '10:25',
+      timestamp: Date.now() - 3000000,
+      isSelf: false
+    }
+  ],
+  communityUsers: [
+    {
+      id: 'user-seed-1',
+      nama_lengkap: 'Shiina',
+      nickname: 'Shiina',
+      uid: 'NV-849201',
+      level: 5,
+      total_xp: 2195,
+      role: 'mahasiswa'
+    },
+    {
+      id: 'user-seed-2',
+      nama_lengkap: 'abduljabar',
+      nickname: 'abduljabar',
+      uid: 'NV-482910',
+      level: 3,
+      total_xp: 1000,
+      role: 'mahasiswa'
+    },
+    {
+      id: 'user-seed-3',
+      nama_lengkap: 'Dimas Wahyu',
+      nickname: 'Dimas Wahyu',
+      uid: 'NV-739102',
+      level: 2,
+      total_xp: 650,
+      role: 'mahasiswa'
+    },
+    {
+      id: 'user-seed-4',
+      nama_lengkap: 'Rian Pratama',
+      nickname: 'Rian Pratama',
+      uid: 'NV-918234',
+      level: 2,
+      total_xp: 550,
+      role: 'mahasiswa'
+    },
+    {
+      id: 'user-seed-5',
+      nama_lengkap: 'Zahra Amalia',
+      nickname: 'Zahra Amalia',
+      uid: 'NV-628190',
+      level: 1,
+      total_xp: 320,
+      role: 'mahasiswa'
+    }
+  ],
+  recentDmContacts: ['Shiina', 'abduljabar', 'Dimas Wahyu'],
+  viewingProfileUser: null,
+  candidateRegisterUid: '',
+  socialChannel: null,
 
   // Learning & Quiz Progress State
   learningProgress: {}, // { [modul_id]: { status, skor_quiz, terakhir_dibaca } }
@@ -212,30 +305,42 @@ async function loadUserProfile(userId) {
       .maybeSingle();
 
     if (profile) {
-      state.userProfile = profile;
+      const meta = extractProfileMetadata(profile);
+      const userMeta = state.session?.user?.user_metadata || {};
+      state.userProfile = {
+        ...profile,
+        nickname: userMeta.nickname || meta.nickname || profile.nama_lengkap || 'Mahasiswa',
+        nama_lengkap: userMeta.nickname || meta.nickname || profile.nama_lengkap || 'Mahasiswa',
+        username: userMeta.username || profile.username || 'user',
+        tagname: userMeta.tagname || meta.tagname || 'NV001',
+        uid: userMeta.uid || meta.uid || generatePermanentUID(userId)
+      };
       if (Array.isArray(state.scores)) {
         state.scores.forEach(s => {
-          if (s.user_id === userId && profile.nama_lengkap) {
-            s.player_name = profile.nama_lengkap;
+          if (s.user_id === userId && state.userProfile.nama_lengkap) {
+            s.player_name = state.userProfile.nama_lengkap;
           }
         });
       }
     } else if (state.session?.user) {
       // Create fresh profile if trigger was delayed
-      const fallbackName = state.session.user.user_metadata?.full_name || 
-        state.session.user.user_metadata?.name || 
-        state.session.user.email?.split('@')[0] || 
-        'Mahasiswa';
-      const fallbackUser = state.session.user.user_metadata?.username || 
-        state.session.user.email?.split('@')[0] || 
-        'mhs_tkj';
+      const userMeta = state.session.user.user_metadata || {};
+      const fallbackNickname = userMeta.nickname || userMeta.full_name || 'Mahasiswa';
+      const fallbackUser = userMeta.username || 'user';
+      const fallbackTagname = userMeta.tagname || 'NV001';
+      const fallbackUid = userMeta.uid || generatePermanentUID(userId);
 
       const { data: createdProfile } = await supabase
         .from('profiles')
         .upsert({
           id: userId,
-          nama_lengkap: fallbackName,
+          nama_lengkap: fallbackNickname,
           username: fallbackUser,
+          avatar_url: JSON.stringify({
+            nickname: fallbackNickname,
+            tagname: fallbackTagname,
+            uid: fallbackUid
+          }),
           total_xp: 250,
           level: 1,
           role: 'mahasiswa'
@@ -244,7 +349,12 @@ async function loadUserProfile(userId) {
         .single();
 
       if (createdProfile) {
-        state.userProfile = createdProfile;
+        state.userProfile = {
+          ...createdProfile,
+          nickname: fallbackNickname,
+          tagname: fallbackTagname,
+          uid: fallbackUid
+        };
       }
     }
 
@@ -803,6 +913,46 @@ function setupRealtimeSubscriptions() {
   state.realtimeChannel = channel;
 }
 
+// Setup Supabase Realtime Community Chat Channel
+function setupSocialRealtime() {
+  if (state.socialChannel) {
+    try {
+      state.socialChannel.unsubscribe();
+    } catch (e) {}
+  }
+
+  try {
+    const channel = supabase.channel('netverse-community-chat', {
+      config: { broadcast: { ack: false } }
+    });
+
+    channel
+      .on('broadcast', { event: 'new_chat_message' }, ({ payload }) => {
+        if (!payload || !payload.id) return;
+        const exists = state.chatMessages.some(m => m.id === payload.id);
+        if (!exists) {
+          state.chatMessages.push({
+            ...payload,
+            isSelf: false
+          });
+          try {
+            localStorage.setItem('netverse_chat_messages', JSON.stringify(state.chatMessages.slice(-50)));
+          } catch (e) {}
+          if (state.activeTab === 'social') {
+            renderApp();
+            const msgBox = document.getElementById('social-chat-messages');
+            if (msgBox) msgBox.scrollTop = msgBox.scrollHeight;
+          }
+        }
+      })
+      .subscribe();
+
+    state.socialChannel = channel;
+  } catch (err) {
+    console.warn('Social realtime setup notice:', err);
+  }
+}
+
 // Initialize Data from Supabase
 async function initData() {
   try {
@@ -871,7 +1021,7 @@ async function initData() {
 
     const { data: profiles } = await supabase
       .from('profiles')
-      .select('id, nama_lengkap, username, total_xp, level');
+      .select('id, nama_lengkap, username, avatar_url, total_xp, level, role');
 
     if (scores && scores.length > 0) {
       const cleanScores = scores.filter(s => {
@@ -881,8 +1031,46 @@ async function initData() {
       state.scores = enrichScoresWithProfiles(cleanScores, profiles || []);
     }
 
+    // Build communityUsers list for social search & profile inspection
+    const userMap = new Map();
+    if (profiles) {
+      profiles.forEach(p => {
+        const meta = extractProfileMetadata(p);
+        userMap.set(p.id, {
+          id: p.id,
+          nama_lengkap: p.nama_lengkap,
+          nickname: meta.nickname || p.nama_lengkap,
+          uid: meta.uid || generatePermanentUID(p.id),
+          level: p.level || 1,
+          total_xp: p.total_xp || 0,
+          role: p.role || 'mahasiswa'
+        });
+      });
+    }
+    if (scores) {
+      scores.forEach(s => {
+        const name = (s.player_name || '').trim();
+        if (name && name.toLowerCase() !== 'user') {
+          const key = s.user_id || `name:${name.toLowerCase()}`;
+          if (!userMap.has(key)) {
+            userMap.set(key, {
+              id: s.user_id || null,
+              nama_lengkap: name,
+              nickname: name,
+              uid: generatePermanentUID(s.user_id || name),
+              level: s.level || Math.floor((s.total_xp || s.xp_didapat || 100) / 500) + 1,
+              total_xp: s.total_xp || s.xp_didapat || 150,
+              role: 'mahasiswa'
+            });
+          }
+        }
+      });
+    }
+    state.communityUsers = Array.from(userMap.values());
+
     // 5. Connect Realtime Channels
     setupRealtimeSubscriptions();
+    setupSocialRealtime();
 
   } catch (err) {
     console.warn('Supabase initial fetch notice:', err);
@@ -1064,6 +1252,10 @@ function renderApp() {
       mainContent = renderLeaderboard(state.scores, enrichedUserProfile, state.leaderboardFilter, state.realtimeStatus, state.lang);
       break;
     }
+
+    case 'social':
+      mainContent = renderSocialHub(state);
+      break;
   }
 
   app.innerHTML = `
@@ -1114,6 +1306,7 @@ function renderApp() {
 
       ${renderFloatingAiTutor(state.aiChatOpen, state.aiMessages, activeContextName, state.aiLoading, state.aiDynamicChips, state.lang)}
       ${renderAuthModal(state)}
+      ${renderUserProfileModal(state)}
 
     </div>
   `;
@@ -1474,16 +1667,18 @@ function attachEvents() {
     });
   }
 
-  // Auth Form Submit (Login or Register)
+  // Auth Form Submit (Login or Register - Username + Tagname + Password - NO EMAIL)
   const authForm = document.getElementById('form-auth');
   if (authForm) {
     authForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const emailInput = document.getElementById('auth-email');
+      const userInput = document.getElementById('auth-username');
+      const tagInput = document.getElementById('auth-tagname');
       const passwordInput = document.getElementById('auth-password');
-      if (!emailInput || !passwordInput) return;
+      if (!userInput || !tagInput || !passwordInput) return;
 
-      const email = emailInput.value.trim();
+      const username = userInput.value.trim();
+      const tagname = tagInput.value.trim().toUpperCase();
       const password = passwordInput.value;
 
       state.authLoading = true;
@@ -1492,29 +1687,55 @@ function attachEvents() {
 
       if (state.authMode === 'register') {
         const nameInput = document.getElementById('auth-nama-lengkap');
-        const userInput = document.getElementById('auth-username');
-        const namaLengkap = nameInput ? nameInput.value.trim() : '';
-        const username = userInput ? userInput.value.trim() : '';
+        const uidInput = document.getElementById('auth-uid');
+        const nickname = nameInput ? nameInput.value.trim() : username;
+        const permanentUid = (uidInput ? uidInput.value : '').trim() || generatePermanentUID();
+
+        // 1. Validate Tagname (Must be exactly 5 alphanumeric characters)
+        if (!validateTagname(tagname)) {
+          state.authLoading = false;
+          state.authNotice = {
+            type: 'error',
+            message: 'Tagname harus tepat 5 digit kombinasi huruf dan angka (cth. A1B2C).'
+          };
+          renderApp();
+          return;
+        }
+
+        // 2. Validate Password (Min 6 characters)
+        if (password.length < 6) {
+          state.authLoading = false;
+          state.authNotice = {
+            type: 'error',
+            message: 'Password minimal 6 karakter.'
+          };
+          renderApp();
+          return;
+        }
+
+        const syntheticEmail = `${username.toLowerCase()}.${tagname.toLowerCase()}@netverse.internal`;
 
         const formatAuthErr = (msg) => {
           if (!msg) return t('authModal.genericRegisterError', state.lang);
           const lower = msg.toLowerCase();
           if (lower.includes('invalid login credentials')) return t('authModal.invalidCredentials', state.lang);
-          if (lower.includes('email not confirmed')) return t('authModal.emailNotConfirmed', state.lang);
-          if (lower.includes('already registered')) return t('authModal.alreadyRegistered', state.lang);
+          if (lower.includes('already registered')) return 'Username atau Tagname ini sudah terdaftar. Silakan gunakan kombinasi lain.';
           if (lower.includes('at least 6 characters')) return t('authModal.passwordTooShort', state.lang);
           return t('authModal.genericRegisterError', state.lang);
         };
 
         try {
           const { data, error } = await supabase.auth.signUp({
-            email,
+            email: syntheticEmail,
             password,
             options: {
               data: {
-                full_name: namaLengkap,
-                name: namaLengkap,
-                username: username
+                nickname: nickname,
+                username: username,
+                tagname: tagname,
+                uid: permanentUid,
+                full_name: nickname,
+                name: nickname
               }
             }
           });
@@ -1524,9 +1745,28 @@ function attachEvents() {
           } else {
             // Self-healing confirmation & auto-login
             try {
-              await supabase.rpc('confirm_user_by_email', { user_email: email });
-            } catch (e) {
-              // ignore
+              await supabase.rpc('confirm_user_by_email', { user_email: syntheticEmail });
+            } catch (e) {}
+
+            const userId = data.user?.id || (data.session ? data.session.user.id : null);
+            if (userId) {
+              try {
+                await supabase.from('profiles').upsert({
+                  id: userId,
+                  nama_lengkap: nickname,
+                  username: username,
+                  avatar_url: JSON.stringify({
+                    nickname: nickname,
+                    tagname: tagname,
+                    uid: permanentUid
+                  }),
+                  total_xp: 250,
+                  level: 1,
+                  role: 'mahasiswa'
+                });
+              } catch (pErr) {
+                console.warn('Profile upsert notice:', pErr);
+              }
             }
 
             if (data.session) {
@@ -1535,8 +1775,8 @@ function attachEvents() {
               state.authMode = 'profile';
               state.authNotice = { type: 'success', message: t('authModal.accountCreatedLogin', state.lang) };
             } else {
-              // Automatically sign in with credentials
-              const loginRes = await supabase.auth.signInWithPassword({ email, password });
+              // Sign in with credentials
+              const loginRes = await supabase.auth.signInWithPassword({ email: syntheticEmail, password });
               if (loginRes.data?.session) {
                 state.session = loginRes.data.session;
                 await loadUserProfile(loginRes.data.session.user.id);
@@ -1555,47 +1795,42 @@ function attachEvents() {
           state.authNotice = { type: 'error', message: formatAuthErr(err.message) };
         }
       } else {
-        // Login mode error formatter
+        // LOGIN MODE
+        // 1. Validate Tagname format
+        if (!validateTagname(tagname)) {
+          state.authLoading = false;
+          state.authNotice = {
+            type: 'warning',
+            message: 'Tagname harus berupa 5 digit kombinasi huruf dan angka (cth. A1B2C).'
+          };
+          renderApp();
+          return;
+        }
+
+        const syntheticEmail = `${username.toLowerCase()}.${tagname.toLowerCase()}@netverse.internal`;
+
         const formatAuthErr = (msg) => {
-          if (!msg) return t('authModal.genericLoginError', state.lang);
-          const lower = msg.toLowerCase();
-          if (
-            lower.includes('invalid login credentials') ||
-            lower.includes('invalid_credentials') ||
-            lower.includes('invalid_grant') ||
-            lower.includes('invalid credentials') ||
-            lower.includes('user not found') ||
-            lower.includes('wrong password') ||
-            lower.includes('invalid email')
-          ) {
-            return t('authModal.invalidCredentials', state.lang);
-          }
-          if (lower.includes('email not confirmed')) {
-            return t('authModal.emailNotConfirmed', state.lang);
-          }
           return t('authModal.invalidCredentials', state.lang);
         };
 
         try {
           let { data, error } = await supabase.auth.signInWithPassword({
-            email,
+            email: syntheticEmail,
             password
           });
 
           // Self-healing if email was unconfirmed
           if (error && error.message?.toLowerCase().includes('email not confirmed')) {
             try {
-              await supabase.rpc('confirm_user_by_email', { user_email: email });
-              const retry = await supabase.auth.signInWithPassword({ email, password });
+              await supabase.rpc('confirm_user_by_email', { user_email: syntheticEmail });
+              const retry = await supabase.auth.signInWithPassword({ email: syntheticEmail, password });
               data = retry.data;
               error = retry.error;
-            } catch (healErr) {
-              console.warn('Auto-confirm attempt notice:', healErr);
-            }
+            } catch (healErr) {}
           }
 
           if (error) {
-            state.authNotice = { type: 'error', message: formatAuthErr(error.message) };
+            state.authNotice = { type: 'warning', message: formatAuthErr(error.message) };
           } else if (data?.session) {
             state.session = data.session;
             await loadUserProfile(data.session.user.id);
@@ -1603,7 +1838,7 @@ function attachEvents() {
             state.authNotice = null;
           }
         } catch (err) {
-          state.authNotice = { type: 'error', message: formatAuthErr(err.message) };
+          state.authNotice = { type: 'warning', message: formatAuthErr(err.message) };
         }
       }
 
@@ -1619,10 +1854,10 @@ function attachEvents() {
       e.preventDefault();
       const nameInput = document.getElementById('profile-nama-lengkap');
       const userInput = document.getElementById('profile-username');
-      if (!nameInput || !userInput) return;
+      if (!nameInput) return;
 
       const namaLengkap = nameInput.value.trim();
-      const username = userInput.value.trim();
+      const username = userInput ? userInput.value.trim() : (state.userProfile?.username || 'user');
 
       state.authLoading = true;
       state.authNotice = null;
@@ -1630,11 +1865,18 @@ function attachEvents() {
 
       try {
         if (state.session?.user?.id) {
+          const avatarMeta = JSON.stringify({
+            nickname: namaLengkap,
+            tagname: state.userProfile?.tagname || 'NV001',
+            uid: state.userProfile?.uid || generatePermanentUID(state.session.user.id)
+          });
+
           const { error } = await supabase
             .from('profiles')
             .update({
               nama_lengkap: namaLengkap,
               username: username,
+              avatar_url: avatarMeta,
               diperbarui_pada: new Date().toISOString()
             })
             .eq('id', state.session.user.id);
@@ -1643,6 +1885,7 @@ function attachEvents() {
             state.authNotice = { type: 'error', message: t('authModal.profileUpdateErr', state.lang) };
           } else {
             state.userProfile.nama_lengkap = namaLengkap;
+            state.userProfile.nickname = namaLengkap;
             state.userProfile.username = username;
 
             // 1. Update Supabase Auth user metadata
@@ -1651,6 +1894,7 @@ function attachEvents() {
                 data: {
                   full_name: namaLengkap,
                   name: namaLengkap,
+                  nickname: namaLengkap,
                   username: username
                 }
               });
@@ -2516,6 +2760,187 @@ function attachEvents() {
       renderApp();
     });
   }
+
+  // User Profile Modal Inspection Triggers (from Leaderboard, Search, or Chat)
+  document.querySelectorAll('[data-view-profile]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const targetName = el.getAttribute('data-view-profile');
+      if (!targetName) return;
+
+      const cleanTarget = targetName.trim().toLowerCase();
+      let user = state.communityUsers.find(u => 
+        (u.nama_lengkap || '').trim().toLowerCase() === cleanTarget ||
+        (u.nickname || '').trim().toLowerCase() === cleanTarget ||
+        (u.id && u.id === targetName) ||
+        (u.uid && u.uid.toLowerCase() === cleanTarget)
+      );
+
+      if (!user) {
+        const score = (state.scores || []).find(s => 
+          (s.player_name || '').trim().toLowerCase() === cleanTarget
+        );
+        if (score) {
+          user = {
+            id: score.user_id || null,
+            nama_lengkap: score.player_name,
+            nickname: score.player_name,
+            uid: generatePermanentUID(score.user_id || score.player_name),
+            level: score.level || Math.floor((score.total_xp || 150) / 500) + 1,
+            total_xp: score.total_xp || 150,
+            role: 'mahasiswa'
+          };
+        } else if (state.userProfile && (state.userProfile.nama_lengkap || '').toLowerCase() === cleanTarget) {
+          user = state.userProfile;
+        } else {
+          user = {
+            id: null,
+            nama_lengkap: targetName,
+            nickname: targetName,
+            uid: generatePermanentUID(targetName),
+            level: 1,
+            total_xp: 150,
+            role: 'mahasiswa'
+          };
+        }
+      }
+
+      state.viewingProfileUser = user;
+      renderApp();
+    });
+  });
+
+  // Close User Profile Modal
+  const closeProfileBtn = document.getElementById('btn-close-user-profile-modal');
+  const closeProfileBtn2 = document.getElementById('btn-close-profile-view');
+  const profileBackdrop = document.getElementById('user-profile-modal-backdrop');
+
+  const closeProfileModal = () => {
+    state.viewingProfileUser = null;
+    renderApp();
+  };
+
+  if (closeProfileBtn) closeProfileBtn.addEventListener('click', closeProfileModal);
+  if (closeProfileBtn2) closeProfileBtn2.addEventListener('click', closeProfileModal);
+  if (profileBackdrop) {
+    profileBackdrop.addEventListener('click', (e) => {
+      if (e.target === profileBackdrop) closeProfileModal();
+    });
+  }
+
+  // Start Chat from User Profile Modal
+  const startChatBtn = document.getElementById('btn-profile-start-chat');
+  if (startChatBtn) {
+    startChatBtn.addEventListener('click', () => {
+      const target = startChatBtn.getAttribute('data-chat-target');
+      state.viewingProfileUser = null;
+      state.activeTab = 'social';
+      state.activeChatTarget = target || 'global';
+      if (target && !state.recentDmContacts.includes(target)) {
+        state.recentDmContacts.unshift(target);
+      }
+      renderApp();
+    });
+  }
+
+  // Social Hub: Live User & Friend Search Input
+  const socialSearchInput = document.getElementById('input-social-search');
+  if (socialSearchInput) {
+    socialSearchInput.addEventListener('input', (e) => {
+      state.socialSearchQuery = e.target.value;
+      renderApp();
+      const newInput = document.getElementById('input-social-search');
+      if (newInput) {
+        newInput.focus();
+        newInput.setSelectionRange(newInput.value.length, newInput.value.length);
+      }
+    });
+  }
+
+  const clearSearchBtn = document.getElementById('btn-clear-social-search');
+  if (clearSearchBtn) {
+    clearSearchBtn.addEventListener('click', () => {
+      state.socialSearchQuery = '';
+      renderApp();
+    });
+  }
+
+  // Social Hub: Switch Chat Channel / Conversation
+  document.querySelectorAll('[data-select-chat]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.getAttribute('data-select-chat');
+      state.activeChatTarget = target;
+      if (target !== 'global' && !state.recentDmContacts.includes(target)) {
+        state.recentDmContacts.unshift(target);
+      }
+      renderApp();
+    });
+  });
+
+  // Social Hub: Send Chat Message
+  const chatForm = document.getElementById('form-social-chat-send');
+  if (chatForm) {
+    chatForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const input = document.getElementById('input-social-chat-message');
+      if (!input || !input.value.trim()) return;
+
+      const text = input.value.trim();
+      const senderName = state.userProfile?.nama_lengkap || 'Anda';
+      const senderUid = state.userProfile?.uid || generatePermanentUID(senderName);
+
+      const now = new Date();
+      const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+      const newMsg = {
+        id: `msg-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+        sender: senderName,
+        senderUid: senderUid,
+        recipient: state.activeChatTarget || 'global',
+        text: text,
+        time: timeStr,
+        timestamp: Date.now(),
+        isSelf: true
+      };
+
+      state.chatMessages.push(newMsg);
+      try {
+        localStorage.setItem('netverse_chat_messages', JSON.stringify(state.chatMessages.slice(-50)));
+      } catch (err) {}
+
+      // Broadcast via Realtime Channel if connected
+      if (state.socialChannel) {
+        try {
+          state.socialChannel.send({
+            type: 'broadcast',
+            event: 'new_chat_message',
+            payload: newMsg
+          });
+        } catch (err) {
+          console.warn('Realtime message broadcast notice:', err);
+        }
+      }
+
+      renderApp();
+
+      const msgBox = document.getElementById('social-chat-messages');
+      if (msgBox) {
+        msgBox.scrollTop = msgBox.scrollHeight;
+      }
+    });
+  }
+
+  // Social Hub: Quick Discussion Suggestion Chips
+  document.querySelectorAll('[data-send-chip]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const chipText = btn.getAttribute('data-send-chip');
+      const input = document.getElementById('input-social-chat-message');
+      if (input && chipText && chatForm) {
+        input.value = chipText;
+        chatForm.dispatchEvent(new Event('submit'));
+      }
+    });
+  });
 
   // Mobile menu
   const mobileBtn = document.getElementById('mobile-menu-btn');

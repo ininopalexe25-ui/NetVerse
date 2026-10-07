@@ -39,6 +39,7 @@ export const translations = {
       crimping: 'Rakit kabel',
       materi: 'Materi',
       leaderboard: 'Peringkat',
+      social: 'Komunitas',
       ariaLabel: 'Navigasi Utama',
       logoTitle: 'Beranda NetVerse'
     },
@@ -294,6 +295,7 @@ export const translations = {
       crimping: 'Cable Crimping',
       materi: 'Theory',
       leaderboard: 'Leaderboard',
+      social: 'Social',
       ariaLabel: 'Primary Navigation',
       logoTitle: 'NetVerse Home'
     },
@@ -549,6 +551,7 @@ export const translations = {
       crimping: 'ケーブル作成',
       materi: '学習教材',
       leaderboard: 'ランキング',
+      social: 'コミュニティ',
       ariaLabel: 'メインナビゲーション',
       logoTitle: 'NetVerse ホーム'
     },
@@ -804,6 +807,7 @@ export const translations = {
       crimping: '网线制作',
       materi: '理论课程',
       leaderboard: '光荣榜',
+      social: '社区',
       ariaLabel: '主导航菜单',
       logoTitle: 'NetVerse 首页'
     },

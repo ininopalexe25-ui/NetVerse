@@ -6,7 +6,8 @@ export function renderNavbar(activeTab, onNavigate, userProfile, session, theme 
     { id: 'workbench', label: t('nav.workbench', lang) },
     { id: 'crimping', label: t('nav.crimping', lang) },
     { id: 'materi', label: t('nav.materi', lang) },
-    { id: 'leaderboard', label: t('nav.leaderboard', lang) }
+    { id: 'leaderboard', label: t('nav.leaderboard', lang) },
+    { id: 'social', label: t('nav.social', lang) }
   ];
 
   const isAuthenticated = !!(session && userProfile && userProfile.id);

@@ -856,7 +856,7 @@ async function runAudit() {
         };
         return {
           modalShell: getRad('.bezel-shell'),
-          authEmailInput: getRad('#auth-email'),
+          authInput: getRad('#auth-username'),
           submitBtn: getRad('#btn-submit-auth'),
           tabLogin: getRad('#tab-auth-login')
         };
@@ -870,8 +870,8 @@ async function runAudit() {
       );
       recordCheck(
         'Auth Input Radius <= 8px',
-        parseFloat(modalRadii.authEmailInput) <= 8,
-        `Computed: ${modalRadii.authEmailInput}`
+        parseFloat(modalRadii.authInput) <= 8,
+        `Computed: ${modalRadii.authInput}`
       );
       recordCheck(
         'Auth Submit Button Radius <= 8px',
@@ -911,26 +911,28 @@ async function runAudit() {
       await page.screenshot({ path: shot9 });
       auditLog.screenshots.push('09_auth_modal.png');
 
-      // Switch back to Login Tab and test Invalid Credentials Warning Notice
+      // Switch back to Login Tab and test Invalid Credentials Warning Notice (Username + Tagname + Password)
       const tabLogin = await page.$('#tab-auth-login');
       if (tabLogin) {
         await tabLogin.click();
         await page.waitForTimeout(200);
       }
 
-      const emailInput = await page.$('#auth-email');
+      const userInput = await page.$('#auth-username');
+      const tagInput = await page.$('#auth-tagname');
       const passInput = await page.$('#auth-password');
       const submitBtn = await page.$('#btn-submit-auth');
 
-      if (emailInput && passInput && submitBtn) {
-        await emailInput.fill('salah_login@unesa.ac.id');
+      if (userInput && tagInput && passInput && submitBtn) {
+        await userInput.fill('salah_login');
+        await tagInput.fill('A1B2C');
         await passInput.fill('passwordsalah123');
         await submitBtn.click();
 
         try {
           await page.waitForSelector('#auth-notice-box', { timeout: 5000 });
           const noticeText = await page.$eval('#auth-notice-box', el => el.innerText);
-          const hasMismatchWarning = noticeText.includes('Kata sandi atau email tidak cocok') || noticeText.includes('Peringatan Masuk Akun') || noticeText.toLowerCase().includes('sign in warning') || noticeText.toLowerCase().includes('does not match');
+          const hasMismatchWarning = noticeText.includes('tidak cocok') || noticeText.includes('Peringatan') || noticeText.includes('warning') || noticeText.toLowerCase().includes('does not match') || noticeText.includes('sandi');
           recordCheck('Login displays warning notice when email or password does not match', hasMismatchWarning, noticeText.replace(/\n+/g, ' ').trim());
 
           const shotNotice = path.join(AUDIT_DIR, '09b_auth_invalid_credentials_notice.png');
@@ -1304,6 +1306,103 @@ async function runAudit() {
 
         recordCheck('Restored language back to English (EN)', enRestored.storageVal === 'en' && enRestored.langAttr === 'en');
       }
+    }
+
+    // -------------------------------------------------------------
+    // PHASE 11: Revisi Tahap 4 - Social Hub, Community Chat, User Search by Nickname/UID,
+    // Leaderboard Profile Inspection, Privacy Rules & Achievements
+    // -------------------------------------------------------------
+    console.log('\n11. Auditing Social Hub, Community Chat, User Search & Profile Privacy...');
+
+    // 1. Navigate to Social Tab
+    const socialNavBtn = await page.$('header [data-nav="social"]');
+    recordCheck('Social Navigation Tab present in Navbar', !!socialNavBtn);
+
+    if (socialNavBtn) {
+      await socialNavBtn.click();
+      await page.waitForTimeout(400);
+
+      // Verify Social Hub Header & Search Input
+      const searchInput = await page.$('#input-social-search');
+      recordCheck('User & Friend Search Input present', !!searchInput);
+
+      // 2. Search by Nickname ('Shiina')
+      if (searchInput) {
+        await page.fill('#input-social-search', 'Shiina');
+        await page.waitForTimeout(300);
+
+        const searchResultsCount = await page.$$eval('#social-search-results [data-view-profile]', els => els.length);
+        recordCheck('Search by Nickname yields matching users', searchResultsCount > 0, `${searchResultsCount} found`);
+
+        // Test search by UID ('NV-')
+        await page.fill('#input-social-search', 'NV-');
+        await page.waitForTimeout(300);
+        const uidSearchCount = await page.$$eval('#social-search-results [data-view-profile]', els => els.length);
+        recordCheck('Search by permanent UID (NV-) yields matching users', uidSearchCount > 0, `${uidSearchCount} found`);
+
+        // Clear search
+        const clearBtn = await page.$('#btn-clear-social-search');
+        if (clearBtn) {
+          await clearBtn.click();
+          await page.waitForTimeout(200);
+        }
+      }
+
+      // 3. Community Chat: Verify Global Lounge & Direct Message Sending
+      const chatInput = await page.$('#input-social-chat-message');
+      const chatForm = await page.$('#form-social-chat-send');
+      recordCheck('Community Chat Input and Send Form present', !!chatInput && !!chatForm);
+
+      if (chatInput && chatForm) {
+        const testMsg = `Testing community real-time sync ${Date.now()}`;
+        await chatInput.fill(testMsg);
+        await page.$eval('#form-social-chat-send', form => form.dispatchEvent(new Event('submit')));
+        await page.waitForTimeout(300);
+
+        const hasSentMessage = await page.$eval('#social-chat-messages', (el, msg) => el.innerText.includes(msg), testMsg);
+        recordCheck('Chat message sent and displayed in stream', hasSentMessage);
+      }
+
+      // 4. Leaderboard Profile Inspection & Privacy Verification
+      await page.click('header [data-nav="leaderboard"]');
+      await page.waitForTimeout(400);
+
+      const profileRowTrigger = await page.$('tbody tr[data-view-profile]');
+      recordCheck('Leaderboard rows have profile inspection trigger', !!profileRowTrigger);
+
+      if (profileRowTrigger) {
+        await profileRowTrigger.click();
+        await page.waitForTimeout(400);
+
+        // Verify User Profile Modal opened
+        const isModalOpen = await page.$eval('#user-profile-modal-backdrop', el => !!el);
+        recordCheck('User Profile Modal opens on Leaderboard row click', isModalOpen);
+
+        // Verify Public Profile Privacy Enforcement
+        const profileInspection = await page.evaluate(() => {
+          const modalText = document.getElementById('user-profile-modal-backdrop')?.innerText || '';
+          const hasNickname = !!document.getElementById('profile-modal-nickname')?.innerText;
+          const hasUid = !!document.getElementById('profile-modal-uid')?.innerText;
+          const hasPrivacyShield = modalText.includes('Privasi Terlindungi') || modalText.includes('dirahasiakan');
+          const hasAchievements = modalText.includes('Raihan & Pencapaian') || modalText.includes('Terbuka');
+          return { hasNickname, hasUid, hasPrivacyShield, hasAchievements };
+        });
+
+        recordCheck('Public Profile displays Nickname & permanent UID', profileInspection.hasNickname && profileInspection.hasUid);
+        recordCheck('Public Profile strictly protects private credentials (Username & Tagname hidden)', profileInspection.hasPrivacyShield);
+        recordCheck('Profile displays earned achievements and performance stats', profileInspection.hasAchievements);
+
+        // Close profile modal
+        const closeProfileBtn = await page.$('#btn-close-user-profile-modal');
+        if (closeProfileBtn) {
+          await closeProfileBtn.click();
+          await page.waitForTimeout(300);
+        }
+      }
+
+      const shot13 = path.join(AUDIT_DIR, '13_social_hub_and_profile.png');
+      await page.screenshot({ path: shot13 });
+      auditLog.screenshots.push('13_social_hub_and_profile.png');
     }
 
 
