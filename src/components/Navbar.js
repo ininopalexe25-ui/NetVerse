@@ -55,22 +55,22 @@ export function renderNavbar(activeTab, onNavigate, userProfile, session, theme 
               <button 
                 id="btn-lang-toggle"
                 type="button"
-                class="lang-switcher-btn min-h-11 px-2.5 rounded-lg bg-white/[0.06] hover:bg-white/10 border border-white/15 transition-all flex items-center gap-1.5 cursor-pointer text-xs font-semibold text-slate-200"
+                class="lang-switcher-btn min-h-11 px-3.5 rounded-lg bg-white/[0.06] hover:bg-white/10 border border-white/15 transition-all inline-flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-200 shrink-0 whitespace-nowrap shadow-sm"
                 title="${t('lang.label', lang)}"
                 aria-label="${t('lang.label', lang)}"
                 aria-expanded="false"
               >
-                <span class="text-sm leading-none flex items-center gap-0.5 select-none">🌐${currentLangObj.flag}</span>
-                <span class="font-mono text-[11px] font-bold tracking-wider">${currentLangObj.short}</span>
-                <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <span class="inline-flex items-center gap-1 shrink-0 whitespace-nowrap select-none text-sm leading-none"><span class="shrink-0">🌐</span><span class="shrink-0">${currentLangObj.flag}</span></span>
+                <span class="font-mono text-[11px] font-bold tracking-wider shrink-0 uppercase">${currentLangObj.short}</span>
+                <svg class="w-3 h-3 text-slate-400 shrink-0 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
               </button>
 
-              <!-- Language Dropdown Popover (16 Languages) -->
+              <!-- Language Dropdown Popover (16 Languages - Widened horizontally) -->
               <div 
                 id="lang-dropdown-menu" 
-                class="hidden absolute right-0 mt-2 w-52 max-h-80 overflow-y-auto custom-scrollbar rounded-xl bg-black/95 dark:bg-black/95 backdrop-blur-2xl border border-white/10 shadow-[0_16px_40px_rgba(0,0,0,0.7)] p-1.5 space-y-1 z-50 text-xs"
+                class="hidden absolute right-0 mt-2 w-72 sm:w-80 max-h-80 overflow-y-auto custom-scrollbar rounded-xl bg-black/95 dark:bg-black/95 backdrop-blur-2xl border border-white/10 shadow-[0_16px_40px_rgba(0,0,0,0.7)] p-2 space-y-1 z-50 text-xs"
               >
                 ${SUPPORTED_LANGS.map(l => {
                   const isSelected = l.code === lang;
@@ -78,17 +78,20 @@ export function renderNavbar(activeTab, onNavigate, userProfile, session, theme 
                     <button 
                       type="button"
                       data-select-lang="${l.code}"
-                      class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-left transition-colors cursor-pointer ${
+                      class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg text-left transition-colors cursor-pointer whitespace-nowrap ${
                         isSelected 
                           ? 'bg-amber-400/15 text-amber-300 font-bold border border-amber-400/30' 
                           : 'text-slate-300 hover:text-white hover:bg-white/10'
                       }"
                     >
-                      <div class="flex items-center gap-2">
-                        <span class="text-sm select-none">🌐${l.flag}</span>
-                        <span class="text-xs font-medium">${l.label}</span>
+                      <div class="flex items-center gap-2.5 min-w-0">
+                        <span class="inline-flex items-center gap-1 shrink-0 whitespace-nowrap select-none text-sm leading-none"><span class="shrink-0">🌐</span><span class="shrink-0">${l.flag}</span></span>
+                        <span class="text-xs font-medium tracking-wide">${l.label}</span>
                       </div>
-                      ${isSelected ? '<span class="text-amber-400 font-bold">✓</span>' : ''}
+                      <div class="flex items-center gap-2 shrink-0 ml-3">
+                        <span class="font-mono text-[10px] text-slate-400 uppercase tracking-wider">${l.short}</span>
+                        ${isSelected ? '<span class="text-amber-400 font-bold text-xs">✓</span>' : ''}
+                      </div>
                     </button>
                   `;
                 }).join('')}
@@ -225,24 +228,27 @@ export function renderNavbar(activeTab, onNavigate, userProfile, session, theme 
           </div>
 
           <!-- Language Selection in Mobile Menu (16 World Languages) -->
-          <div class="pt-2 border-t border-white/[0.08] space-y-1.5 px-1">
+          <div class="pt-2.5 border-t border-white/[0.08] space-y-2 px-1">
             <div class="flex items-center justify-between">
-              <span class="text-[11px] font-medium text-slate-400">${t('lang.label', lang)}</span>
-              <span class="text-[10px] font-mono text-amber-400">16 Languages</span>
+              <span class="text-xs font-medium text-slate-400">${t('lang.label', lang)}</span>
+              <span class="text-[10px] font-mono text-amber-400 uppercase tracking-wider font-semibold">16 Languages</span>
             </div>
-            <div class="grid grid-cols-4 gap-1.5 max-h-48 overflow-y-auto custom-scrollbar p-0.5">
+            <div class="grid grid-cols-2 gap-2 max-h-56 overflow-y-auto custom-scrollbar p-0.5">
               ${SUPPORTED_LANGS.map(l => `
                 <button 
                   type="button"
                   data-select-lang="${l.code}"
-                  class="px-2 py-1.5 rounded-lg text-[11px] font-medium border text-center transition-all flex items-center justify-center gap-1 cursor-pointer ${
+                  class="px-3 py-2 rounded-lg text-xs font-medium border text-left transition-all flex items-center justify-between cursor-pointer whitespace-nowrap min-w-0 ${
                     l.code === lang 
-                      ? 'bg-amber-400/20 text-amber-300 font-bold border-amber-400/50' 
+                      ? 'bg-amber-400/20 text-amber-300 font-bold border-amber-400/50 shadow-sm' 
                       : 'bg-white/[0.05] text-slate-300 border-white/10 hover:bg-white/10'
                   }"
                 >
-                  <span class="text-xs select-none">🌐${l.flag}</span>
-                  <span class="font-mono text-[10px] font-bold">${l.short}</span>
+                  <div class="flex items-center gap-2 min-w-0">
+                    <span class="inline-flex items-center gap-1 shrink-0 whitespace-nowrap select-none text-sm leading-none"><span class="shrink-0">🌐</span><span class="shrink-0">${l.flag}</span></span>
+                    <span class="text-xs font-medium truncate">${l.label}</span>
+                  </div>
+                  <span class="font-mono text-[10px] font-bold shrink-0 opacity-70 uppercase ml-1">${l.short}</span>
                 </button>
               `).join('')}
             </div>
