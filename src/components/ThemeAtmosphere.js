@@ -2,10 +2,10 @@
  * ThemeAtmosphere.js
  * Renders rich, vibrant ("jreng"), yet tastefully balanced atmospheric ambient visual elements
  * for specific themes:
- * - midnight: Radiant celestial crescent moon with corona + Aurora Borealis wave + shooting stars/meteors + dense star & network constellation field
- * - emerald: 3-layer enchanted forest canopy + bioluminescent mist + 22+ wandering fireflies & glowing spores in emerald, mint, and lime-gold
- * - violet: Pulsing cosmic ultraviolet nebula + cyber fiber data streams + floating geometric crystal nodes & stardust
- * - sakura: Layered 3D tumbling cherry blossom petals across 3 visual depths + cyber mountain horizon + luminous pink pollen orbs
+ * - midnight: Preserved exactly as requested (Moon + Aurora + Meteors + Network Constellation)
+ * - emerald: Elevated enchanted forest (Canopy sunbeams + hanging vines & dewdrops + falling leaves + glowing fungi + spirit wisps + 3-tier forest & fireflies)
+ * - violet: Preserved exactly as requested (Cosmic nebula + cyber streams + crystals & stardust)
+ * - sakura: Elevated cyber sakura (Mount Fuji + Torii gate + cyber Sakura Moon & clouds + blooming branch + whole 5-petal blossoms + wind breeze ribbons + falling petals)
  * - light & dark: Clean minimal substrate, zero extra elements
  */
 
@@ -124,6 +124,65 @@ export function renderThemeAtmosphere(theme = 'dark') {
     `;
   } else if (theme === 'emerald') {
     content = `
+      <!-- Ethereal Emerald Canopy God Rays (Filtering Moonlight Shafts) -->
+      <div class="absolute -top-12 -left-12 w-[600px] h-[600px] pointer-events-none anim-sunbeam opacity-30">
+        <svg viewBox="0 0 600 600" class="w-full h-full">
+          <defs>
+            <linearGradient id="emerald-ray-1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#34d399" stop-opacity="0.5" />
+              <stop offset="40%" stop-color="#10b981" stop-opacity="0.25" />
+              <stop offset="85%" stop-color="#059669" stop-opacity="0" />
+            </linearGradient>
+          </defs>
+          <polygon points="0,0 280,600 160,600" fill="url(#emerald-ray-1)"/>
+          <polygon points="0,0 460,540 360,570" fill="url(#emerald-ray-1)" opacity="0.7"/>
+          <polygon points="0,0 580,380 520,440" fill="url(#emerald-ray-1)" opacity="0.5"/>
+        </svg>
+      </div>
+
+      <!-- Hanging Enchanted Canopy Vines & Luminous Dew (Framing Top Corners) -->
+      <div class="absolute top-0 left-0 w-48 h-40 pointer-events-none anim-vine opacity-75">
+        <svg viewBox="0 0 200 160" class="w-full h-full fill-none stroke-[#022c16] stroke-[2.5] stroke-linecap-round">
+          <path d="M0,0 Q30,60 15,110 T35,150" />
+          <path d="M40,0 Q65,45 55,95 T70,130" stroke-width="2" />
+          <path d="M80,0 Q95,35 90,75" stroke-width="1.5" />
+        </svg>
+        <!-- Glowing Dew Berries -->
+        <span class="absolute top-[108px] left-[13px] w-2 h-2 rounded-full bg-emerald-300 shadow-[0_0_8px_#34d399] anim-spore-pulse"></span>
+        <span class="absolute top-[128px] left-[68px] w-1.5 h-1.5 rounded-full bg-mint-300 shadow-[0_0_6px_#6ee7b7] anim-spore-pulse" style="animation-delay: 1.5s;"></span>
+        <span class="absolute top-[72px] left-[88px] w-1.5 h-1.5 rounded-full bg-lime-300 shadow-[0_0_6px_#a3e635] anim-spore-pulse" style="animation-delay: 2.8s;"></span>
+      </div>
+      <div class="absolute top-0 right-0 w-44 h-36 pointer-events-none anim-vine opacity-70 scale-x-[-1]">
+        <svg viewBox="0 0 180 150" class="w-full h-full fill-none stroke-[#022c16] stroke-[2] stroke-linecap-round">
+          <path d="M0,0 Q25,50 18,95 T30,135" />
+          <path d="M45,0 Q60,40 50,80" stroke-width="1.5" />
+        </svg>
+        <span class="absolute top-[92px] left-[16px] w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#10b981] anim-spore-pulse" style="animation-delay: 0.8s;"></span>
+        <span class="absolute top-[78px] left-[48px] w-1.5 h-1.5 rounded-full bg-teal-300 shadow-[0_0_6px_#2dd4bf] anim-spore-pulse" style="animation-delay: 2.2s;"></span>
+      </div>
+
+      <!-- Enchanted Falling Forest Leaves (Gentle Horizontal Sway Drift) -->
+      <div class="absolute -top-6 left-[18%] anim-leaf-1 pointer-events-none">
+        <svg class="w-4 h-4 text-emerald-400/80 fill-current drop-shadow-[0_0_6px_rgba(16,185,129,0.5)]" viewBox="0 0 24 24">
+          <path d="M17,8 C8,10 5,16 5,22 C11,22 17,19 19,10 C19,9 18,8 17,8 Z"/>
+        </svg>
+      </div>
+      <div class="absolute -top-6 left-[38%] anim-leaf-2 pointer-events-none">
+        <svg class="w-3.5 h-3.5 text-lime-300/80 fill-current drop-shadow-[0_0_6px_rgba(163,230,53,0.5)]" viewBox="0 0 24 24">
+          <path d="M17,8 C8,10 5,16 5,22 C11,22 17,19 19,10 C19,9 18,8 17,8 Z"/>
+        </svg>
+      </div>
+      <div class="absolute -top-6 left-[62%] anim-leaf-3 pointer-events-none">
+        <svg class="w-4 h-4 text-teal-300/75 fill-current drop-shadow-[0_0_6px_rgba(45,212,191,0.5)]" viewBox="0 0 24 24">
+          <path d="M17,8 C8,10 5,16 5,22 C11,22 17,19 19,10 C19,9 18,8 17,8 Z"/>
+        </svg>
+      </div>
+      <div class="absolute -top-6 left-[82%] anim-leaf-4 pointer-events-none">
+        <svg class="w-3.5 h-3.5 text-emerald-300/80 fill-current drop-shadow-[0_0_6px_rgba(52,211,153,0.5)]" viewBox="0 0 24 24">
+          <path d="M17,8 C8,10 5,16 5,22 C11,22 17,19 19,10 C19,9 18,8 17,8 Z"/>
+        </svg>
+      </div>
+
       <!-- Layered 3-Tier Enchanted Forest Canopy Horizon -->
       <div class="absolute bottom-0 left-0 right-0 h-48 sm:h-64 pointer-events-none flex items-end">
         <svg viewBox="0 0 1440 240" preserveAspectRatio="none" class="w-full h-full">
@@ -140,6 +199,32 @@ export function renderThemeAtmosphere(theme = 'dark') {
 
       <!-- Bioluminescent Forest Floor Mist Drift -->
       <div class="absolute bottom-0 left-0 right-0 h-28 bg-gradient-to-t from-emerald-950/80 via-emerald-900/20 to-transparent anim-mist-drift pointer-events-none"></div>
+
+      <!-- Bioluminescent Mushroom Fungi Clusters on Forest Floor -->
+      <div class="absolute bottom-3 left-[12%] pointer-events-none anim-shroom">
+        <svg viewBox="0 0 40 40" class="w-8 h-8 drop-shadow-[0_0_10px_#10b981]">
+          <path d="M8,26 Q14,14 20,26 Z" fill="#34d399"/>
+          <rect x="13" y="26" width="2" height="8" fill="#047857"/>
+          <path d="M22,28 Q27,18 32,28 Z" fill="#6ee7b7"/>
+          <rect x="26" y="28" width="1.5" height="6" fill="#047857"/>
+        </svg>
+      </div>
+      <div class="absolute bottom-3 right-[18%] pointer-events-none anim-shroom" style="animation-delay: 2s;">
+        <svg viewBox="0 0 40 40" class="w-8 h-8 drop-shadow-[0_0_10px_#2dd4bf]">
+          <path d="M10,25 Q16,15 22,25 Z" fill="#2dd4bf"/>
+          <rect x="15" y="25" width="2" height="7" fill="#0f766e"/>
+          <path d="M24,28 Q28,20 32,28 Z" fill="#a7f3d0"/>
+          <rect x="27" y="28" width="1.5" height="5" fill="#0f766e"/>
+        </svg>
+      </div>
+
+      <!-- Forest Spirit Wisps with Trailing Halos -->
+      <div class="absolute top-[38%] left-[22%] w-4 h-4 rounded-full bg-emerald-400/90 shadow-[0_0_20px_#10b981] anim-wisp-1 pointer-events-none flex items-center justify-center">
+        <span class="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_8px_#fff]"></span>
+      </div>
+      <div class="absolute top-[56%] left-[78%] w-4 h-4 rounded-full bg-teal-400/90 shadow-[0_0_20px_#14b8a6] anim-wisp-2 pointer-events-none flex items-center justify-center">
+        <span class="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_8px_#fff]"></span>
+      </div>
 
       <!-- Vibrant Swarm of 22+ Fireflies & Bioluminescent Spores -->
       <div class="absolute inset-0">
@@ -226,17 +311,131 @@ export function renderThemeAtmosphere(theme = 'dark') {
       <div class="absolute -top-28 right-1/4 w-[600px] h-[600px] rounded-full bg-pink-600/20 blur-[130px] pointer-events-none"></div>
       <div class="absolute bottom-0 left-10 w-[550px] h-[450px] rounded-full bg-rose-600/18 blur-[120px] pointer-events-none"></div>
 
-      <!-- Cyber Mountain Ridge Skyline at Bottom with Neon Pink Horizon Fringe -->
-      <div class="absolute bottom-0 left-0 right-0 h-32 sm:h-44 pointer-events-none opacity-45 flex items-end">
-        <svg viewBox="0 0 1440 180" preserveAspectRatio="none" class="w-full h-full">
+      <!-- Ethereal Cyber Sakura Moon in Sky with Corona & Japanese Cloud Streamer -->
+      <div class="absolute top-14 left-8 sm:left-16 md:left-24 w-24 h-24 pointer-events-none anim-sakura-moon">
+        <div class="absolute -inset-3 rounded-full bg-pink-500/15 blur-xl"></div>
+        <div class="absolute inset-1 rounded-full border border-pink-400/30 bg-pink-500/10"></div>
+        <svg viewBox="0 0 100 100" class="w-full h-full text-pink-200 fill-current drop-shadow-[0_0_24px_rgba(244,114,182,0.8)]">
           <defs>
-            <linearGradient id="sakura-mountain" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stop-color="#be185d" stop-opacity="0.3" />
-              <stop offset="100%" stop-color="#190714" stop-opacity="0.95" />
+            <linearGradient id="sakura-moon-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#fff1f2" />
+              <stop offset="45%" stop-color="#fbcfe8" />
+              <stop offset="85%" stop-color="#f472b6" />
+              <stop offset="100%" stop-color="#db2777" />
             </linearGradient>
           </defs>
-          <path d="M0,180 L0,120 Q320,60 640,110 Q960,30 1200,90 Q1340,50 1440,75 L1440,180 Z" fill="url(#sakura-mountain)"/>
-          <path d="M0,120 Q320,60 640,110 Q960,30 1200,90 Q1340,50 1440,75" stroke="#f472b6" stroke-width="1.5" stroke-opacity="0.6" fill="none"/>
+          <path d="M50 10 A40 40 0 1 0 90 50 A32 32 0 1 1 50 10 Z" fill="url(#sakura-moon-grad)"/>
+        </svg>
+        <div class="absolute top-1/2 -left-6 right-2 h-4 pointer-events-none opacity-40">
+          <svg viewBox="0 0 120 20" class="w-full h-full fill-rose-200/50">
+            <path d="M10,12 Q25,2 40,10 Q55,4 70,12 Q85,6 100,12 Q115,10 120,15 L0,15 Q5,13 10,12 Z"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Blooming Cherry Blossom Branch Silhouette (Top-Right Corner) -->
+      <div class="absolute top-0 right-0 w-56 h-48 pointer-events-none anim-branch opacity-80">
+        <svg viewBox="0 0 220 180" class="w-full h-full fill-none">
+          <path d="M220,0 Q160,30 130,70 T60,110 T0,130" stroke="#25091e" stroke-width="3" stroke-linecap="round"/>
+          <path d="M150,45 Q120,70 110,105" stroke="#25091e" stroke-width="2" stroke-linecap="round"/>
+          <path d="M90,90 Q70,120 50,145" stroke="#25091e" stroke-width="1.8" stroke-linecap="round"/>
+          
+          <!-- Blossoms on Branch with Glowing Cores -->
+          <g transform="translate(130, 68) scale(0.65)" fill="#fbcfe8" class="drop-shadow-[0_0_8px_rgba(244,114,182,0.9)]">
+            <circle cx="15" cy="5" r="7"/>
+            <circle cx="25" cy="15" r="7"/>
+            <circle cx="20" cy="25" r="7"/>
+            <circle cx="10" cy="25" r="7"/>
+            <circle cx="5" cy="15" r="7"/>
+            <circle cx="15" cy="17" r="3.5" fill="#f43f5e"/>
+          </g>
+          <g transform="translate(60, 108) scale(0.55)" fill="#f472b6" class="drop-shadow-[0_0_8px_rgba(244,114,182,0.9)]">
+            <circle cx="15" cy="5" r="7"/>
+            <circle cx="25" cy="15" r="7"/>
+            <circle cx="20" cy="25" r="7"/>
+            <circle cx="10" cy="25" r="7"/>
+            <circle cx="5" cy="15" r="7"/>
+            <circle cx="15" cy="17" r="3.5" fill="#e11d48"/>
+          </g>
+          <g transform="translate(110, 102) scale(0.5)" fill="#fbcfe8" class="drop-shadow-[0_0_6px_rgba(244,114,182,0.8)]">
+            <circle cx="15" cy="5" r="7"/>
+            <circle cx="25" cy="15" r="7"/>
+            <circle cx="20" cy="25" r="7"/>
+            <circle cx="10" cy="25" r="7"/>
+            <circle cx="5" cy="15" r="7"/>
+            <circle cx="15" cy="17" r="3.5" fill="#f43f5e"/>
+          </g>
+        </svg>
+      </div>
+
+      <!-- Iconic Mount Fuji Cone Silhouette & Torii Gate Horizon Silhouette -->
+      <div class="absolute bottom-0 left-0 right-0 h-36 sm:h-48 pointer-events-none flex items-end">
+        <svg viewBox="0 0 1440 200" preserveAspectRatio="none" class="w-full h-full">
+          <defs>
+            <linearGradient id="sakura-fuji-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#be185d" stop-opacity="0.35" />
+              <stop offset="100%" stop-color="#140612" stop-opacity="0.95" />
+            </linearGradient>
+          </defs>
+          <path d="M0,200 L0,150 L420,150 L640,65 Q720,40 800,65 L1020,150 L1440,150 L1440,200 Z" fill="url(#sakura-fuji-grad)" opacity="0.55"/>
+          <path d="M640,65 Q720,40 800,65" stroke="#f472b6" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.8"/>
+          
+          <!-- Elegant Torii Gate Silhouette on Left Horizon -->
+          <g fill="#180514" opacity="0.9" transform="translate(140, 95) scale(0.65)">
+            <path d="M0,8 Q50,0 100,0 Q150,0 200,8 L195,14 Q150,8 100,8 Q50,8 5,14 Z" fill="#20071a"/>
+            <path d="M0,8 Q50,0 100,0 Q150,0 200,8" stroke="#f472b6" stroke-width="1.8" fill="none" opacity="0.8"/>
+            <rect x="25" y="18" width="150" height="6" rx="2" fill="#20071a"/>
+            <rect x="96" y="8" width="8" height="16" fill="#20071a"/>
+            <rect x="42" y="24" width="10" height="80" rx="2" fill="#180514"/>
+            <rect x="148" y="24" width="10" height="80" rx="2" fill="#180514"/>
+          </g>
+
+          <!-- Horizon Baseline -->
+          <path d="M0,150 Q360,110 720,140 Q1080,110 1440,135 L1440,200 L0,200 Z" fill="#140511" opacity="0.85"/>
+        </svg>
+      </div>
+
+      <!-- Whole 5-Petal Flower Heads Tumbling & Spinning -->
+      <div class="absolute -top-10 left-[20%] anim-blossom-1 pointer-events-none">
+        <svg viewBox="0 0 30 30" class="w-6 h-6 fill-pink-200 drop-shadow-[0_0_8px_rgba(244,114,182,0.85)]">
+          <circle cx="15" cy="5" r="5.5"/>
+          <circle cx="23" cy="12" r="5.5"/>
+          <circle cx="20" cy="22" r="5.5"/>
+          <circle cx="10" cy="22" r="5.5"/>
+          <circle cx="7" cy="12" r="5.5"/>
+          <circle cx="15" cy="15" r="3" fill="#f43f5e"/>
+        </svg>
+      </div>
+      <div class="absolute -top-10 left-[68%] anim-blossom-2 pointer-events-none">
+        <svg viewBox="0 0 30 30" class="w-5.5 h-5.5 fill-rose-200 drop-shadow-[0_0_8px_rgba(251,113,133,0.85)]">
+          <circle cx="15" cy="5" r="5.5"/>
+          <circle cx="23" cy="12" r="5.5"/>
+          <circle cx="20" cy="22" r="5.5"/>
+          <circle cx="10" cy="22" r="5.5"/>
+          <circle cx="7" cy="12" r="5.5"/>
+          <circle cx="15" cy="15" r="3" fill="#e11d48"/>
+        </svg>
+      </div>
+      <div class="absolute -top-10 left-[44%] anim-blossom-3 pointer-events-none">
+        <svg viewBox="0 0 30 30" class="w-5 h-5 fill-pink-100 drop-shadow-[0_0_10px_rgba(244,114,182,0.95)]">
+          <circle cx="15" cy="5" r="5.5"/>
+          <circle cx="23" cy="12" r="5.5"/>
+          <circle cx="20" cy="22" r="5.5"/>
+          <circle cx="10" cy="22" r="5.5"/>
+          <circle cx="7" cy="12" r="5.5"/>
+          <circle cx="15" cy="15" r="3" fill="#f43f5e"/>
+        </svg>
+      </div>
+
+      <!-- Translucent Flowing Petal Breeze Wind Streaks -->
+      <div class="absolute top-[35%] left-0 right-0 h-16 anim-breeze-1 pointer-events-none overflow-hidden opacity-35">
+        <svg viewBox="0 0 1440 60" preserveAspectRatio="none" class="w-full h-full fill-none stroke-pink-300 stroke-[1.5] stroke-dasharray-[12_8]">
+          <path d="M0,30 Q360,5 720,35 T1440,20"/>
+        </svg>
+      </div>
+      <div class="absolute top-[65%] left-0 right-0 h-16 anim-breeze-2 pointer-events-none overflow-hidden opacity-30">
+        <svg viewBox="0 0 1440 60" preserveAspectRatio="none" class="w-full h-full fill-none stroke-rose-300 stroke-[1.2] stroke-dasharray-[16_10]">
+          <path d="M0,35 Q400,55 800,25 T1440,30"/>
         </svg>
       </div>
 
