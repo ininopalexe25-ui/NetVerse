@@ -1365,6 +1365,8 @@ html.sakura #auth-modal-backdrop input:focus {
 .anim-leaf-2 { animation: leaf-sway-2 16s linear infinite 3.5s; }
 .anim-leaf-3 { animation: leaf-sway-1 13s linear infinite 7s; }
 .anim-leaf-4 { animation: leaf-sway-2 15s linear infinite 10s; }
+.anim-leaf-5 { animation: leaf-sway-1 11s linear infinite 2s; }
+.anim-leaf-6 { animation: leaf-sway-2 12.5s linear infinite 5s; }
 .anim-wisp-1 { animation: wisp-wander 6s ease-in-out infinite; }
 .anim-wisp-2 { animation: wisp-wander 8s ease-in-out infinite 2.5s; }
 .anim-vine { animation: vine-sway 7s ease-in-out infinite; transform-origin: top center; }
@@ -1373,8 +1375,166 @@ html.sakura #auth-modal-backdrop input:focus {
 .anim-blossom-1 { animation: blossom-spin-1 12s linear infinite; }
 .anim-blossom-2 { animation: blossom-spin-2 15s linear infinite 4s; }
 .anim-blossom-3 { animation: blossom-spin-1 13.5s linear infinite 8s; }
+.anim-blossom-4 { animation: blossom-spin-2 11s linear infinite 2s; }
 .anim-breeze-1 { animation: breeze-flow 11s ease-in-out infinite; }
 .anim-breeze-2 { animation: breeze-flow 14s ease-in-out infinite 5s; }
 .anim-sakura-moon { animation: sakura-moon-halo 6s ease-in-out infinite; }
 .anim-branch { animation: branch-sway 8s ease-in-out infinite; transform-origin: top right; }
+
+/* -------------------------------------------------------------
+ * VIVID DYNAMIC MOTION & CONTINUOUS MOVEMENT KEYFRAMES
+ * ------------------------------------------------------------- */
+/* Midnight: Continuous shooting stars & constellation network packet flow */
+@keyframes meteor-swift-3 {
+  0% { transform: translate3d(200px, -80px, 0) rotate(-35deg) scaleX(0); opacity: 0; }
+  1% { opacity: 1; transform: translate3d(160px, -40px, 0) rotate(-35deg) scaleX(1); }
+  6% { transform: translate3d(-180px, 320px, 0) rotate(-35deg) scaleX(1.7); opacity: 0.95; filter: drop-shadow(0 0 8px #38bdf8); }
+  10% { transform: translate3d(-380px, 520px, 0) rotate(-35deg) scaleX(0.2); opacity: 0; }
+  100% { transform: translate3d(-380px, 520px, 0) rotate(-35deg) scaleX(0); opacity: 0; }
+}
+
+@keyframes meteor-swift-4 {
+  0% { transform: translate3d(280px, -40px, 0) rotate(-45deg) scaleX(0); opacity: 0; }
+  1% { opacity: 1; transform: translate3d(230px, 10px, 0) rotate(-45deg) scaleX(1); }
+  7% { transform: translate3d(-150px, 390px, 0) rotate(-45deg) scaleX(1.5); opacity: 0.9; filter: drop-shadow(0 0 8px #7dd3fc); }
+  11% { transform: translate3d(-340px, 580px, 0) rotate(-45deg) scaleX(0.2); opacity: 0; }
+  100% { transform: translate3d(-340px, 580px, 0) rotate(-45deg) scaleX(0); opacity: 0; }
+}
+
+@keyframes packet-dash-1 {
+  0% { offset-distance: 0%; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { offset-distance: 100%; opacity: 0; }
+}
+
+@keyframes starburst-flare {
+  0%, 100% { transform: scale(0.7) rotate(0deg); opacity: 0.3; }
+  50% { transform: scale(1.35) rotate(180deg); opacity: 1; filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.95)); }
+}
+
+@keyframes corona-pulse-ring {
+  0% { transform: scale(0.9); opacity: 0.6; }
+  50% { opacity: 0.2; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+@keyframes stardust-stream {
+  0% { transform: translate3d(0, 0, 0); opacity: 0.2; }
+  50% { transform: translate3d(-40px, 25px, 0); opacity: 0.75; }
+  100% { transform: translate3d(0, 0, 0); opacity: 0.2; }
+}
+
+/* Emerald: Darting fireflies, dancing sunbeam motes & rolling forest mist */
+@keyframes firefly-dart {
+  0% { transform: translate3d(0, 0, 0); opacity: 0.2; }
+  15% { transform: translate3d(35px, -30px, 0); opacity: 1; filter: drop-shadow(0 0 12px #34d399); }
+  35% { transform: translate3d(15px, -70px, 0); opacity: 0.5; }
+  55% { transform: translate3d(-30px, -110px, 0); opacity: 1; filter: drop-shadow(0 0 14px #10b981); }
+  75% { transform: translate3d(20px, -160px, 0); opacity: 0.6; }
+  100% { transform: translate3d(0, -220px, 0); opacity: 0; }
+}
+
+@keyframes firefly-spiral {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 0.2; }
+  25% { transform: translate3d(25px, -45px, 0) rotate(90deg); opacity: 1; filter: drop-shadow(0 0 12px #a3e635); }
+  50% { transform: translate3d(-20px, -90px, 0) rotate(180deg); opacity: 0.45; }
+  75% { transform: translate3d(30px, -145px, 0) rotate(270deg); opacity: 0.95; filter: drop-shadow(0 0 14px #2dd4bf); }
+  100% { transform: translate3d(0, -210px, 0) rotate(360deg); opacity: 0; }
+}
+
+@keyframes sunbeam-mote-drift {
+  0%, 100% { transform: translate3d(0, 0, 0); opacity: 0.25; }
+  50% { transform: translate3d(25px, 35px, 0); opacity: 0.85; filter: drop-shadow(0 0 8px #6ee7b7); }
+}
+
+@keyframes mist-wave-reverse {
+  0%, 100% { transform: translate3d(0, 0, 0); opacity: 0.35; }
+  50% { transform: translate3d(50px, -4px, 0); opacity: 0.7; }
+}
+
+/* Violet: High-speed cyber data matrix conduits & 3D orbital rings */
+@keyframes cyber-burst-fast {
+  0% { transform: translateY(-100%); opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translateY(280%); opacity: 0; }
+}
+
+@keyframes orbital-ring-spin {
+  0% { transform: rotateX(65deg) rotateZ(0deg); }
+  100% { transform: rotateX(65deg) rotateZ(360deg); }
+}
+
+@keyframes pulsar-ripple {
+  0% { transform: scale(0.6); opacity: 0.8; }
+  60% { opacity: 0.3; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+@keyframes spark-flow {
+  0% { stroke-dashoffset: 200; opacity: 0.2; }
+  50% { opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 0.2; }
+}
+
+/* Sakura: Swirling petal gusts, wind stream dashes & blossom clusters */
+@keyframes sakura-wind-swirl-1 {
+  0% { transform: translate3d(0, -40px, 0) rotateZ(0deg) rotateX(0deg); opacity: 0; }
+  8% { opacity: 0.95; }
+  35% { transform: translate3d(120px, 28vh, 0) rotateZ(180deg) rotateX(160deg); opacity: 0.9; }
+  65% { transform: translate3d(60px, 62vh, 0) rotateZ(320deg) rotateX(320deg); opacity: 0.85; }
+  100% { transform: translate3d(200px, 105vh, 0) rotateZ(540deg) rotateX(480deg); opacity: 0; }
+}
+
+@keyframes sakura-wind-swirl-2 {
+  0% { transform: translate3d(0, -40px, 0) rotateZ(45deg) rotateY(0deg); opacity: 0; }
+  10% { opacity: 0.95; }
+  40% { transform: translate3d(-90px, 32vh, 0) rotateZ(210deg) rotateY(180deg); opacity: 0.9; }
+  70% { transform: translate3d(-30px, 68vh, 0) rotateZ(360deg) rotateY(340deg); opacity: 0.8; }
+  100% { transform: translate3d(-120px, 105vh, 0) rotateZ(520deg) rotateY(480deg); opacity: 0; }
+}
+
+@keyframes wind-gust-sweep {
+  0% { transform: translate3d(-100%, 0, 0) scaleX(0.6); opacity: 0; }
+  25% { opacity: 0.6; }
+  75% { opacity: 0.6; }
+  100% { transform: translate3d(110%, 0, 0) scaleX(1.4); opacity: 0; }
+}
+
+@keyframes lantern-hover {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.4; }
+  50% { transform: translate3d(12px, -24px, 0) scale(1.3); opacity: 1; filter: drop-shadow(0 0 14px #f472b6); }
+}
+
+/* New Animation Utility Classes */
+.anim-meteor-3 { animation: meteor-swift-3 6.2s ease-in infinite 1.2s; }
+.anim-meteor-4 { animation: meteor-swift-4 7.8s ease-in infinite 3.8s; }
+.anim-starburst { animation: starburst-flare 3.8s ease-in-out infinite; }
+.anim-corona-ripple { animation: corona-pulse-ring 4.5s cubic-bezier(0.1, 0.8, 0.3, 1) infinite; }
+.anim-stardust-wave { animation: stardust-stream 10s ease-in-out infinite; }
+
+.anim-firefly-dart-1 { animation: firefly-dart 6.8s ease-in-out infinite; }
+.anim-firefly-dart-2 { animation: firefly-dart 8s ease-in-out infinite 2.2s; }
+.anim-firefly-spiral-1 { animation: firefly-spiral 7.4s ease-in-out infinite 1s; }
+.anim-firefly-spiral-2 { animation: firefly-spiral 9.2s ease-in-out infinite 3.5s; }
+.anim-sunbeam-mote { animation: sunbeam-mote-drift 5s ease-in-out infinite; }
+.anim-mist-rolling { animation: mist-wave-reverse 13s ease-in-out infinite; }
+
+.anim-cyber-fast-1 { animation: cyber-burst-fast 2.8s linear infinite; }
+.anim-cyber-fast-2 { animation: cyber-burst-fast 3.4s linear infinite 1.1s; }
+.anim-cyber-fast-3 { animation: cyber-burst-fast 2.5s linear infinite 0.6s; }
+.anim-cyber-fast-4 { animation: cyber-burst-fast 3.1s linear infinite 1.8s; }
+.anim-orbital-ring-1 { animation: orbital-ring-spin 6s linear infinite; }
+.anim-orbital-ring-2 { animation: orbital-ring-spin 8s linear infinite reverse; }
+.anim-pulsar-ripple { animation: pulsar-ripple 4s cubic-bezier(0.1, 0.7, 0.3, 1) infinite; }
+.anim-spark-trace { animation: spark-flow 3.5s ease-in-out infinite; }
+
+.anim-sakura-swirl-1 { animation: sakura-wind-swirl-1 8.5s linear infinite; }
+.anim-sakura-swirl-2 { animation: sakura-wind-swirl-2 9.8s linear infinite 2.2s; }
+.anim-sakura-swirl-3 { animation: sakura-wind-swirl-1 10.5s linear infinite 4.8s; }
+.anim-sakura-swirl-4 { animation: sakura-wind-swirl-2 11.2s linear infinite 6.5s; }
+.anim-wind-gust { animation: wind-gust-sweep 8s cubic-bezier(0.2, 0.8, 0.4, 1) infinite; }
+.anim-lantern-bob { animation: lantern-hover 4.5s ease-in-out infinite; }
+
 
