@@ -173,7 +173,7 @@ export function renderLeaderboard(scores = [], currentUser = {}, activeFilter = 
   const top3 = displayScores[2];
 
   return `
-    <div class="space-y-8 pt-16 pb-16 animate-fadeIn max-w-5xl mx-auto">
+    <div class="space-y-8 pt-20 sm:pt-24 pb-16 animate-fadeIn max-w-5xl mx-auto">
       
       <!-- Header Banner with Realtime Status -->
       <div class="border-b border-white/[0.08] pb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4">

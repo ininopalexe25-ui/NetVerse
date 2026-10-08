@@ -1398,6 +1398,7 @@ async function verifyCrimping() {
       ? `Hebat, semua pin tersusun dengan benar! (+${earnedXp} XP)` 
       : `${correctCount} dari 8 pin sudah tepat (${accuracy.toFixed(1)}%). Periksa lagi pin yang ditandai merah.`
   };
+  renderApp();
 
   // Record to Supabase (strictly authenticated users only)
   try {

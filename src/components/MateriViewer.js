@@ -134,7 +134,7 @@ export function renderMateriViewer(
   const relatedActionLabel = lang === 'en' ? '3D Crimping Simulator' : (lang === 'jp' ? '3D圧着シミュレータ' : (lang === 'cn' ? '3D网线压接实训' : 'simulasi crimping'));
 
   return `
-    <div class="${quizOnly ? 'max-w-3xl mx-auto grid grid-cols-1' : 'grid grid-cols-1 lg:grid-cols-12'} gap-8 items-start pt-16 pb-16 animate-fadeIn">
+    <div class="${quizOnly ? 'max-w-3xl mx-auto grid grid-cols-1' : 'grid grid-cols-1 lg:grid-cols-12'} gap-8 items-start pt-20 sm:pt-24 pb-16 animate-fadeIn">
       
       <!-- Module Navigation Sidebar (4 cols) -->
       <aside class="${quizOnly ? 'hidden' : 'lg:col-span-4 space-y-5'}">

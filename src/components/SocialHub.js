@@ -29,7 +29,7 @@ export function renderSocialHub(state) {
   const searchResults = searchQuery ? searchUsers(searchQuery, allUsers) : [];
 
   return `
-    <div class="space-y-6 animate-fadeIn pb-12">
+    <div class="space-y-6 pt-20 sm:pt-24 animate-fadeIn pb-12">
       
       <!-- HERO HEADER -->
       <div class="bezel-shell">
