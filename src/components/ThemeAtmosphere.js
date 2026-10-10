@@ -613,6 +613,193 @@ export function renderThemeAtmosphere(theme = 'dark') {
         <span class="absolute top-[82%] left-[86%] w-2.5 h-2.5 rounded-full bg-pink-200 anim-lantern-bob shadow-[0_0_10px_#f472b6]" style="animation-delay: 2.1s;"></span>
       </div>
     `;
+  } else if (theme === 'sunset') {
+    content = `
+      <!-- Ambient Horizon Twilight Sky Glow & Crepuscular Rays -->
+      <div class="absolute bottom-0 left-0 right-0 h-[65vh] pointer-events-none opacity-60">
+        <svg viewBox="0 0 1440 600" preserveAspectRatio="none" class="w-full h-full">
+          <defs>
+            <linearGradient id="sunset-sky-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#140907" stop-opacity="0" />
+              <stop offset="35%" stop-color="#4a044e" stop-opacity="0.25" />
+              <stop offset="65%" stop-color="#9f1239" stop-opacity="0.45" />
+              <stop offset="85%" stop-color="#ea580c" stop-opacity="0.65" />
+              <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.55" />
+            </linearGradient>
+            <linearGradient id="sunset-rays-grad" x1="50%" y1="100%" x2="50%" y2="0%">
+              <stop offset="0%" stop-color="#fbbf24" stop-opacity="0.35" />
+              <stop offset="60%" stop-color="#f97316" stop-opacity="0.15" />
+              <stop offset="100%" stop-color="#e11d48" stop-opacity="0" />
+            </linearGradient>
+          </defs>
+          <rect width="1440" height="600" fill="url(#sunset-sky-gradient)" />
+          
+          <!-- Radiating Twilight Sunbeams / Crepuscular Rays -->
+          <g class="anim-sunset-rays" transform-origin="720 540">
+            <polygon points="720,540 640,0 670,0" fill="url(#sunset-rays-grad)" />
+            <polygon points="720,540 760,0 790,0" fill="url(#sunset-rays-grad)" />
+            <polygon points="720,540 500,50 535,50" fill="url(#sunset-rays-grad)" />
+            <polygon points="720,540 890,50 925,50" fill="url(#sunset-rays-grad)" />
+            <polygon points="720,540 360,140 400,140" fill="url(#sunset-rays-grad)" />
+            <polygon points="720,540 1030,140 1070,140" fill="url(#sunset-rays-grad)" />
+          </g>
+        </svg>
+      </div>
+
+      <!-- Radiant Sinking Sun with Pulsating Solar Coronas -->
+      <div class="absolute bottom-[18vh] left-1/2 -translate-x-1/2 w-44 sm:w-56 md:w-64 h-44 sm:h-56 md:h-64 pointer-events-none flex items-center justify-center">
+        <!-- Concentric Expanding Corona Rings -->
+        <div class="absolute inset-0 rounded-full border border-amber-400/40 anim-sunset-corona-1"></div>
+        <div class="absolute inset-4 rounded-full border border-orange-400/35 anim-sunset-corona-2"></div>
+        
+        <!-- Diffuse Atmospheric Sunset Glow -->
+        <div class="absolute -inset-10 rounded-full bg-gradient-to-t from-orange-600/40 via-amber-500/30 to-rose-600/20 blur-3xl anim-sunset-sun"></div>
+        <div class="absolute -inset-4 rounded-full bg-amber-400/25 blur-xl anim-sunset-sun"></div>
+
+        <!-- The Setting Sun Orb SVG -->
+        <svg viewBox="0 0 200 200" class="w-full h-full drop-shadow-[0_0_35px_rgba(249,115,22,0.9)] anim-sunset-sun">
+          <defs>
+            <radialGradient id="sun-orb-grad" cx="50%" cy="40%" r="50%">
+              <stop offset="0%" stop-color="#fffbeb" />
+              <stop offset="35%" stop-color="#fef08a" />
+              <stop offset="65%" stop-color="#f97316" />
+              <stop offset="90%" stop-color="#e11d48" />
+              <stop offset="100%" stop-color="#9f1239" />
+            </radialGradient>
+          </defs>
+          <circle cx="100" cy="100" r="75" fill="url(#sun-orb-grad)" />
+        </svg>
+      </div>
+
+      <!-- Mountain Range Silhouette & Twilight Horizon -->
+      <div class="absolute bottom-0 left-0 right-0 h-48 sm:h-56 md:h-64 pointer-events-none">
+        <svg viewBox="0 0 1440 260" preserveAspectRatio="none" class="w-full h-full">
+          <defs>
+            <linearGradient id="sunset-mountain-back" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#831843" stop-opacity="0.55" />
+              <stop offset="100%" stop-color="#2a0818" stop-opacity="0.9" />
+            </linearGradient>
+            <linearGradient id="sunset-mountain-front" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#9a3412" stop-opacity="0.75" />
+              <stop offset="30%" stop-color="#451a03" stop-opacity="0.95" />
+              <stop offset="100%" stop-color="#140907" stop-opacity="1" />
+            </linearGradient>
+            <linearGradient id="sunset-water-reflection" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.8" />
+              <stop offset="50%" stop-color="#ea580c" stop-opacity="0.5" />
+              <stop offset="100%" stop-color="#140907" stop-opacity="0" />
+            </linearGradient>
+          </defs>
+
+          <!-- Back Mountain Ridge -->
+          <path d="M0,130 Q180,80 380,120 T800,95 Q1020,60 1200,105 T1440,125 L1440,260 L0,260 Z" fill="url(#sunset-mountain-back)" />
+          
+          <!-- Front Layered Mountain Ridge / Dune Slopes -->
+          <path d="M0,170 Q240,110 520,155 T980,135 Q1180,105 1320,160 L1440,175 L1440,260 L0,260 Z" fill="url(#sunset-mountain-front)" />
+
+          <!-- Golden Twilight Water / Coastline Reflection Ripples -->
+          <g class="anim-sunset-ripple">
+            <ellipse cx="720" cy="225" rx="280" ry="6" fill="url(#sunset-water-reflection)" opacity="0.75" />
+            <ellipse cx="720" cy="238" rx="360" ry="5" fill="url(#sunset-water-reflection)" opacity="0.6" />
+            <ellipse cx="720" cy="250" rx="420" ry="4" fill="url(#sunset-water-reflection)" opacity="0.45" />
+          </g>
+        </svg>
+      </div>
+
+      <!-- Drifting Twilight Clouds (Upper & Mid Atmosphere) -->
+      <div class="absolute inset-0 pointer-events-none overflow-hidden">
+        <!-- Cloud Layer 1: High Cirrus Dusk Stream -->
+        <div class="absolute top-[12%] -left-[10%] w-[120%] anim-sunset-cloud-1 opacity-45">
+          <svg viewBox="0 0 1200 120" preserveAspectRatio="none" class="w-full h-16 sm:h-24">
+            <defs>
+              <linearGradient id="cloud-grad-1" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#e11d48" stop-opacity="0" />
+                <stop offset="25%" stop-color="#fb923c" stop-opacity="0.6" />
+                <stop offset="50%" stop-color="#fed7aa" stop-opacity="0.8" />
+                <stop offset="75%" stop-color="#f43f5e" stop-opacity="0.5" />
+                <stop offset="100%" stop-color="#881337" stop-opacity="0" />
+              </linearGradient>
+            </defs>
+            <path d="M0,60 Q200,20 400,50 T800,45 Q1000,15 1200,55 Q1000,85 800,65 T400,75 Q200,90 0,60 Z" fill="url(#cloud-grad-1)" />
+          </svg>
+        </div>
+
+        <!-- Cloud Layer 2: Mid Twilight Feather Clouds -->
+        <div class="absolute top-[28%] -left-[10%] w-[120%] anim-sunset-cloud-2 opacity-50">
+          <svg viewBox="0 0 1200 140" preserveAspectRatio="none" class="w-full h-20 sm:h-28">
+            <defs>
+              <linearGradient id="cloud-grad-2" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#9f1239" stop-opacity="0" />
+                <stop offset="30%" stop-color="#f97316" stop-opacity="0.65" />
+                <stop offset="60%" stop-color="#fde047" stop-opacity="0.85" />
+                <stop offset="85%" stop-color="#fb7185" stop-opacity="0.55" />
+                <stop offset="100%" stop-color="#4c0519" stop-opacity="0" />
+              </linearGradient>
+            </defs>
+            <path d="M0,70 Q280,30 560,65 T980,50 Q1120,30 1200,70 Q1050,105 840,75 T420,85 Q210,105 0,70 Z" fill="url(#cloud-grad-2)" />
+          </svg>
+        </div>
+
+        <!-- Cloud Layer 3: Lower Twilight Stratus Silhouette -->
+        <div class="absolute top-[44%] -left-[10%] w-[120%] anim-sunset-cloud-3 opacity-40">
+          <svg viewBox="0 0 1200 100" preserveAspectRatio="none" class="w-full h-14 sm:h-20">
+            <defs>
+              <linearGradient id="cloud-grad-3" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#831843" stop-opacity="0" />
+                <stop offset="35%" stop-color="#ea580c" stop-opacity="0.5" />
+                <stop offset="65%" stop-color="#f59e0b" stop-opacity="0.7" />
+                <stop offset="100%" stop-color="#9a3412" stop-opacity="0" />
+              </linearGradient>
+            </defs>
+            <path d="M0,50 Q320,15 640,45 T1050,40 Q1150,25 1200,50 Q1050,75 750,55 T300,65 Q150,75 0,50 Z" fill="url(#cloud-grad-3)" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- Flocks of Migrating Silhouette Birds Gliding Across Sunset Sky -->
+      <div class="absolute inset-0 pointer-events-none overflow-hidden">
+        <!-- Flock 1 (Flying left-to-right toward sunset horizon) -->
+        <div class="absolute top-[20%] anim-sunset-birds-1">
+          <svg class="w-36 h-20 text-orange-200 fill-current opacity-80 drop-shadow-[0_2px_8px_rgba(234,88,12,0.6)]" viewBox="0 0 160 80">
+            <!-- Lead Bird -->
+            <path d="M80,20 Q88,10 96,18 Q90,24 80,22 Q70,24 64,18 Q72,10 80,20 Z" />
+            <!-- Wingman Right 1 -->
+            <path d="M104,32 Q110,24 116,30 Q112,35 104,33 Q96,35 92,30 Q98,24 104,32 Z" />
+            <!-- Wingman Right 2 -->
+            <path d="M126,45 Q131,39 136,44 Q133,48 126,46 Q119,48 116,44 Q121,39 126,45 Z" />
+            <!-- Wingman Left 1 -->
+            <path d="M56,33 Q62,25 68,31 Q64,36 56,34 Q48,36 44,31 Q50,25 56,33 Z" />
+            <!-- Wingman Left 2 -->
+            <path d="M34,46 Q39,40 44,45 Q41,49 34,47 Q27,49 24,45 Q29,40 34,46 Z" />
+            <!-- Trailing Bird -->
+            <path d="M14,58 Q18,53 22,57 Q20,60 14,59 Q8,60 6,57 Q10,53 14,58 Z" />
+          </svg>
+        </div>
+
+        <!-- Flock 2 (Smaller distant flock crossing at higher altitude) -->
+        <div class="absolute top-[14%] anim-sunset-birds-2">
+          <svg class="w-28 h-16 text-rose-200 fill-current opacity-70 drop-shadow-[0_2px_6px_rgba(225,29,72,0.5)]" viewBox="0 0 120 60">
+            <path d="M60,15 Q66,7 72,13 Q67,18 60,16 Q53,18 48,13 Q54,7 60,15 Z" />
+            <path d="M78,24 Q83,18 88,23 Q85,27 78,25 Q71,27 68,23 Q73,18 78,24 Z" />
+            <path d="M42,25 Q47,19 52,24 Q49,28 42,26 Q35,28 32,24 Q37,19 42,25 Z" />
+            <path d="M94,34 Q98,30 102,33 Q100,36 94,35 Q88,36 86,33 Q90,30 94,34 Z" />
+            <path d="M26,35 Q30,31 34,34 Q32,37 26,36 Q20,37 18,34 Q22,31 26,35 Z" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- Rising Golden Sunset Sparks & Twilight Embers -->
+      <div class="absolute inset-0 pointer-events-none overflow-hidden">
+        <span class="absolute bottom-[22%] left-[22%] w-2.5 h-2.5 rounded-full bg-amber-300 anim-sunset-ember-1 shadow-[0_0_12px_#f59e0b]"></span>
+        <span class="absolute bottom-[26%] left-[38%] w-2 h-2 rounded-full bg-orange-400 anim-sunset-ember-2 shadow-[0_0_10px_#f97316]"></span>
+        <span class="absolute bottom-[20%] left-[54%] w-3 h-3 rounded-full bg-yellow-200 anim-sunset-ember-3 shadow-[0_0_14px_#fde047]"></span>
+        <span class="absolute bottom-[24%] left-[68%] w-2 h-2 rounded-full bg-rose-400 anim-sunset-ember-4 shadow-[0_0_10px_#fb7185]"></span>
+        <span class="absolute bottom-[28%] left-[82%] w-2.5 h-2.5 rounded-full bg-amber-400 anim-sunset-ember-5 shadow-[0_0_12px_#f59e0b]"></span>
+        <span class="absolute bottom-[32%] left-[48%] w-1.5 h-1.5 rounded-full bg-orange-300 anim-sunset-ember-1 shadow-[0_0_8px_#fb923c]" style="animation-delay: 2.1s;"></span>
+        <span class="absolute bottom-[35%] left-[62%] w-2 h-2 rounded-full bg-yellow-300 anim-sunset-ember-2 shadow-[0_0_10px_#fde047]" style="animation-delay: 1.2s;"></span>
+        <span class="absolute bottom-[18%] left-[76%] w-1.5 h-1.5 rounded-full bg-amber-200 anim-sunset-ember-3 shadow-[0_0_8px_#fef08a]" style="animation-delay: 3.4s;"></span>
+      </div>
+    `;
   }
 
   return `

@@ -14,7 +14,8 @@ export const THEME_TRANSLATIONS = {
     midnight: 'Midnight Blue',
     emerald: 'Dark Emerald',
     violet: 'Cyber Violet',
-    sakura: 'Neon Sakura'
+    sakura: 'Neon Sakura',
+    sunset: 'Golden Sunset'
   },
   id: {
     label: 'Tema Tampilan',
@@ -23,7 +24,8 @@ export const THEME_TRANSLATIONS = {
     midnight: 'Midnight Blue',
     emerald: 'Dark Emerald',
     violet: 'Cyber Violet',
-    sakura: 'Neon Sakura'
+    sakura: 'Neon Sakura',
+    sunset: 'Golden Sunset'
   },
   es: {
     label: 'Tema de Color',
@@ -32,7 +34,8 @@ export const THEME_TRANSLATIONS = {
     midnight: 'Midnight Blue',
     emerald: 'Dark Emerald',
     violet: 'Cyber Violet',
-    sakura: 'Neon Sakura'
+    sakura: 'Neon Sakura',
+    sunset: 'Golden Sunset'
   },
   fr: {
     label: 'Thème de Couleur',
@@ -41,7 +44,8 @@ export const THEME_TRANSLATIONS = {
     midnight: 'Midnight Blue',
     emerald: 'Dark Emerald',
     violet: 'Cyber Violet',
-    sakura: 'Neon Sakura'
+    sakura: 'Neon Sakura',
+    sunset: 'Golden Sunset'
   },
   pt: {
     label: 'Tema de Cor',
@@ -50,7 +54,8 @@ export const THEME_TRANSLATIONS = {
     midnight: 'Midnight Blue',
     emerald: 'Dark Emerald',
     violet: 'Cyber Violet',
-    sakura: 'Neon Sakura'
+    sakura: 'Neon Sakura',
+    sunset: 'Golden Sunset'
   },
   de: {
     label: 'Farbthema',
@@ -59,7 +64,8 @@ export const THEME_TRANSLATIONS = {
     midnight: 'Midnight Blue',
     emerald: 'Dark Emerald',
     violet: 'Cyber Violet',
-    sakura: 'Neon Sakura'
+    sakura: 'Neon Sakura',
+    sunset: 'Golden Sunset'
   },
   it: {
     label: 'Tema di Colore',
@@ -68,7 +74,8 @@ export const THEME_TRANSLATIONS = {
     midnight: 'Midnight Blue',
     emerald: 'Dark Emerald',
     violet: 'Cyber Violet',
-    sakura: 'Neon Sakura'
+    sakura: 'Neon Sakura',
+    sunset: 'Golden Sunset'
   },
   tr: {
     label: 'Renk Teması',
@@ -77,7 +84,8 @@ export const THEME_TRANSLATIONS = {
     midnight: 'Midnight Blue',
     emerald: 'Dark Emerald',
     violet: 'Cyber Violet',
-    sakura: 'Neon Sakura'
+    sakura: 'Neon Sakura',
+    sunset: 'Golden Sunset'
   },
   nl: {
     label: 'Kleurthema',
@@ -86,7 +94,8 @@ export const THEME_TRANSLATIONS = {
     midnight: 'Midnight Blue',
     emerald: 'Dark Emerald',
     violet: 'Cyber Violet',
-    sakura: 'Neon Sakura'
+    sakura: 'Neon Sakura',
+    sunset: 'Golden Sunset'
   },
   vi: {
     label: 'Giao Diện Màu',
@@ -95,7 +104,8 @@ export const THEME_TRANSLATIONS = {
     midnight: 'Midnight Blue',
     emerald: 'Dark Emerald',
     violet: 'Cyber Violet',
-    sakura: 'Neon Sakura'
+    sakura: 'Neon Sakura',
+    sunset: 'Golden Sunset'
   },
 
   // Non-Latin script languages (Arabic, Chinese, Japanese, Korean, Russian, Hindi)
@@ -106,7 +116,8 @@ export const THEME_TRANSLATIONS = {
     midnight: 'أزرق منتصف الليل (Midnight Blue)',
     emerald: 'زمرد داكن (Dark Emerald)',
     violet: 'سايبر بنفسجي (Cyber Violet)',
-    sakura: 'ساكورا نيون (Neon Sakura)'
+    sakura: 'ساكورا نيون (Neon Sakura)',
+    sunset: 'غروب ذهبي (Golden Sunset)'
   },
   cn: {
     label: '色彩主题',
@@ -115,7 +126,8 @@ export const THEME_TRANSLATIONS = {
     midnight: '午夜蓝 (Midnight Blue)',
     emerald: '暗夜翡翠 (Dark Emerald)',
     violet: '赛博紫 (Cyber Violet)',
-    sakura: '霓虹樱花 (Neon Sakura)'
+    sakura: '霓虹樱花 (Neon Sakura)',
+    sunset: '金色落日 (Golden Sunset)'
   },
   jp: {
     label: 'カラーテーマ',
@@ -124,7 +136,8 @@ export const THEME_TRANSLATIONS = {
     midnight: 'ミッドナイトブルー (Midnight Blue)',
     emerald: 'ダークエメラルド (Dark Emerald)',
     violet: 'サイバーバイオレット (Cyber Violet)',
-    sakura: 'ネオンサクラ (Neon Sakura)'
+    sakura: 'ネオンサクラ (Neon Sakura)',
+    sunset: 'ゴールデンサンセット (Golden Sunset)'
   },
   ko: {
     label: '컬러 테마',
@@ -133,7 +146,8 @@ export const THEME_TRANSLATIONS = {
     midnight: '미드나잇 블루 (Midnight Blue)',
     emerald: '다크 에메랄드 (Dark Emerald)',
     violet: '사이버 바이올렛 (Cyber Violet)',
-    sakura: '네온 사쿠라 (Neon Sakura)'
+    sakura: '네온 사쿠라 (Neon Sakura)',
+    sunset: '골든 선셋 (Golden Sunset)'
   },
   ru: {
     label: 'Цветовая тема',
@@ -142,7 +156,8 @@ export const THEME_TRANSLATIONS = {
     midnight: 'Полуночный синий (Midnight Blue)',
     emerald: 'Тёмный изумруд (Dark Emerald)',
     violet: 'Кибер-фиолетовый (Cyber Violet)',
-    sakura: 'Неоновая сакура (Neon Sakura)'
+    sakura: 'Неоновая сакура (Neon Sakura)',
+    sunset: 'Золотой закат (Golden Sunset)'
   },
   hi: {
     label: 'रंग थीम',
@@ -151,7 +166,8 @@ export const THEME_TRANSLATIONS = {
     midnight: 'मिडनाइट ब्लू (Midnight Blue)',
     emerald: 'डार्क एमराल्ड (Dark Emerald)',
     violet: 'साइबर वॉयलेट (Cyber Violet)',
-    sakura: 'नियॉन साकुरा (Neon Sakura)'
+    sakura: 'नियॉन साकुरा (Neon Sakura)',
+    sunset: 'गोल्डन सनसेट (Golden Sunset)'
   }
 };
 

@@ -29,7 +29,8 @@ export const SUPPORTED_THEMES = [
   { code: 'midnight', icon: '🌌', color: '#060b18', border: '#38bdf8', key: 'midnight', name: 'Midnight Blue' },
   { code: 'emerald', icon: '🌲', color: '#05130b', border: '#10b981', key: 'emerald', name: 'Dark Emerald' },
   { code: 'violet', icon: '🔮', color: '#0b0617', border: '#a855f7', key: 'violet', name: 'Cyber Violet' },
-  { code: 'sakura', icon: '🌸', color: '#140710', border: '#ec4899', key: 'sakura', name: 'Neon Sakura' }
+  { code: 'sakura', icon: '🌸', color: '#140710', border: '#ec4899', key: 'sakura', name: 'Neon Sakura' },
+  { code: 'sunset', icon: '🌅', color: '#140907', border: '#f97316', key: 'sunset', name: 'Golden Sunset' }
 ];
 
 export const translations = {
@@ -56,10 +57,13 @@ export const translations = {
     },
     theme: {
       label: 'Tema tampilan',
-      dark: 'Gelap (Standar)',
-      light: 'Terang (Putih)',
+      dark: 'Dark',
+      light: 'Light',
       midnight: 'Midnight Blue',
-      emerald: 'Hijau Gelap'
+      emerald: 'Dark Emerald',
+      violet: 'Cyber Violet',
+      sakura: 'Neon Sakura',
+      sunset: 'Golden Sunset'
     },
     lang: {
       label: 'Pilihan Bahasa',

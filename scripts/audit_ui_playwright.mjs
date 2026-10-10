@@ -993,9 +993,9 @@ async function runAudit() {
     }
 
     // -------------------------------------------------------------
-    // PHASE 9: Light, Dark, Midnight Blue, and Dark Emerald Theme Dropdown Audit
+    // PHASE 9: Light, Dark, Midnight Blue, Dark Emerald, Cyber Violet, Neon Sakura, and Golden Sunset Theme Dropdown Audit
     // -------------------------------------------------------------
-    console.log('\n9. Auditing 4-Theme Dropdown (Light, Dark, Midnight Blue, Dark Emerald)...');
+    console.log('\n9. Auditing Themes Dropdown (Light, Dark, Midnight Blue, Dark Emerald, Cyber Violet, Neon Sakura, Golden Sunset)...');
     const themeToggleBtn = await page.$('#btn-theme-toggle');
     recordCheck('Theme Dropdown Trigger Button rendered in Navbar', !!themeToggleBtn);
 
@@ -1154,6 +1154,36 @@ async function runAudit() {
         const shotSakura = path.join(AUDIT_DIR, '12d_sakura_theme_workbench.png');
         await page.screenshot({ path: shotSakura });
         auditLog.screenshots.push('12d_sakura_theme_workbench.png');
+      }
+
+      // 6b. Select Golden Sunset Theme
+      await openThemeDropdown();
+      const btnSunset = await page.$('button[data-set-theme="sunset"]');
+      recordCheck('Golden Sunset option present in dropdown', !!btnSunset);
+      if (btnSunset) {
+        await btnSunset.click();
+        await page.waitForTimeout(400);
+
+        const sunsetThemeState = await page.evaluate(() => {
+          const isHtmlSunset = document.documentElement.classList.contains('sunset');
+          const isHtmlDark = document.documentElement.classList.contains('dark');
+          const themeAttr = document.documentElement.getAttribute('data-theme');
+          const storageVal = localStorage.getItem('netverse-theme');
+          const hasAtmosphere = !!document.querySelector('#theme-atmosphere .anim-sunset-sun');
+          return { isHtmlSunset, isHtmlDark, themeAttr, storageVal, hasAtmosphere };
+        });
+
+        recordCheck(
+          'Theme switches to Golden Sunset Mode (warm twilight sunset)',
+          sunsetThemeState.isHtmlSunset && sunsetThemeState.themeAttr === 'sunset',
+          `Class: sunset, dark; data-theme: ${sunsetThemeState.themeAttr}`
+        );
+        recordCheck('Theme preference saved to localStorage as sunset', sunsetThemeState.storageVal === 'sunset');
+        recordCheck('Atmospheric ambient elements active for Golden Sunset', sunsetThemeState.hasAtmosphere);
+
+        const shotSunset = path.join(AUDIT_DIR, '12e_sunset_theme_workbench.png');
+        await page.screenshot({ path: shotSunset });
+        auditLog.screenshots.push('12e_sunset_theme_workbench.png');
       }
 
       // 7. Select Dark Theme (Default)

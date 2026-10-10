@@ -83,6 +83,20 @@
     color-scheme: dark;
   }
 
+  html.sunset,
+  [data-theme="sunset"] {
+    --bg-base: #140907;
+    --bg-app: #140907;
+    --surface-card: #200f0b;
+    --surface-bezel: #1b0c09;
+    --border-hairline: rgba(249, 115, 22, 0.18);
+    --border-highlight: rgba(251, 146, 60, 0.36);
+    --text-primary: #fff7ed;
+    --text-secondary: #fed7aa;
+    --copper-accent: #f97316;
+    color-scheme: dark;
+  }
+
   body {
     font-family: 'Plus Jakarta Sans', 'Noto Sans', 'Noto Sans Arabic', 'Noto Sans Devanagari', 'Noto Sans JP', 'Noto Sans KR', 'Noto Sans SC', system-ui, -apple-system, sans-serif;
     background-color: #090a0f;
@@ -141,6 +155,16 @@
       radial-gradient(circle at 50% 0%, rgba(190, 24, 93, 0.32) 0%, transparent 60%),
       radial-gradient(circle at 85% 30%, rgba(236, 72, 153, 0.15) 0%, transparent 40%),
       radial-gradient(circle at 15% 75%, rgba(244, 114, 182, 0.12) 0%, transparent 50%) !important;
+  }
+
+  html.sunset body,
+  body.sunset {
+    background-color: #140907 !important;
+    color: #fff7ed !important;
+    background-image: 
+      radial-gradient(circle at 50% 10%, rgba(249, 115, 22, 0.36) 0%, transparent 60%),
+      radial-gradient(circle at 85% 30%, rgba(225, 29, 72, 0.22) 0%, transparent 45%),
+      radial-gradient(circle at 15% 75%, rgba(245, 158, 11, 0.16) 0%, transparent 50%) !important;
   }
 
   /* Custom Smooth Scrollbar */
@@ -1135,6 +1159,24 @@ html.sakura #auth-modal-backdrop input:focus {
   box-shadow: 0 0 15px rgba(244, 114, 182, 0.28) !important;
 }
 
+html.sunset #auth-modal-backdrop .bezel-shell {
+  background-color: #1b0c09 !important;
+  border-color: rgba(249, 115, 22, 0.32) !important;
+  box-shadow: 0 24px 60px rgba(20, 9, 7, 0.95) !important;
+}
+html.sunset #auth-modal-backdrop .bezel-core {
+  background-color: #1b0c09 !important;
+}
+html.sunset #auth-modal-backdrop input {
+  background-color: #140907 !important;
+  color: #fff7ed !important;
+  border-color: rgba(249, 115, 22, 0.24) !important;
+}
+html.sunset #auth-modal-backdrop input:focus {
+  border-color: #fb923c !important;
+  box-shadow: 0 0 15px rgba(249, 115, 22, 0.35) !important;
+}
+
 /* -------------------------------------------------------------
  * UNIQUE THEMATIC ATMOSPHERIC ELEMENTS (Midnight, Emerald, Violet, Sakura)
  * Zero overhead GPU-accelerated CSS animations with rich vibrant ("jreng") lighting
@@ -1536,5 +1578,140 @@ html.sakura #auth-modal-backdrop input:focus {
 .anim-sakura-swirl-4 { animation: sakura-wind-swirl-2 11.2s linear infinite 6.5s; }
 .anim-wind-gust { animation: wind-gust-sweep 8s cubic-bezier(0.2, 0.8, 0.4, 1) infinite; }
 .anim-lantern-bob { animation: lantern-hover 4.5s ease-in-out infinite; }
+
+/* -------------------------------------------------------------
+ * GOLDEN SUNSET THEMATIC ATMOSPHERE (Radiant Sun, Cloud Drift, Birds, Embers)
+ * GPU-accelerated smooth cinematic animations
+ * ------------------------------------------------------------- */
+@keyframes sunset-sun-pulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 28px rgba(249, 115, 22, 0.85)) drop-shadow(0 0 70px rgba(225, 29, 72, 0.5));
+  }
+  50% {
+    transform: scale(1.04);
+    filter: drop-shadow(0 0 45px rgba(251, 146, 60, 0.95)) drop-shadow(0 0 95px rgba(244, 63, 94, 0.7));
+  }
+}
+
+@keyframes sunset-corona-ripple {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+@keyframes sunset-cloud-drift-1 {
+  0% { transform: translate3d(-10%, 0, 0); }
+  50% { transform: translate3d(8%, -6px, 0); }
+  100% { transform: translate3d(-10%, 0, 0); }
+}
+
+@keyframes sunset-cloud-drift-2 {
+  0% { transform: translate3d(6%, 0, 0); }
+  50% { transform: translate3d(-10%, 8px, 0); }
+  100% { transform: translate3d(6%, 0, 0); }
+}
+
+@keyframes sunset-cloud-drift-3 {
+  0% { transform: translate3d(-6%, 0, 0); }
+  50% { transform: translate3d(10%, -4px, 0); }
+  100% { transform: translate3d(-6%, 0, 0); }
+}
+
+@keyframes sunset-birds-glide-1 {
+  0% {
+    transform: translate3d(-140px, 30px, 0) scale(0.85);
+    opacity: 0;
+  }
+  10% { opacity: 0.85; }
+  85% { opacity: 0.85; }
+  100% {
+    transform: translate3d(calc(100vw + 140px), -45px, 0) scale(1.05);
+    opacity: 0;
+  }
+}
+
+@keyframes sunset-birds-glide-2 {
+  0% {
+    transform: translate3d(calc(100vw + 120px), 10px, 0) scale(0.78);
+    opacity: 0;
+  }
+  12% { opacity: 0.75; }
+  85% { opacity: 0.75; }
+  100% {
+    transform: translate3d(-140px, -20px, 0) scale(0.92);
+    opacity: 0;
+  }
+}
+
+@keyframes sunset-ember-rise-1 {
+  0% {
+    transform: translate3d(0, 0, 0) scale(0.6);
+    opacity: 0;
+  }
+  20% { opacity: 0.95; }
+  80% { opacity: 0.8; }
+  100% {
+    transform: translate3d(24px, -180px, 0) scale(1.1);
+    opacity: 0;
+  }
+}
+
+@keyframes sunset-ember-rise-2 {
+  0% {
+    transform: translate3d(0, 0, 0) scale(0.7);
+    opacity: 0;
+  }
+  25% { opacity: 0.9; }
+  75% { opacity: 0.75; }
+  100% {
+    transform: translate3d(-32px, -220px, 0) scale(1.2);
+    opacity: 0;
+  }
+}
+
+@keyframes sunset-ripple {
+  0%, 100% {
+    opacity: 0.45;
+    transform: scaleX(0.97) translateY(0);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scaleX(1.03) translateY(-2px);
+  }
+}
+
+@keyframes sunset-rays-sway {
+  0%, 100% {
+    transform: rotate(-2deg);
+    opacity: 0.4;
+  }
+  50% {
+    transform: rotate(2deg);
+    opacity: 0.7;
+  }
+}
+
+.anim-sunset-sun { animation: sunset-sun-pulse 6.5s ease-in-out infinite; }
+.anim-sunset-corona-1 { animation: sunset-corona-ripple 4.8s cubic-bezier(0.1, 0.8, 0.3, 1) infinite; }
+.anim-sunset-corona-2 { animation: sunset-corona-ripple 4.8s cubic-bezier(0.1, 0.8, 0.3, 1) infinite 2.4s; }
+.anim-sunset-cloud-1 { animation: sunset-cloud-drift-1 32s ease-in-out infinite; }
+.anim-sunset-cloud-2 { animation: sunset-cloud-drift-2 42s ease-in-out infinite; }
+.anim-sunset-cloud-3 { animation: sunset-cloud-drift-3 36s ease-in-out infinite; }
+.anim-sunset-birds-1 { animation: sunset-birds-glide-1 22s cubic-bezier(0.25, 0.1, 0.25, 1) infinite; }
+.anim-sunset-birds-2 { animation: sunset-birds-glide-2 28s cubic-bezier(0.25, 0.1, 0.25, 1) infinite 9s; }
+.anim-sunset-ember-1 { animation: sunset-ember-rise-1 5.5s ease-out infinite; }
+.anim-sunset-ember-2 { animation: sunset-ember-rise-2 6.8s ease-out infinite 1.8s; }
+.anim-sunset-ember-3 { animation: sunset-ember-rise-1 7.4s ease-out infinite 3.5s; }
+.anim-sunset-ember-4 { animation: sunset-ember-rise-2 6.2s ease-out infinite 0.9s; }
+.anim-sunset-ember-5 { animation: sunset-ember-rise-1 8.2s ease-out infinite 2.7s; }
+.anim-sunset-ripple { animation: sunset-ripple 4s ease-in-out infinite; }
+.anim-sunset-rays { animation: sunset-rays-sway 10s ease-in-out infinite; }
+
 
 

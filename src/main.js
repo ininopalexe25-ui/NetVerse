@@ -198,7 +198,7 @@ function applyTheme(theme) {
   const htmlEl = document.documentElement;
   const bodyEl = document.body;
 
-  const allThemes = ['light', 'dark', 'midnight', 'emerald', 'violet', 'sakura'];
+  const allThemes = ['light', 'dark', 'midnight', 'emerald', 'violet', 'sakura', 'sunset'];
   htmlEl.classList.remove(...allThemes);
   if (bodyEl) {
     bodyEl.classList.remove(...allThemes);
@@ -224,6 +224,10 @@ function applyTheme(theme) {
     htmlEl.classList.add('sakura', 'dark');
     htmlEl.setAttribute('data-theme', 'sakura');
     if (bodyEl) bodyEl.classList.add('sakura', 'dark');
+  } else if (theme === 'sunset') {
+    htmlEl.classList.add('sunset', 'dark');
+    htmlEl.setAttribute('data-theme', 'sunset');
+    if (bodyEl) bodyEl.classList.add('sunset', 'dark');
   } else {
     // default dark
     htmlEl.classList.add('dark');
@@ -244,7 +248,8 @@ function toggleTheme() {
     midnight: 'emerald',
     emerald: 'violet',
     violet: 'sakura',
-    sakura: 'dark'
+    sakura: 'sunset',
+    sunset: 'dark'
   };
   const nextTheme = cycle[state.theme] || 'dark';
   applyTheme(nextTheme);
