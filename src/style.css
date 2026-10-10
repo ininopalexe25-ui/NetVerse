@@ -85,15 +85,15 @@
 
   html.sunset,
   [data-theme="sunset"] {
-    --bg-base: #140907;
-    --bg-app: #140907;
-    --surface-card: #200f0b;
-    --surface-bezel: #1b0c09;
-    --border-hairline: rgba(249, 115, 22, 0.18);
-    --border-highlight: rgba(251, 146, 60, 0.36);
-    --text-primary: #fff7ed;
-    --text-secondary: #fed7aa;
-    --copper-accent: #f97316;
+    --bg-base: #0c1017;
+    --bg-app: #0c1017;
+    --surface-card: #131926;
+    --surface-bezel: #0f1420;
+    --border-hairline: rgba(251, 146, 60, 0.20);
+    --border-highlight: rgba(251, 191, 36, 0.40);
+    --text-primary: #fffbeb;
+    --text-secondary: #fde68a;
+    --copper-accent: #f59e0b;
     color-scheme: dark;
   }
 
@@ -159,12 +159,13 @@
 
   html.sunset body,
   body.sunset {
-    background-color: #140907 !important;
-    color: #fff7ed !important;
+    background-color: #0c1017 !important;
+    color: #fffbeb !important;
     background-image: 
-      radial-gradient(circle at 50% 10%, rgba(249, 115, 22, 0.36) 0%, transparent 60%),
-      radial-gradient(circle at 85% 30%, rgba(225, 29, 72, 0.22) 0%, transparent 45%),
-      radial-gradient(circle at 15% 75%, rgba(245, 158, 11, 0.16) 0%, transparent 50%) !important;
+      radial-gradient(circle at 50% 18%, rgba(251, 146, 60, 0.28) 0%, transparent 60%),
+      radial-gradient(circle at 50% 75%, rgba(14, 116, 144, 0.22) 0%, transparent 55%),
+      radial-gradient(circle at 85% 30%, rgba(245, 158, 11, 0.18) 0%, transparent 45%),
+      radial-gradient(circle at 15% 45%, rgba(244, 114, 182, 0.10) 0%, transparent 50%) !important;
   }
 
   /* Custom Smooth Scrollbar */
@@ -1160,21 +1161,21 @@ html.sakura #auth-modal-backdrop input:focus {
 }
 
 html.sunset #auth-modal-backdrop .bezel-shell {
-  background-color: #1b0c09 !important;
-  border-color: rgba(249, 115, 22, 0.32) !important;
-  box-shadow: 0 24px 60px rgba(20, 9, 7, 0.95) !important;
+  background-color: #0f1420 !important;
+  border-color: rgba(251, 146, 60, 0.35) !important;
+  box-shadow: 0 24px 60px rgba(12, 16, 23, 0.95) !important;
 }
 html.sunset #auth-modal-backdrop .bezel-core {
-  background-color: #1b0c09 !important;
+  background-color: #0f1420 !important;
 }
 html.sunset #auth-modal-backdrop input {
-  background-color: #140907 !important;
-  color: #fff7ed !important;
-  border-color: rgba(249, 115, 22, 0.24) !important;
+  background-color: #0c1017 !important;
+  color: #fffbeb !important;
+  border-color: rgba(251, 146, 60, 0.25) !important;
 }
 html.sunset #auth-modal-backdrop input:focus {
-  border-color: #fb923c !important;
-  box-shadow: 0 0 15px rgba(249, 115, 22, 0.35) !important;
+  border-color: #f59e0b !important;
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.35) !important;
 }
 
 /* -------------------------------------------------------------
@@ -1580,137 +1581,160 @@ html.sunset #auth-modal-backdrop input:focus {
 .anim-lantern-bob { animation: lantern-hover 4.5s ease-in-out infinite; }
 
 /* -------------------------------------------------------------
- * GOLDEN SUNSET THEMATIC ATMOSPHERE (Radiant Sun, Cloud Drift, Birds, Embers)
+ * SERENE OCEAN SUNSET THEMATIC ATMOSPHERE (Sea Swells, Golden Shimmer, Sailboat, Seagulls)
  * GPU-accelerated smooth cinematic animations
  * ------------------------------------------------------------- */
 @keyframes sunset-sun-pulse {
   0%, 100% {
     transform: scale(1);
-    filter: drop-shadow(0 0 28px rgba(249, 115, 22, 0.85)) drop-shadow(0 0 70px rgba(225, 29, 72, 0.5));
+    filter: drop-shadow(0 0 32px rgba(245, 158, 11, 0.75)) drop-shadow(0 0 75px rgba(251, 146, 60, 0.45));
   }
   50% {
-    transform: scale(1.04);
-    filter: drop-shadow(0 0 45px rgba(251, 146, 60, 0.95)) drop-shadow(0 0 95px rgba(244, 63, 94, 0.7));
+    transform: scale(1.03);
+    filter: drop-shadow(0 0 45px rgba(251, 191, 36, 0.88)) drop-shadow(0 0 95px rgba(245, 158, 11, 0.6));
   }
 }
 
 @keyframes sunset-corona-ripple {
   0% {
-    transform: scale(0.9);
-    opacity: 0.8;
+    transform: scale(0.92);
+    opacity: 0.7;
   }
   100% {
-    transform: scale(1.6);
+    transform: scale(1.55);
     opacity: 0;
+  }
+}
+
+@keyframes sea-swell-roll-1 {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scaleY(1);
+  }
+  50% {
+    transform: translate3d(-20px, 4px, 0) scaleY(1.04);
+  }
+}
+
+@keyframes sea-swell-roll-2 {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scaleY(1);
+  }
+  50% {
+    transform: translate3d(24px, -3px, 0) scaleY(0.96);
+  }
+}
+
+@keyframes sea-water-shimmer {
+  0%, 100% {
+    opacity: 0.55;
+    transform: scaleX(0.96) translate3d(0, 0, 0);
+  }
+  50% {
+    opacity: 0.92;
+    transform: scaleX(1.05) translate3d(0, -2px, 0);
+  }
+}
+
+@keyframes sailboat-rocking {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(-1.8deg);
+  }
+  50% {
+    transform: translate3d(4px, -5px, 0) rotate(2.2deg);
+  }
+}
+
+@keyframes seagull-flight-1 {
+  0% {
+    transform: translate3d(-100px, 15px, 0) scale(0.9);
+    opacity: 0;
+  }
+  8% { opacity: 0.85; }
+  85% { opacity: 0.85; }
+  100% {
+    transform: translate3d(calc(100vw + 100px), -25px, 0) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes seagull-flight-2 {
+  0% {
+    transform: translate3d(calc(100vw + 80px), 10px, 0) scale(0.8);
+    opacity: 0;
+  }
+  10% { opacity: 0.75; }
+  88% { opacity: 0.75; }
+  100% {
+    transform: translate3d(-100px, -15px, 0) scale(0.85);
+    opacity: 0;
+  }
+}
+
+@keyframes seagull-wing-glide {
+  0%, 100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(0.82);
   }
 }
 
 @keyframes sunset-cloud-drift-1 {
-  0% { transform: translate3d(-10%, 0, 0); }
-  50% { transform: translate3d(8%, -6px, 0); }
-  100% { transform: translate3d(-10%, 0, 0); }
+  0% { transform: translate3d(-8%, 0, 0); }
+  50% { transform: translate3d(6%, -4px, 0); }
+  100% { transform: translate3d(-8%, 0, 0); }
 }
 
 @keyframes sunset-cloud-drift-2 {
   0% { transform: translate3d(6%, 0, 0); }
-  50% { transform: translate3d(-10%, 8px, 0); }
+  50% { transform: translate3d(-8%, 6px, 0); }
   100% { transform: translate3d(6%, 0, 0); }
 }
 
 @keyframes sunset-cloud-drift-3 {
-  0% { transform: translate3d(-6%, 0, 0); }
-  50% { transform: translate3d(10%, -4px, 0); }
-  100% { transform: translate3d(-6%, 0, 0); }
+  0% { transform: translate3d(-5%, 0, 0); }
+  50% { transform: translate3d(7%, -3px, 0); }
+  100% { transform: translate3d(-5%, 0, 0); }
 }
 
-@keyframes sunset-birds-glide-1 {
-  0% {
-    transform: translate3d(-140px, 30px, 0) scale(0.85);
-    opacity: 0;
-  }
-  10% { opacity: 0.85; }
-  85% { opacity: 0.85; }
-  100% {
-    transform: translate3d(calc(100vw + 140px), -45px, 0) scale(1.05);
-    opacity: 0;
-  }
-}
-
-@keyframes sunset-birds-glide-2 {
-  0% {
-    transform: translate3d(calc(100vw + 120px), 10px, 0) scale(0.78);
-    opacity: 0;
-  }
-  12% { opacity: 0.75; }
-  85% { opacity: 0.75; }
-  100% {
-    transform: translate3d(-140px, -20px, 0) scale(0.92);
-    opacity: 0;
-  }
-}
-
-@keyframes sunset-ember-rise-1 {
-  0% {
-    transform: translate3d(0, 0, 0) scale(0.6);
-    opacity: 0;
-  }
-  20% { opacity: 0.95; }
-  80% { opacity: 0.8; }
-  100% {
-    transform: translate3d(24px, -180px, 0) scale(1.1);
-    opacity: 0;
-  }
-}
-
-@keyframes sunset-ember-rise-2 {
-  0% {
-    transform: translate3d(0, 0, 0) scale(0.7);
-    opacity: 0;
-  }
-  25% { opacity: 0.9; }
-  75% { opacity: 0.75; }
-  100% {
-    transform: translate3d(-32px, -220px, 0) scale(1.2);
-    opacity: 0;
-  }
-}
-
-@keyframes sunset-ripple {
+@keyframes sea-sparkle-glimmer {
   0%, 100% {
-    opacity: 0.45;
-    transform: scaleX(0.97) translateY(0);
+    opacity: 0.2;
+    transform: scale(0.7);
   }
   50% {
-    opacity: 0.85;
-    transform: scaleX(1.03) translateY(-2px);
+    opacity: 0.95;
+    transform: scale(1.25);
   }
 }
 
 @keyframes sunset-rays-sway {
   0%, 100% {
-    transform: rotate(-2deg);
-    opacity: 0.4;
+    transform: rotate(-1.5deg);
+    opacity: 0.35;
   }
   50% {
-    transform: rotate(2deg);
-    opacity: 0.7;
+    transform: rotate(1.5deg);
+    opacity: 0.55;
   }
 }
 
 .anim-sunset-sun { animation: sunset-sun-pulse 6.5s ease-in-out infinite; }
 .anim-sunset-corona-1 { animation: sunset-corona-ripple 4.8s cubic-bezier(0.1, 0.8, 0.3, 1) infinite; }
 .anim-sunset-corona-2 { animation: sunset-corona-ripple 4.8s cubic-bezier(0.1, 0.8, 0.3, 1) infinite 2.4s; }
-.anim-sunset-cloud-1 { animation: sunset-cloud-drift-1 32s ease-in-out infinite; }
-.anim-sunset-cloud-2 { animation: sunset-cloud-drift-2 42s ease-in-out infinite; }
-.anim-sunset-cloud-3 { animation: sunset-cloud-drift-3 36s ease-in-out infinite; }
-.anim-sunset-birds-1 { animation: sunset-birds-glide-1 22s cubic-bezier(0.25, 0.1, 0.25, 1) infinite; }
-.anim-sunset-birds-2 { animation: sunset-birds-glide-2 28s cubic-bezier(0.25, 0.1, 0.25, 1) infinite 9s; }
-.anim-sunset-ember-1 { animation: sunset-ember-rise-1 5.5s ease-out infinite; }
-.anim-sunset-ember-2 { animation: sunset-ember-rise-2 6.8s ease-out infinite 1.8s; }
-.anim-sunset-ember-3 { animation: sunset-ember-rise-1 7.4s ease-out infinite 3.5s; }
-.anim-sunset-ember-4 { animation: sunset-ember-rise-2 6.2s ease-out infinite 0.9s; }
-.anim-sunset-ember-5 { animation: sunset-ember-rise-1 8.2s ease-out infinite 2.7s; }
-.anim-sunset-ripple { animation: sunset-ripple 4s ease-in-out infinite; }
+.anim-sea-swell-1 { animation: sea-swell-roll-1 7s ease-in-out infinite; }
+.anim-sea-swell-2 { animation: sea-swell-roll-2 9s ease-in-out infinite; }
+.anim-sea-shimmer { animation: sea-water-shimmer 3.8s ease-in-out infinite; }
+.anim-sailboat-bob { animation: sailboat-rocking 5.2s ease-in-out infinite; }
+.anim-seagull-fly-1 { animation: seagull-flight-1 26s cubic-bezier(0.25, 0.1, 0.25, 1) infinite; }
+.anim-seagull-fly-2 { animation: seagull-flight-2 32s cubic-bezier(0.25, 0.1, 0.25, 1) infinite 11s; }
+.anim-seagull-wings { animation: seagull-wing-glide 2.4s ease-in-out infinite; }
+.anim-sunset-cloud-1 { animation: sunset-cloud-drift-1 38s ease-in-out infinite; }
+.anim-sunset-cloud-2 { animation: sunset-cloud-drift-2 48s ease-in-out infinite; }
+.anim-sunset-cloud-3 { animation: sunset-cloud-drift-3 42s ease-in-out infinite; }
+.anim-sea-sparkle-1 { animation: sea-sparkle-glimmer 3.5s ease-in-out infinite; }
+.anim-sea-sparkle-2 { animation: sea-sparkle-glimmer 4.2s ease-in-out infinite 1.2s; }
+.anim-sea-sparkle-3 { animation: sea-sparkle-glimmer 4.8s ease-in-out infinite 2.5s; }
 .anim-sunset-rays { animation: sunset-rays-sway 10s ease-in-out infinite; }
 
 

@@ -615,189 +615,230 @@ export function renderThemeAtmosphere(theme = 'dark') {
     `;
   } else if (theme === 'sunset') {
     content = `
-      <!-- Ambient Horizon Twilight Sky Glow & Crepuscular Rays -->
-      <div class="absolute bottom-0 left-0 right-0 h-[65vh] pointer-events-none opacity-60">
-        <svg viewBox="0 0 1440 600" preserveAspectRatio="none" class="w-full h-full">
+      <!-- Ambient Twilight Sky Glow & Gentle Crepuscular Sunbeams -->
+      <div class="absolute inset-0 pointer-events-none">
+        <svg viewBox="0 0 1440 800" preserveAspectRatio="none" class="w-full h-full">
           <defs>
-            <linearGradient id="sunset-sky-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stop-color="#140907" stop-opacity="0" />
-              <stop offset="35%" stop-color="#4a044e" stop-opacity="0.25" />
-              <stop offset="65%" stop-color="#9f1239" stop-opacity="0.45" />
-              <stop offset="85%" stop-color="#ea580c" stop-opacity="0.65" />
-              <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.55" />
+            <linearGradient id="ocean-sunset-sky" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#0c1017" stop-opacity="0.9" />
+              <stop offset="30%" stop-color="#1e1b4b" stop-opacity="0.35" />
+              <stop offset="55%" stop-color="#701a75" stop-opacity="0.2" />
+              <stop offset="74%" stop-color="#c2410c" stop-opacity="0.3" />
+              <stop offset="90%" stop-color="#f59e0b" stop-opacity="0.4" />
+              <stop offset="100%" stop-color="#fef08a" stop-opacity="0.3" />
             </linearGradient>
             <linearGradient id="sunset-rays-grad" x1="50%" y1="100%" x2="50%" y2="0%">
-              <stop offset="0%" stop-color="#fbbf24" stop-opacity="0.35" />
-              <stop offset="60%" stop-color="#f97316" stop-opacity="0.15" />
-              <stop offset="100%" stop-color="#e11d48" stop-opacity="0" />
+              <stop offset="0%" stop-color="#fde68a" stop-opacity="0.25" />
+              <stop offset="50%" stop-color="#f59e0b" stop-opacity="0.1" />
+              <stop offset="100%" stop-color="#f43f5e" stop-opacity="0" />
             </linearGradient>
           </defs>
-          <rect width="1440" height="600" fill="url(#sunset-sky-gradient)" />
-          
-          <!-- Radiating Twilight Sunbeams / Crepuscular Rays -->
-          <g class="anim-sunset-rays" transform-origin="720 540">
-            <polygon points="720,540 640,0 670,0" fill="url(#sunset-rays-grad)" />
-            <polygon points="720,540 760,0 790,0" fill="url(#sunset-rays-grad)" />
-            <polygon points="720,540 500,50 535,50" fill="url(#sunset-rays-grad)" />
-            <polygon points="720,540 890,50 925,50" fill="url(#sunset-rays-grad)" />
-            <polygon points="720,540 360,140 400,140" fill="url(#sunset-rays-grad)" />
-            <polygon points="720,540 1030,140 1070,140" fill="url(#sunset-rays-grad)" />
+          <rect width="1440" height="800" fill="url(#ocean-sunset-sky)" />
+
+          <!-- Soft Fanning Rays from setting sun -->
+          <g class="anim-sunset-rays" transform-origin="720 560">
+            <polygon points="720,560 620,0 660,0" fill="url(#sunset-rays-grad)" />
+            <polygon points="720,560 780,0 820,0" fill="url(#sunset-rays-grad)" />
+            <polygon points="720,560 480,100 520,100" fill="url(#sunset-rays-grad)" />
+            <polygon points="720,560 920,100 960,100" fill="url(#sunset-rays-grad)" />
+            <polygon points="720,560 340,240 380,240" fill="url(#sunset-rays-grad)" />
+            <polygon points="720,560 1060,240 1100,240" fill="url(#sunset-rays-grad)" />
           </g>
         </svg>
       </div>
 
-      <!-- Radiant Sinking Sun with Pulsating Solar Coronas -->
-      <div class="absolute bottom-[18vh] left-1/2 -translate-x-1/2 w-44 sm:w-56 md:w-64 h-44 sm:h-56 md:h-64 pointer-events-none flex items-center justify-center">
-        <!-- Concentric Expanding Corona Rings -->
-        <div class="absolute inset-0 rounded-full border border-amber-400/40 anim-sunset-corona-1"></div>
-        <div class="absolute inset-4 rounded-full border border-orange-400/35 anim-sunset-corona-2"></div>
-        
-        <!-- Diffuse Atmospheric Sunset Glow -->
-        <div class="absolute -inset-10 rounded-full bg-gradient-to-t from-orange-600/40 via-amber-500/30 to-rose-600/20 blur-3xl anim-sunset-sun"></div>
-        <div class="absolute -inset-4 rounded-full bg-amber-400/25 blur-xl anim-sunset-sun"></div>
+      <!-- Radiant Sinking Sun over the Ocean Horizon -->
+      <div class="absolute bottom-[22vh] sm:bottom-[24vh] left-1/2 -translate-x-1/2 w-44 sm:w-56 md:w-64 h-44 sm:h-56 md:h-64 pointer-events-none flex items-center justify-center">
+        <!-- Expanding Golden Solar Corona Rings -->
+        <div class="absolute inset-0 rounded-full border border-amber-300/35 anim-sunset-corona-1"></div>
+        <div class="absolute inset-4 rounded-full border border-orange-300/30 anim-sunset-corona-2"></div>
 
-        <!-- The Setting Sun Orb SVG -->
-        <svg viewBox="0 0 200 200" class="w-full h-full drop-shadow-[0_0_35px_rgba(249,115,22,0.9)] anim-sunset-sun">
+        <!-- Diffuse Warm Twilight Glow -->
+        <div class="absolute -inset-10 rounded-full bg-gradient-to-t from-amber-500/30 via-orange-500/25 to-pink-500/15 blur-3xl anim-sunset-sun"></div>
+        <div class="absolute -inset-4 rounded-full bg-amber-300/25 blur-xl anim-sunset-sun"></div>
+
+        <!-- Setting Sun Orb SVG -->
+        <svg viewBox="0 0 200 200" class="w-full h-full drop-shadow-[0_0_35px_rgba(245,158,11,0.85)] anim-sunset-sun">
           <defs>
-            <radialGradient id="sun-orb-grad" cx="50%" cy="40%" r="50%">
+            <radialGradient id="ocean-sun-orb" cx="50%" cy="38%" r="50%">
               <stop offset="0%" stop-color="#fffbeb" />
-              <stop offset="35%" stop-color="#fef08a" />
-              <stop offset="65%" stop-color="#f97316" />
-              <stop offset="90%" stop-color="#e11d48" />
-              <stop offset="100%" stop-color="#9f1239" />
+              <stop offset="28%" stop-color="#fef08a" />
+              <stop offset="60%" stop-color="#fb923c" />
+              <stop offset="85%" stop-color="#f43f5e" />
+              <stop offset="100%" stop-color="#be185d" />
             </radialGradient>
           </defs>
-          <circle cx="100" cy="100" r="75" fill="url(#sun-orb-grad)" />
+          <circle cx="100" cy="100" r="76" fill="url(#ocean-sun-orb)" />
         </svg>
       </div>
 
-      <!-- Mountain Range Silhouette & Twilight Horizon -->
-      <div class="absolute bottom-0 left-0 right-0 h-48 sm:h-56 md:h-64 pointer-events-none">
-        <svg viewBox="0 0 1440 260" preserveAspectRatio="none" class="w-full h-full">
+      <!-- Calm Ocean Horizon, Undulating Sea Waves & Golden Light Reflection -->
+      <div class="absolute bottom-0 left-0 right-0 h-[28vh] sm:h-[32vh] md:h-[35vh] pointer-events-none overflow-hidden">
+        <svg viewBox="0 0 1440 320" preserveAspectRatio="none" class="w-full h-full">
           <defs>
-            <linearGradient id="sunset-mountain-back" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stop-color="#831843" stop-opacity="0.55" />
-              <stop offset="100%" stop-color="#2a0818" stop-opacity="0.9" />
+            <!-- Deep Horizon Water Gradient -->
+            <linearGradient id="sea-grad-far" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#0f2137" stop-opacity="0.95" />
+              <stop offset="100%" stop-color="#08101a" stop-opacity="1" />
             </linearGradient>
-            <linearGradient id="sunset-mountain-front" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stop-color="#9a3412" stop-opacity="0.75" />
-              <stop offset="30%" stop-color="#451a03" stop-opacity="0.95" />
-              <stop offset="100%" stop-color="#140907" stop-opacity="1" />
+            <!-- Mid-Distance Rolling Sea Swell -->
+            <linearGradient id="sea-grad-mid" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#153654" stop-opacity="0.88" />
+              <stop offset="100%" stop-color="#0c1825" stop-opacity="0.98" />
             </linearGradient>
-            <linearGradient id="sunset-water-reflection" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.8" />
-              <stop offset="50%" stop-color="#ea580c" stop-opacity="0.5" />
-              <stop offset="100%" stop-color="#140907" stop-opacity="0" />
+            <!-- Foreground Tide Waters -->
+            <linearGradient id="sea-grad-fore" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#164e63" stop-opacity="0.75" />
+              <stop offset="40%" stop-color="#0f2b3e" stop-opacity="0.9" />
+              <stop offset="100%" stop-color="#09131d" stop-opacity="1" />
             </linearGradient>
+            <!-- Golden Sun Reflection Path (Shimmering Light Highway on Sea) -->
+            <linearGradient id="sea-shimmer-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#fffbeb" stop-opacity="0.85" />
+              <stop offset="30%" stop-color="#fbbf24" stop-opacity="0.75" />
+              <stop offset="70%" stop-color="#f97316" stop-opacity="0.45" />
+              <stop offset="100%" stop-color="#e11d48" stop-opacity="0.1" />
+            </linearGradient>
+            <radialGradient id="horizon-glow-radial" cx="50%" cy="0%" r="50%">
+              <stop offset="0%" stop-color="#fef08a" stop-opacity="0.5" />
+              <stop offset="50%" stop-color="#f59e0b" stop-opacity="0.25" />
+              <stop offset="100%" stop-color="#f59e0b" stop-opacity="0" />
+            </radialGradient>
           </defs>
 
-          <!-- Back Mountain Ridge -->
-          <path d="M0,130 Q180,80 380,120 T800,95 Q1020,60 1200,105 T1440,125 L1440,260 L0,260 Z" fill="url(#sunset-mountain-back)" />
-          
-          <!-- Front Layered Mountain Ridge / Dune Slopes -->
-          <path d="M0,170 Q240,110 520,155 T980,135 Q1180,105 1320,160 L1440,175 L1440,260 L0,260 Z" fill="url(#sunset-mountain-front)" />
+          <!-- Flat Ocean Horizon Baseline with Warm Glow -->
+          <rect x="0" y="30" width="1440" height="290" fill="url(#sea-grad-far)" />
+          <ellipse cx="720" cy="32" rx="420" ry="16" fill="url(#horizon-glow-radial)" />
 
-          <!-- Golden Twilight Water / Coastline Reflection Ripples -->
-          <g class="anim-sunset-ripple">
-            <ellipse cx="720" cy="225" rx="280" ry="6" fill="url(#sunset-water-reflection)" opacity="0.75" />
-            <ellipse cx="720" cy="238" rx="360" ry="5" fill="url(#sunset-water-reflection)" opacity="0.6" />
-            <ellipse cx="720" cy="250" rx="420" ry="4" fill="url(#sunset-water-reflection)" opacity="0.45" />
+          <!-- Layer 1: Distant Calm Swell (animated) -->
+          <path class="anim-sea-swell-1" d="M0,50 Q180,38 360,52 T720,44 T1080,52 T1440,46 L1440,320 L0,320 Z" fill="url(#sea-grad-mid)" opacity="0.9" />
+
+          <!-- Layer 2: Mid-range Gentle Rolling Waves (animated) -->
+          <path class="anim-sea-swell-2" d="M0,85 Q240,68 480,88 T960,78 T1440,86 L1440,320 L0,320 Z" fill="url(#sea-grad-fore)" opacity="0.95" />
+
+          <!-- Golden Sunlight Reflection Highway on the Water Surface -->
+          <g class="anim-sea-shimmer">
+            <ellipse cx="720" cy="38" rx="80" ry="2.5" fill="url(#sea-shimmer-grad)" />
+            <ellipse cx="720" cy="48" rx="120" ry="3.2" fill="url(#sea-shimmer-grad)" />
+            <ellipse cx="720" cy="62" rx="160" ry="4.2" fill="url(#sea-shimmer-grad)" />
+            <ellipse cx="720" cy="80" rx="210" ry="5.5" fill="url(#sea-shimmer-grad)" />
+            <ellipse cx="720" cy="102" rx="270" ry="6.8" fill="url(#sea-shimmer-grad)" />
+            <ellipse cx="720" cy="130" rx="340" ry="8" fill="url(#sea-shimmer-grad)" />
+            <ellipse cx="720" cy="165" rx="410" ry="9" fill="url(#sea-shimmer-grad)" opacity="0.6" />
+            <ellipse cx="720" cy="210" rx="480" ry="10" fill="url(#sea-shimmer-grad)" opacity="0.4" />
           </g>
+
+          <!-- Delicate Sea Horizon & Wave Line Accents -->
+          <path d="M0,86 Q360,72 720,86 T1440,86" fill="none" stroke="rgba(253, 230, 138, 0.28)" stroke-width="1.2" />
+          <path d="M0,135 Q400,122 800,136 T1440,135" fill="none" stroke="rgba(251, 191, 36, 0.2)" stroke-width="1.5" />
         </svg>
+
+        <!-- Peaceful Distant Sailboat rocking gently on the ocean swell -->
+        <div class="absolute bottom-[16%] sm:bottom-[18%] left-[68%] sm:left-[72%] w-12 sm:w-16 h-12 sm:h-16 anim-sailboat-bob drop-shadow-[0_2px_5px_rgba(0,0,0,0.6)]">
+          <svg viewBox="0 0 64 64" class="w-full h-full text-amber-100/80">
+            <!-- Main Sail -->
+            <path d="M30,12 L30,42 L46,42 Z" fill="#fed7aa" opacity="0.85" />
+            <!-- Jib Front Sail -->
+            <path d="M26,18 L26,42 L16,42 Z" fill="#fde68a" opacity="0.7" />
+            <!-- Mast -->
+            <line x1="28" y1="10" x2="28" y2="44" stroke="#78350f" stroke-width="1.5" stroke-linecap="round" />
+            <!-- Hull -->
+            <path d="M12,44 L16,51 L44,51 L50,44 Z" fill="#1e293b" stroke="#f59e0b" stroke-width="0.8" />
+            <!-- Waterline Shimmer -->
+            <line x1="10" y1="52" x2="52" y2="52" stroke="#f59e0b" stroke-width="1" opacity="0.4" />
+          </svg>
+        </div>
       </div>
 
-      <!-- Drifting Twilight Clouds (Upper & Mid Atmosphere) -->
+      <!-- Soft Pastel Sunset Clouds Drifting Serenely -->
       <div class="absolute inset-0 pointer-events-none overflow-hidden">
-        <!-- Cloud Layer 1: High Cirrus Dusk Stream -->
-        <div class="absolute top-[12%] -left-[10%] w-[120%] anim-sunset-cloud-1 opacity-45">
-          <svg viewBox="0 0 1200 120" preserveAspectRatio="none" class="w-full h-16 sm:h-24">
+        <!-- Cloud 1: High Soft Dusk Veil -->
+        <div class="absolute top-[8%] -left-[10%] w-[120%] anim-sunset-cloud-1 opacity-35">
+          <svg viewBox="0 0 1200 100" preserveAspectRatio="none" class="w-full h-16 sm:h-20">
             <defs>
-              <linearGradient id="cloud-grad-1" x1="0%" y1="0%" x2="100%" y2="0%">
+              <linearGradient id="ocean-cloud-1" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#f472b6" stop-opacity="0" />
+                <stop offset="30%" stop-color="#fb923c" stop-opacity="0.5" />
+                <stop offset="60%" stop-color="#fed7aa" stop-opacity="0.7" />
+                <stop offset="100%" stop-color="#c084fc" stop-opacity="0" />
+              </linearGradient>
+            </defs>
+            <path d="M0,50 Q200,20 400,45 T800,40 Q1000,18 1200,50 Q1000,75 800,60 T400,68 Q200,80 0,50 Z" fill="url(#ocean-cloud-1)" />
+          </svg>
+        </div>
+
+        <!-- Cloud 2: Warm Golden Mid-Sky Cloud -->
+        <div class="absolute top-[22%] -left-[10%] w-[120%] anim-sunset-cloud-2 opacity-40">
+          <svg viewBox="0 0 1200 110" preserveAspectRatio="none" class="w-full h-18 sm:h-24">
+            <defs>
+              <linearGradient id="ocean-cloud-2" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#fb7185" stop-opacity="0" />
+                <stop offset="35%" stop-color="#f59e0b" stop-opacity="0.55" />
+                <stop offset="65%" stop-color="#fde68a" stop-opacity="0.75" />
+                <stop offset="100%" stop-color="#ea580c" stop-opacity="0" />
+              </linearGradient>
+            </defs>
+            <path d="M0,55 Q280,25 560,50 T980,45 Q1120,25 1200,55 Q1050,85 840,65 T420,72 Q210,88 0,55 Z" fill="url(#ocean-cloud-2)" />
+          </svg>
+        </div>
+
+        <!-- Cloud 3: Lower Horizon Mist Layer -->
+        <div class="absolute top-[36%] -left-[10%] w-[120%] anim-sunset-cloud-3 opacity-30">
+          <svg viewBox="0 0 1200 80" preserveAspectRatio="none" class="w-full h-12 sm:h-16">
+            <defs>
+              <linearGradient id="ocean-cloud-3" x1="0%" y1="0%" x2="100%" y2="0%">
                 <stop offset="0%" stop-color="#e11d48" stop-opacity="0" />
-                <stop offset="25%" stop-color="#fb923c" stop-opacity="0.6" />
-                <stop offset="50%" stop-color="#fed7aa" stop-opacity="0.8" />
-                <stop offset="75%" stop-color="#f43f5e" stop-opacity="0.5" />
-                <stop offset="100%" stop-color="#881337" stop-opacity="0" />
+                <stop offset="40%" stop-color="#ea580c" stop-opacity="0.4" />
+                <stop offset="70%" stop-color="#fbbf24" stop-opacity="0.55" />
+                <stop offset="100%" stop-color="#9333ea" stop-opacity="0" />
               </linearGradient>
             </defs>
-            <path d="M0,60 Q200,20 400,50 T800,45 Q1000,15 1200,55 Q1000,85 800,65 T400,75 Q200,90 0,60 Z" fill="url(#cloud-grad-1)" />
-          </svg>
-        </div>
-
-        <!-- Cloud Layer 2: Mid Twilight Feather Clouds -->
-        <div class="absolute top-[28%] -left-[10%] w-[120%] anim-sunset-cloud-2 opacity-50">
-          <svg viewBox="0 0 1200 140" preserveAspectRatio="none" class="w-full h-20 sm:h-28">
-            <defs>
-              <linearGradient id="cloud-grad-2" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="#9f1239" stop-opacity="0" />
-                <stop offset="30%" stop-color="#f97316" stop-opacity="0.65" />
-                <stop offset="60%" stop-color="#fde047" stop-opacity="0.85" />
-                <stop offset="85%" stop-color="#fb7185" stop-opacity="0.55" />
-                <stop offset="100%" stop-color="#4c0519" stop-opacity="0" />
-              </linearGradient>
-            </defs>
-            <path d="M0,70 Q280,30 560,65 T980,50 Q1120,30 1200,70 Q1050,105 840,75 T420,85 Q210,105 0,70 Z" fill="url(#cloud-grad-2)" />
-          </svg>
-        </div>
-
-        <!-- Cloud Layer 3: Lower Twilight Stratus Silhouette -->
-        <div class="absolute top-[44%] -left-[10%] w-[120%] anim-sunset-cloud-3 opacity-40">
-          <svg viewBox="0 0 1200 100" preserveAspectRatio="none" class="w-full h-14 sm:h-20">
-            <defs>
-              <linearGradient id="cloud-grad-3" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="#831843" stop-opacity="0" />
-                <stop offset="35%" stop-color="#ea580c" stop-opacity="0.5" />
-                <stop offset="65%" stop-color="#f59e0b" stop-opacity="0.7" />
-                <stop offset="100%" stop-color="#9a3412" stop-opacity="0" />
-              </linearGradient>
-            </defs>
-            <path d="M0,50 Q320,15 640,45 T1050,40 Q1150,25 1200,50 Q1050,75 750,55 T300,65 Q150,75 0,50 Z" fill="url(#cloud-grad-3)" />
+            <path d="M0,40 Q320,15 640,38 T1050,35 Q1150,22 1200,42 Q1050,62 750,48 T300,55 Q150,62 0,40 Z" fill="url(#ocean-cloud-3)" />
           </svg>
         </div>
       </div>
 
-      <!-- Flocks of Migrating Silhouette Birds Gliding Across Sunset Sky -->
+      <!-- Graceful Seagulls Gliding Across the Ocean Sunset -->
       <div class="absolute inset-0 pointer-events-none overflow-hidden">
-        <!-- Flock 1 (Flying left-to-right toward sunset horizon) -->
-        <div class="absolute top-[20%] anim-sunset-birds-1">
-          <svg class="w-36 h-20 text-orange-200 fill-current opacity-80 drop-shadow-[0_2px_8px_rgba(234,88,12,0.6)]" viewBox="0 0 160 80">
-            <!-- Lead Bird -->
-            <path d="M80,20 Q88,10 96,18 Q90,24 80,22 Q70,24 64,18 Q72,10 80,20 Z" />
-            <!-- Wingman Right 1 -->
-            <path d="M104,32 Q110,24 116,30 Q112,35 104,33 Q96,35 92,30 Q98,24 104,32 Z" />
-            <!-- Wingman Right 2 -->
-            <path d="M126,45 Q131,39 136,44 Q133,48 126,46 Q119,48 116,44 Q121,39 126,45 Z" />
-            <!-- Wingman Left 1 -->
-            <path d="M56,33 Q62,25 68,31 Q64,36 56,34 Q48,36 44,31 Q50,25 56,33 Z" />
-            <!-- Wingman Left 2 -->
-            <path d="M34,46 Q39,40 44,45 Q41,49 34,47 Q27,49 24,45 Q29,40 34,46 Z" />
-            <!-- Trailing Bird -->
-            <path d="M14,58 Q18,53 22,57 Q20,60 14,59 Q8,60 6,57 Q10,53 14,58 Z" />
-          </svg>
+        <!-- Seagull Group 1 (Drifting gracefully eastward) -->
+        <div class="absolute top-[22%] sm:top-[26%] anim-seagull-fly-1">
+          <div class="anim-seagull-wings flex items-center space-x-4">
+            <!-- Leader Seagull -->
+            <svg class="w-10 h-5 text-amber-200/90 drop-shadow-[0_1px_3px_rgba(245,158,11,0.5)]" viewBox="0 0 52 20">
+              <path d="M 2,15 Q 14,3 26,11 Q 38,3 50,15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <!-- Wingman Seagull (staggered) -->
+            <svg class="w-7 h-4 -mt-3 text-orange-200/80 drop-shadow-[0_1px_3px_rgba(245,158,11,0.4)]" viewBox="0 0 52 20">
+              <path d="M 2,15 Q 14,3 26,11 Q 38,3 50,15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <!-- Trailing Seagull -->
+            <svg class="w-8 h-4 mt-3 text-amber-100/75 drop-shadow-[0_1px_3px_rgba(245,158,11,0.4)]" viewBox="0 0 52 20">
+              <path d="M 2,15 Q 14,3 26,11 Q 38,3 50,15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </div>
         </div>
 
-        <!-- Flock 2 (Smaller distant flock crossing at higher altitude) -->
-        <div class="absolute top-[14%] anim-sunset-birds-2">
-          <svg class="w-28 h-16 text-rose-200 fill-current opacity-70 drop-shadow-[0_2px_6px_rgba(225,29,72,0.5)]" viewBox="0 0 120 60">
-            <path d="M60,15 Q66,7 72,13 Q67,18 60,16 Q53,18 48,13 Q54,7 60,15 Z" />
-            <path d="M78,24 Q83,18 88,23 Q85,27 78,25 Q71,27 68,23 Q73,18 78,24 Z" />
-            <path d="M42,25 Q47,19 52,24 Q49,28 42,26 Q35,28 32,24 Q37,19 42,25 Z" />
-            <path d="M94,34 Q98,30 102,33 Q100,36 94,35 Q88,36 86,33 Q90,30 94,34 Z" />
-            <path d="M26,35 Q30,31 34,34 Q32,37 26,36 Q20,37 18,34 Q22,31 26,35 Z" />
-          </svg>
+        <!-- Seagull Group 2 (Higher altitude distant pair gliding westward) -->
+        <div class="absolute top-[14%] sm:top-[17%] anim-seagull-fly-2">
+          <div class="anim-seagull-wings flex items-center space-x-3">
+            <svg class="w-6 h-3 text-rose-200/70 drop-shadow-[0_1px_2px_rgba(244,114,182,0.3)]" viewBox="0 0 52 20">
+              <path d="M 2,15 Q 14,3 26,11 Q 38,3 50,15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <svg class="w-5 h-3 -mt-2 text-amber-200/60 drop-shadow-[0_1px_2px_rgba(245,158,11,0.3)]" viewBox="0 0 52 20">
+              <path d="M 2,15 Q 14,3 26,11 Q 38,3 50,15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </div>
         </div>
       </div>
 
-      <!-- Rising Golden Sunset Sparks & Twilight Embers -->
+      <!-- Gentle Golden Water Sparkles Twinkling on the Sea -->
       <div class="absolute inset-0 pointer-events-none overflow-hidden">
-        <span class="absolute bottom-[22%] left-[22%] w-2.5 h-2.5 rounded-full bg-amber-300 anim-sunset-ember-1 shadow-[0_0_12px_#f59e0b]"></span>
-        <span class="absolute bottom-[26%] left-[38%] w-2 h-2 rounded-full bg-orange-400 anim-sunset-ember-2 shadow-[0_0_10px_#f97316]"></span>
-        <span class="absolute bottom-[20%] left-[54%] w-3 h-3 rounded-full bg-yellow-200 anim-sunset-ember-3 shadow-[0_0_14px_#fde047]"></span>
-        <span class="absolute bottom-[24%] left-[68%] w-2 h-2 rounded-full bg-rose-400 anim-sunset-ember-4 shadow-[0_0_10px_#fb7185]"></span>
-        <span class="absolute bottom-[28%] left-[82%] w-2.5 h-2.5 rounded-full bg-amber-400 anim-sunset-ember-5 shadow-[0_0_12px_#f59e0b]"></span>
-        <span class="absolute bottom-[32%] left-[48%] w-1.5 h-1.5 rounded-full bg-orange-300 anim-sunset-ember-1 shadow-[0_0_8px_#fb923c]" style="animation-delay: 2.1s;"></span>
-        <span class="absolute bottom-[35%] left-[62%] w-2 h-2 rounded-full bg-yellow-300 anim-sunset-ember-2 shadow-[0_0_10px_#fde047]" style="animation-delay: 1.2s;"></span>
-        <span class="absolute bottom-[18%] left-[76%] w-1.5 h-1.5 rounded-full bg-amber-200 anim-sunset-ember-3 shadow-[0_0_8px_#fef08a]" style="animation-delay: 3.4s;"></span>
+        <span class="absolute bottom-[8%] left-[45%] w-1.5 h-1.5 rounded-full bg-amber-200 anim-sea-sparkle-1 shadow-[0_0_8px_#fde68a]"></span>
+        <span class="absolute bottom-[12%] left-[52%] w-2 h-2 rounded-full bg-yellow-100 anim-sea-sparkle-2 shadow-[0_0_10px_#fef08a]"></span>
+        <span class="absolute bottom-[6%] left-[48%] w-1.5 h-1.5 rounded-full bg-orange-200 anim-sea-sparkle-3 shadow-[0_0_8px_#fbbf24]"></span>
+        <span class="absolute bottom-[14%] left-[42%] w-1 h-1 rounded-full bg-amber-100 anim-sea-sparkle-1 shadow-[0_0_6px_#fde68a]" style="animation-delay: 1.5s;"></span>
+        <span class="absolute bottom-[10%] left-[56%] w-1.5 h-1.5 rounded-full bg-yellow-200 anim-sea-sparkle-2 shadow-[0_0_8px_#fef08a]" style="animation-delay: 2.1s;"></span>
+        <span class="absolute bottom-[5%] left-[50%] w-2 h-2 rounded-full bg-amber-200 anim-sea-sparkle-3 shadow-[0_0_10px_#fbbf24]" style="animation-delay: 0.8s;"></span>
       </div>
     `;
   }
