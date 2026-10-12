@@ -36,7 +36,9 @@ export function renderSocialHub(state) {
         <div class="bezel-core p-6 sm:p-8 relative overflow-hidden bg-gradient-to-r from-amber-500/10 via-transparent to-blue-500/10">
           <div class="max-w-2xl">
             <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-amber-400/10 border border-amber-400/20 text-amber-400 text-xs font-semibold uppercase tracking-wider mb-3">
-              <span>👥</span>
+              <svg class="w-3.5 h-3.5 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+              </svg>
               <span>Komunitas & Obrolan Mahasiswa NetVerse</span>
             </div>
             <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
@@ -60,7 +62,7 @@ export function renderSocialHub(state) {
             <div class="bezel-core p-4 sm:p-5 space-y-3.5">
               <div class="flex items-center justify-between">
                 <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                  <span>🔍</span> Cari Pengguna & Teman
+                  <svg class="w-3.5 h-3.5 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg> Cari Pengguna & Teman
                 </h3>
                 <span class="text-[10px] font-mono text-amber-400 font-semibold bg-amber-400/10 px-2 py-0.5 rounded-md border border-amber-400/20">
                   Input: Nickname / UID
@@ -76,7 +78,7 @@ export function renderSocialHub(state) {
                   placeholder="Ketik Nickname atau UID (cth. Shiina atau NV-849201)..." 
                   class="w-full pl-9 pr-8 py-2.5 rounded-lg bg-white/[0.04] border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 transition-colors"
                 />
-                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs">🔎</span>
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 ${searchQuery ? `
                   <button 
                     type="button" 
@@ -117,15 +119,16 @@ export function renderSocialHub(state) {
                           >
                             Profil
                           </button>
-                          <button 
-                            type="button" 
-                            data-select-chat="${name}"
-                            data-chat-uid="${uid}"
-                            class="px-2 py-1 rounded-md bg-amber-400/20 hover:bg-amber-400/30 text-amber-300 text-[11px] font-bold border border-amber-400/30 transition-colors cursor-pointer"
-                            title="Mulai Chat"
-                          >
-                            Chat 💬
-                          </button>
+                            <button 
+                              type="button" 
+                              data-select-chat="${name}"
+                              data-chat-uid="${uid}"
+                              class="px-2 py-1 rounded-md bg-amber-400/20 hover:bg-amber-400/30 text-amber-300 text-[11px] font-bold border border-amber-400/30 transition-colors flex items-center gap-1 cursor-pointer"
+                              title="Mulai Chat"
+                            >
+                              <svg class="w-3 h-3 text-amber-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                              Chat
+                            </button>
                         </div>
                       </div>
                     `;
@@ -231,9 +234,9 @@ export function renderSocialHub(state) {
                   <button 
                     type="button" 
                     data-view-profile="${activeChat}"
-                    class="px-2.5 py-1.5 rounded-lg bg-white/[0.06] hover:bg-white/15 border border-white/10 text-xs text-amber-400 font-semibold transition-colors flex items-center gap-1 cursor-pointer shrink-0"
+                    class="px-2.5 py-1.5 rounded-lg bg-white/[0.06] hover:bg-white/15 border border-white/10 text-xs text-amber-400 font-semibold transition-colors flex items-center gap-1.5 cursor-pointer shrink-0"
                   >
-                    <span>👤</span>
+                    <svg class="w-3.5 h-3.5 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                     <span>Lihat Profil</span>
                   </button>
                 ` : ''}

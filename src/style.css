@@ -1077,11 +1077,46 @@ header > div > div,
 
 /* Anti-AI Slop Engineering UI Utilities */
 .bg-tech-grid {
-  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
-  background-size: 24px 24px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 36px 36px;
+  mask-image: radial-gradient(ellipse 95% 85% at 50% 30%, #000 65%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 95% 85% at 50% 30%, #000 65%, transparent 100%);
 }
 html.light .bg-tech-grid {
-  background-image: radial-gradient(rgba(15, 23, 42, 0.08) 1px, transparent 1px);
+  background-image: 
+    linear-gradient(to right, rgba(15, 23, 42, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 23, 42, 0.05) 1px, transparent 1px);
+  mask-image: radial-gradient(ellipse 95% 85% at 50% 30%, #000 65%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 95% 85% at 50% 30%, #000 65%, transparent 100%);
+}
+
+/* Realistic Cat6 UTP Striped Conductors */
+.wire-stripe-wo {
+  background: repeating-linear-gradient(45deg, #ffffff, #ffffff 5px, #f97316 5px, #f97316 11px) !important;
+}
+.wire-stripe-wg {
+  background: repeating-linear-gradient(45deg, #ffffff, #ffffff 5px, #22c55e 5px, #22c55e 11px) !important;
+}
+.wire-stripe-wbl {
+  background: repeating-linear-gradient(45deg, #ffffff, #ffffff 5px, #3b82f6 5px, #3b82f6 11px) !important;
+}
+.wire-stripe-wbr {
+  background: repeating-linear-gradient(45deg, #ffffff, #ffffff 5px, #92400e 5px, #92400e 11px) !important;
+}
+
+/* Hardware Deck & Port Enclosure Micro-Aesthetics */
+.hardware-deck {
+  box-shadow: 
+    0 1px 0 rgba(255, 255, 255, 0.08) inset,
+    0 24px 60px -12px rgba(0, 0, 0, 0.75);
+}
+.port-jack-recess {
+  box-shadow: 
+    inset 0 3px 6px rgba(0, 0, 0, 0.8),
+    inset 0 1px 2px rgba(0, 0, 0, 0.9),
+    0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 /* Custom Slim Scrollbar */
