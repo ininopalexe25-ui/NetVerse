@@ -28,8 +28,6 @@ pnpm-debug.log*
 # Editor & System Files
 .DS_Store
 Thumbs.db
-__pycache__/
-*.py[cod]
 *.swp
 *.swo
 .vscode/*

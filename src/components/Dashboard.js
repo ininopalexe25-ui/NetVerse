@@ -248,104 +248,75 @@ export function renderDashboard(moduls = [], devices = [], activeDeviceIdx = 0, 
   return `
     <div class="space-y-12 pt-24 pb-16 animate-fadeIn max-w-6xl mx-auto">
       
-      <!-- HERO SECTION: Engineered Vocational Command Deck (Anti-Slop Technical Substrate) -->
-      <section class="relative overflow-hidden rounded-2xl p-7 sm:p-10 lg:p-12 bg-gradient-to-b from-[#0e1422]/95 via-[#0a0d16]/98 to-[#06080e] bg-tech-grid border border-white/10 hardware-deck">
+      <!-- HERO SECTION: Engineered Spatial Curriculum (Anti-Slop Technical Substrate) -->
+      <section class="relative overflow-hidden rounded-2xl p-6 sm:p-10 lg:p-12 bg-black/60 bg-tech-grid border border-white/15 shadow-[0_20px_50px_rgba(0,0,0,0.6)]">
         
-        <!-- Ambient Atmospheric Top Light Ribbon -->
-        <div class="absolute -top-24 left-1/2 -translate-x-1/2 w-[32rem] h-48 bg-gradient-to-b from-amber-400/15 via-blue-500/10 to-transparent blur-3xl pointer-events-none"></div>
-
-        <!-- Architectural Corner Crosshairs -->
-        <div class="absolute top-3.5 left-4 text-[10px] font-mono text-white/20 select-none pointer-events-none">+</div>
-        <div class="absolute top-3.5 right-4 text-[10px] font-mono text-white/20 select-none pointer-events-none">+</div>
-        <div class="absolute bottom-3.5 left-4 text-[10px] font-mono text-white/20 select-none pointer-events-none">+</div>
-        <div class="absolute bottom-3.5 right-4 text-[10px] font-mono text-white/20 select-none pointer-events-none">+</div>
-
-        <div class="relative z-10 space-y-7">
+        <div class="relative z-10 space-y-6">
           
-          <!-- Micro Technical Status Eyebrow -->
-          <div class="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-amber-400/10 border border-amber-400/25 text-amber-300 text-xs font-semibold tracking-wide backdrop-blur-md">
+          <!-- Micro Eyebrow Badge -->
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-300 text-xs font-semibold tracking-wide">
             <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
-            <span class="font-mono text-[10px] sm:text-[11px] uppercase tracking-wider">${t('dashboard.eyebrow', lang)}</span>
+            <span>${t('dashboard.eyebrow', lang)}</span>
           </div>
 
-          <!-- Hero Headline & Description -->
-          <div class="max-w-3xl space-y-3.5">
-            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-[1.12]">
+          <!-- Hero Headline -->
+          <div class="max-w-3xl space-y-3">
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
               ${t('dashboard.heroHeadline', lang)}
             </h1>
-            <p class="text-sm sm:text-base text-slate-300/90 leading-relaxed font-normal max-w-2xl">
+            <p class="text-sm sm:text-base text-slate-300 leading-relaxed font-normal max-w-2xl">
               ${t('dashboard.heroDesc', lang)}
             </p>
           </div>
 
-          <!-- Quick Action Buttons (Button-in-Button Architecture, No Emojis) -->
-          <div class="flex flex-wrap items-center gap-3 pt-1">
+          <!-- Quick Action Buttons -->
+          <div class="flex flex-wrap items-center gap-3 pt-2">
             <button
               data-nav="materi"
               ${nextModule ? `data-select-modul="${nextModuleIndex}"` : ''}
-              class="min-h-12 px-6 rounded-xl bg-white text-slate-950 hover:bg-slate-100 font-bold text-sm transition-all shadow-[0_4px_20px_rgba(255,255,255,0.18)] active:scale-[0.98] inline-flex items-center gap-3 cursor-pointer group"
+              class="min-h-12 px-6 rounded-xl bg-white text-black hover:bg-slate-200 font-bold text-sm transition-all shadow-lg active:scale-95 inline-flex items-center gap-2 cursor-pointer"
             >
               <span>${startLabel}</span>
-              <span class="w-6 h-6 rounded-lg bg-black/10 flex items-center justify-center text-xs group-hover:translate-x-0.5 transition-transform" aria-hidden="true">&rarr;</span>
+              <span aria-hidden="true">&rarr;</span>
             </button>
 
             <button
               data-nav="crimping"
-              class="min-h-12 px-5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-white font-semibold text-sm border border-white/12 hover:border-emerald-400/35 transition-all active:scale-[0.98] inline-flex items-center gap-2.5 cursor-pointer group shadow-sm"
+              class="min-h-12 px-5 rounded-xl bg-white/[0.06] hover:bg-white/10 text-white font-semibold text-sm border border-white/10 transition-all active:scale-95 inline-flex items-center gap-2 cursor-pointer"
             >
-              <svg class="w-4 h-4 text-emerald-400 group-hover:scale-110 transition-transform shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-              </svg>
+              <span>⚡</span>
               <span>${t('dashboard.btnCrimping', lang)}</span>
             </button>
 
             <button
               type="button"
               data-open-ai-tutor
-              class="min-h-12 px-5 rounded-xl bg-amber-400/10 hover:bg-amber-400/15 text-amber-300 font-semibold text-sm border border-amber-400/25 hover:border-amber-400/40 transition-all active:scale-[0.98] inline-flex items-center gap-2.5 cursor-pointer group shadow-sm"
+              class="min-h-12 px-5 rounded-xl bg-amber-400/10 hover:bg-amber-400/20 text-amber-300 font-semibold text-sm border border-amber-400/30 transition-all active:scale-95 inline-flex items-center gap-2 cursor-pointer"
             >
-              <svg class="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-              </svg>
+              <span>💡</span>
               <span>${t('dashboard.btnAskTutor', lang)}</span>
             </button>
           </div>
 
-          <!-- Live Engineering Telemetry Readout (Unified, Precision Monospace) -->
-          <div class="pt-6 border-t border-white/[0.08] grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-            <div class="p-3.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.05] border border-white/[0.08] hover:border-amber-400/30 transition-all flex flex-col justify-between">
-              <div class="flex items-center justify-between text-[10px] font-mono text-slate-500 uppercase tracking-widest">
-                <span>01 // SYLLABUS</span>
-                <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-              </div>
-              <div class="font-mono text-white text-lg font-bold tracking-tight mt-1.5">${t('dashboard.metric1Val', lang)}</div>
+          <!-- Live Engineering Badges / Metrics -->
+          <div class="pt-4 border-t border-white/[0.08] grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+            <div class="p-3 rounded-lg bg-black/40 border border-white/[0.06]">
+              <div class="font-mono text-amber-400 font-bold text-base">${t('dashboard.metric1Val', lang)}</div>
               <div class="text-slate-400 text-[11px] mt-0.5">${t('dashboard.metric1Label', lang)}</div>
             </div>
 
-            <div class="p-3.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.05] border border-white/[0.08] hover:border-emerald-400/30 transition-all flex flex-col justify-between">
-              <div class="flex items-center justify-between text-[10px] font-mono text-slate-500 uppercase tracking-widest">
-                <span>02 // HARDWARE</span>
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-              </div>
-              <div class="font-mono text-white text-lg font-bold tracking-tight mt-1.5">${t('dashboard.metric2Val', lang)}</div>
+            <div class="p-3 rounded-lg bg-black/40 border border-white/[0.06]">
+              <div class="font-mono text-emerald-400 font-bold text-base">${t('dashboard.metric2Val', lang)}</div>
               <div class="text-slate-400 text-[11px] mt-0.5">${t('dashboard.metric2Label', lang)}</div>
             </div>
 
-            <div class="p-3.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.05] border border-white/[0.08] hover:border-blue-400/30 transition-all flex flex-col justify-between">
-              <div class="flex items-center justify-between text-[10px] font-mono text-slate-500 uppercase tracking-widest">
-                <span>03 // TASKS</span>
-                <span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
-              </div>
-              <div class="font-mono text-white text-lg font-bold tracking-tight mt-1.5">${t('dashboard.metric3Val', lang)}</div>
+            <div class="p-3 rounded-lg bg-black/40 border border-white/[0.06]">
+              <div class="font-mono text-blue-400 font-bold text-base">${t('dashboard.metric3Val', lang)}</div>
               <div class="text-slate-400 text-[11px] mt-0.5">${t('dashboard.metric3Label', lang)}</div>
             </div>
 
-            <div class="p-3.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.05] border border-white/[0.08] hover:border-purple-400/30 transition-all flex flex-col justify-between">
-              <div class="flex items-center justify-between text-[10px] font-mono text-slate-500 uppercase tracking-widest">
-                <span>04 // TUTOR</span>
-                <span class="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
-              </div>
-              <div class="font-mono text-white text-lg font-bold tracking-tight mt-1.5">${t('dashboard.metric4Val', lang)}</div>
+            <div class="p-3 rounded-lg bg-black/40 border border-white/[0.06]">
+              <div class="font-mono text-purple-400 font-bold text-base">${t('dashboard.metric4Val', lang)}</div>
               <div class="text-slate-400 text-[11px] mt-0.5">${t('dashboard.metric4Label', lang)}</div>
             </div>
           </div>
@@ -354,52 +325,52 @@ export function renderDashboard(moduls = [], devices = [], activeDeviceIdx = 0, 
       </section>
 
       <!-- SECTION: Interactive 8-Port Gigabit Switch & Live Telemetry Strip (Tactile Micro-Interaction) -->
-      <section class="rounded-2xl p-5 sm:p-6 bg-gradient-to-b from-[#121624] via-[#0d1017] to-[#080b12] border border-white/12 hardware-deck space-y-4">
+      <section class="rounded-2xl p-5 sm:p-6 bg-black/80 border border-white/15 shadow-2xl space-y-4">
         
         <!-- Mission Control Telemetry Header Ribbon -->
         <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-white/[0.08] text-xs">
-          <div class="flex items-center gap-2.5">
-            <span class="w-2.5 h-2.5 rounded-sm bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]"></span>
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-sm bg-emerald-400 animate-pulse"></span>
             <span class="font-mono font-bold text-white tracking-wider">MISSION CONTROL TELEMETRY</span>
-            <span class="text-slate-600">•</span>
+            <span class="text-slate-500">•</span>
             <span class="font-mono text-emerald-400 font-semibold text-[11px]">IEEE 802.3ab LINK UP</span>
           </div>
 
-          <div class="flex flex-wrap items-center gap-2 font-mono text-[11px] text-slate-300">
-            <div class="px-2.5 py-1 rounded-md bg-white/[0.04] border border-white/10 flex items-center gap-1.5">
+          <div class="flex flex-wrap items-center gap-2.5 font-mono text-[11px] text-slate-300">
+            <div class="px-2 py-0.5 rounded bg-white/[0.04] border border-white/10 flex items-center gap-1.5">
               <span class="text-slate-500">RTT:</span>
               <span class="text-amber-400 font-bold">12.4ms (±1.1ms)</span>
             </div>
-            <div class="px-2.5 py-1 rounded-md bg-white/[0.04] border border-white/10 flex items-center gap-1.5">
+            <div class="px-2 py-0.5 rounded bg-white/[0.04] border border-white/10 flex items-center gap-1.5">
               <span class="text-slate-500">THROUGHPUT:</span>
               <span class="text-emerald-400 font-bold">1.24 Gbps</span>
             </div>
-            <div class="px-2.5 py-1 rounded-md bg-white/[0.04] border border-white/10 flex items-center gap-1.5">
+            <div class="px-2 py-0.5 rounded bg-white/[0.04] border border-white/10 flex items-center gap-1.5">
               <span class="text-slate-500">FCS:</span>
               <span class="text-white font-bold">VALID (0 CRC)</span>
             </div>
           </div>
         </div>
 
-        <!-- 8-Port Managed Switch Faceplate (Industrial Rackmount Chassis) -->
-        <div class="p-4 sm:p-5 rounded-xl bg-gradient-to-b from-[#171b26] via-[#10131d] to-[#0a0d14] border border-white/12 shadow-[inset_0_1px_1px_rgba(255,255,255,0.12)]">
+        <!-- 8-Port Managed Switch Faceplate -->
+        <div class="p-4 sm:p-5 rounded-xl bg-gradient-to-b from-[#181b24] via-[#10131a] to-[#0b0d13] border border-white/15 shadow-inner">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
             <div>
               <div class="flex items-center gap-2">
                 <span class="font-mono text-xs font-bold text-amber-400 tracking-wider">NETVERSE L2-8G</span>
-                <span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">MANAGED GIGABIT</span>
+                <span class="px-1.5 py-0.2 rounded text-[9px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">MANAGED GIGABIT</span>
               </div>
-              <h3 class="text-xs sm:text-sm font-semibold text-slate-300 mt-1">
+              <h3 class="text-xs sm:text-sm font-semibold text-slate-300 mt-0.5">
                 ${t('dashboard.switchSubtitle', lang)}
               </h3>
             </div>
             <div class="flex items-center gap-3 text-[10px] font-mono text-slate-400 shrink-0">
-              <span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399]"></span> LNK</span>
-              <span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-400 animate-led-fast shadow-[0_0_6px_#fbbf24]"></span> ACT</span>
+              <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-400"></span> LNK</span>
+              <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-400 animate-led-fast"></span> ACT</span>
             </div>
           </div>
 
-          <!-- 8 Physical RJ-45 Port Jacks (Hardware Industrial Design) -->
+          <!-- 8 Physical RJ-45 Port Jacks -->
           <div class="grid grid-cols-4 sm:grid-cols-8 gap-2.5 sm:gap-3">
             ${SWITCH_PORTS_DATA.map((p, idx) => {
               const isSelected = p.port === Number(activePort);
@@ -407,10 +378,10 @@ export function renderDashboard(moduls = [], devices = [], activeDeviceIdx = 0, 
                 <button
                   type="button"
                   data-interactive-port="${p.port}"
-                  class="group flex flex-col items-center p-2.5 rounded-lg border transition-all cursor-pointer relative ${
+                  class="group flex flex-col items-center p-2.5 rounded-lg border transition-all cursor-pointer ${
                     isSelected
-                      ? 'bg-amber-400/15 border-amber-400/70 shadow-[0_0_14px_rgba(245,158,11,0.3)] scale-[1.03]'
-                      : 'bg-black/55 border-white/10 hover:border-white/30 hover:bg-white/[0.05]'
+                      ? 'bg-amber-400/15 border-amber-400/70 shadow-[0_0_12px_rgba(245,158,11,0.25)] scale-[1.03]'
+                      : 'bg-black/50 border-white/10 hover:border-white/30 hover:bg-white/[0.04]'
                   }"
                   title="Click Port ${p.port} to inspect diagnostics"
                 >
@@ -421,8 +392,8 @@ export function renderDashboard(moduls = [], devices = [], activeDeviceIdx = 0, 
                   </div>
 
                   <!-- RJ-45 Modular Jack Visual (Metal shielded receptacle) -->
-                  <div class="w-10 h-8 rounded-md bg-[#0a0c12] border ${isSelected ? 'border-amber-400/80 shadow-[inset_0_1px_2px_rgba(245,158,11,0.4)]' : 'border-white/20'} flex flex-col items-center justify-between p-1 port-jack-recess relative group-hover:border-slate-300">
-                    <!-- Top 8 gold pin contacts -->
+                  <div class="w-10 h-8 rounded-md bg-[#0a0c12] border ${isSelected ? 'border-amber-400/80' : 'border-white/20'} flex flex-col items-center justify-between p-1 shadow-inner relative group-hover:border-slate-300">
+                    <!-- Top 8 copper pin contacts -->
                     <div class="flex items-center justify-between w-full px-0.5 pt-0.5">
                       <span class="w-0.5 h-1 bg-amber-300"></span>
                       <span class="w-0.5 h-1 bg-amber-300"></span>
@@ -433,7 +404,7 @@ export function renderDashboard(moduls = [], devices = [], activeDeviceIdx = 0, 
                       <span class="w-0.5 h-1 bg-amber-300"></span>
                       <span class="w-0.5 h-1 bg-amber-300"></span>
                     </div>
-                    <!-- Plug locking tab notch -->
+                    <!-- Plug notch -->
                     <div class="w-3.5 h-1.5 bg-black rounded-b-sm border border-white/20"></div>
                   </div>
 
@@ -447,43 +418,43 @@ export function renderDashboard(moduls = [], devices = [], activeDeviceIdx = 0, 
           </div>
 
           <!-- Live Port Diagnostics Readout Panel -->
-          <div id="switch-port-diagnostics" class="mt-4 p-4 rounded-xl bg-black/75 border border-white/10 space-y-3 font-mono text-xs">
+          <div id="switch-port-diagnostics" class="mt-4 p-4 rounded-xl bg-black/70 border border-white/10 space-y-3 font-mono text-xs">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/[0.08] pb-2.5">
               <div class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399]"></span>
+                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
                 <span class="font-bold text-white text-sm">${currPortData.name[lang] || currPortData.name.en || currPortData.name.id}</span>
               </div>
-              <span class="px-2.5 py-0.5 rounded text-[10px] font-bold bg-amber-400/20 text-amber-300 border border-amber-400/30">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-400/20 text-amber-300 border border-amber-400/30">
                 ${currPortData.speed}
               </span>
             </div>
 
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-[11px]">
               <div>
-                <span class="text-slate-500 block text-[10px] uppercase tracking-wider">VLAN / Membership:</span>
+                <span class="text-slate-500 block">VLAN / Membership:</span>
                 <span class="text-slate-200 font-semibold">${currPortData.vlan}</span>
                 <span class="text-slate-400 text-[10px] block">${currPortData.vlanType}</span>
               </div>
 
               <div>
-                <span class="text-slate-500 block text-[10px] uppercase tracking-wider">Power over Ethernet:</span>
+                <span class="text-slate-500 block">Power over Ethernet:</span>
                 <span class="text-emerald-400 font-semibold">${currPortData.poe}</span>
               </div>
 
               <div>
-                <span class="text-slate-500 block text-[10px] uppercase tracking-wider">Cable Type & Length:</span>
+                <span class="text-slate-500 block">Cable Type & Length:</span>
                 <span class="text-slate-200">${currPortData.cableType}</span>
                 <span class="text-amber-400 text-[10px] block">${currPortData.cableLen} (Auto-MDIX: OK)</span>
               </div>
 
               <div>
-                <span class="text-slate-500 block text-[10px] uppercase tracking-wider">Live Traffic Stats:</span>
+                <span class="text-slate-500 block">Live Traffic Stats:</span>
                 <span class="text-slate-200">RX: ${currPortData.rxRate}</span>
                 <span class="text-slate-200 block">TX: ${currPortData.txRate}</span>
               </div>
             </div>
 
-            <p class="text-[11px] text-slate-400 font-sans leading-relaxed pt-2 border-t border-white/[0.06]">
+            <p class="text-[11px] text-slate-400 font-sans leading-relaxed pt-1 border-t border-white/[0.05]">
               ${currPortData.deviceDesc[lang] || currPortData.deviceDesc.en || currPortData.deviceDesc.id}
             </p>
           </div>
@@ -491,11 +462,11 @@ export function renderDashboard(moduls = [], devices = [], activeDeviceIdx = 0, 
         </div>
       </section>
 
-      <!-- SECTION 2: Bento Grid of Core Pillars (Asymmetrical Vocational Hardware Bento) -->
+      <!-- SECTION 2: Bento Grid of Core Pillars (Pilar Keunggulan Pembelajaran) -->
       <section class="space-y-6">
         <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-white/[0.08] pb-4">
           <div>
-            <div class="text-xs font-semibold text-amber-400 uppercase tracking-wider font-mono">${t('dashboard.pillarsTitle', lang)}</div>
+            <div class="text-xs font-semibold text-amber-400 uppercase tracking-wider">${t('dashboard.pillarsTitle', lang)}</div>
             <h2 class="text-2xl font-bold text-white tracking-tight mt-1">${t('dashboard.pillarsSubtitle', lang)}</h2>
           </div>
           <span class="text-xs text-slate-400">${t('dashboard.rotateHint', lang)}</span>
@@ -504,30 +475,22 @@ export function renderDashboard(moduls = [], devices = [], activeDeviceIdx = 0, 
         <div class="grid grid-cols-1 md:grid-cols-12 gap-5">
           
           <!-- Bento 1: 3D Hardware Studio (7 cols) -->
-          <div class="md:col-span-7 rounded-2xl p-6 bg-gradient-to-b from-[#0f1422] to-[#090d16] border border-white/10 flex flex-col justify-between space-y-4 hover:border-amber-400/40 transition-all shadow-xl group">
+          <div class="md:col-span-7 rounded-2xl p-6 bg-[#0a0d16] border border-white/10 flex flex-col justify-between space-y-4 hover:border-amber-400/40 transition-colors shadow-lg">
             <div class="space-y-3">
-              <div class="flex items-center justify-between">
-                <div class="w-10 h-10 rounded-xl bg-amber-400/10 border border-amber-400/25 flex items-center justify-center text-amber-400 group-hover:scale-105 transition-transform">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-                  </svg>
-                </div>
-                <span class="font-mono text-[10px] text-slate-500 uppercase tracking-widest">[ 3D-MODEL-GL // INTERACTIVE ]</span>
+              <div class="w-10 h-10 rounded-xl bg-amber-400/10 border border-amber-400/30 flex items-center justify-center text-amber-400">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                </svg>
               </div>
               <h3 class="text-lg font-bold text-white tracking-tight">${t('dashboard.card3dTitle', lang)}</h3>
-              <p class="text-xs text-slate-300/90 leading-relaxed">
+              <p class="text-xs text-slate-300 leading-relaxed">
                 ${t('dashboard.card3dDesc', lang)}
               </p>
-              <!-- Technical coordinate badge -->
-              <div class="p-2.5 rounded-lg bg-black/40 border border-white/[0.06] flex items-center justify-between font-mono text-[10px] text-slate-400">
-                <span>ROTATION: 360° ORBITAL</span>
-                <span class="text-amber-400 font-bold">6 HARDWARE UNITS</span>
-              </div>
             </div>
             
-            <div class="pt-3 flex items-center justify-between border-t border-white/[0.06]">
-              <span class="text-[11px] text-slate-400 font-mono">WebGL 3D Studio</span>
-              <a href="#section-3d-lab" class="text-xs font-semibold text-amber-400 hover:text-amber-300 flex items-center gap-1 group-hover:translate-y-0.5 transition-transform">
+            <div class="pt-2 flex items-center justify-between border-t border-white/[0.06]">
+              <span class="text-[11px] text-slate-400 font-mono">6 Model • WebGL 3D</span>
+              <a href="#section-3d-lab" class="text-xs font-semibold text-amber-400 hover:text-amber-300 flex items-center gap-1">
                 <span>${t('dashboard.card3dAction', lang)}</span>
                 <span>&darr;</span>
               </a>
@@ -535,36 +498,22 @@ export function renderDashboard(moduls = [], devices = [], activeDeviceIdx = 0, 
           </div>
 
           <!-- Bento 2: Crimping Master (5 cols) -->
-          <div class="md:col-span-5 rounded-2xl p-6 bg-gradient-to-b from-[#091510] to-[#060e0a] border border-emerald-500/20 flex flex-col justify-between space-y-4 hover:border-emerald-400/40 transition-all shadow-xl group">
+          <div class="md:col-span-5 rounded-2xl p-6 bg-[#09110d] border border-emerald-500/20 flex flex-col justify-between space-y-4 hover:border-emerald-400/40 transition-colors shadow-lg">
             <div class="space-y-3">
-              <div class="flex items-center justify-between">
-                <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400 group-hover:scale-105 transition-transform">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                  </svg>
-                </div>
-                <span class="font-mono text-[10px] text-emerald-500/80 uppercase tracking-widest">[ EIA/TIA 568-A/B ]</span>
+              <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
               </div>
               <h3 class="text-lg font-bold text-white tracking-tight">${t('dashboard.cardCrimpingTitle', lang)}</h3>
-              <p class="text-xs text-slate-300/90 leading-relaxed">
+              <p class="text-xs text-slate-300 leading-relaxed">
                 ${t('dashboard.cardCrimpingDesc', lang)}
               </p>
-              <!-- Cat6 Pinout Preview Strip -->
-              <div class="p-2 rounded-lg bg-black/40 border border-white/[0.06] flex items-center justify-between gap-1">
-                <span class="w-3 h-3 rounded-xs wire-stripe-wo" title="WO"></span>
-                <span class="w-3 h-3 rounded-xs bg-orange-500" title="O"></span>
-                <span class="w-3 h-3 rounded-xs wire-stripe-wg" title="WG"></span>
-                <span class="w-3 h-3 rounded-xs bg-blue-500" title="BL"></span>
-                <span class="w-3 h-3 rounded-xs wire-stripe-wbl" title="WBL"></span>
-                <span class="w-3 h-3 rounded-xs bg-green-500" title="G"></span>
-                <span class="w-3 h-3 rounded-xs wire-stripe-wbr" title="WBR"></span>
-                <span class="w-3 h-3 rounded-xs bg-amber-800" title="BR"></span>
-              </div>
             </div>
             
-            <div class="pt-3 flex items-center justify-between border-t border-white/[0.06]">
-              <span class="text-[11px] text-emerald-400 font-mono">+150 XP Continuity</span>
-              <button data-nav="crimping" class="text-xs font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 cursor-pointer group-hover:translate-x-0.5 transition-transform">
+            <div class="pt-2 flex items-center justify-between border-t border-white/[0.06]">
+              <span class="text-[11px] text-emerald-400 font-mono">T568A / T568B • +150 XP</span>
+              <button data-nav="crimping" class="text-xs font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 cursor-pointer">
                 <span>${t('dashboard.cardCrimpingAction', lang)}</span>
                 <span>&rarr;</span>
               </button>
@@ -572,31 +521,22 @@ export function renderDashboard(moduls = [], devices = [], activeDeviceIdx = 0, 
           </div>
 
           <!-- Bento 3: Socratic AI Network Tutor (4 cols) -->
-          <div class="md:col-span-4 rounded-2xl p-6 bg-gradient-to-b from-[#0a1120] to-[#070b14] border border-blue-500/20 flex flex-col justify-between space-y-4 hover:border-blue-400/40 transition-all shadow-xl group">
+          <div class="md:col-span-4 rounded-2xl p-6 bg-[#0a101d] border border-blue-500/20 flex flex-col justify-between space-y-4 hover:border-blue-400/40 transition-colors shadow-lg">
             <div class="space-y-3">
-              <div class="flex items-center justify-between">
-                <div class="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/25 flex items-center justify-center text-blue-400 group-hover:scale-105 transition-transform">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
-                  </svg>
-                </div>
-                <span class="font-mono text-[10px] text-blue-400/80 uppercase tracking-widest">[ AI ASSISTANT ]</span>
+              <div class="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+                </svg>
               </div>
               <h3 class="text-base font-bold text-white tracking-tight">${t('dashboard.cardAiTitle', lang)}</h3>
-              <p class="text-xs text-slate-300/90 leading-relaxed">
+              <p class="text-xs text-slate-300 leading-relaxed">
                 ${t('dashboard.cardAiDesc', lang)}
               </p>
-              <!-- Terminal prompt preview -->
-              <div class="p-2 rounded-lg bg-black/50 border border-white/[0.06] font-mono text-[10px] text-slate-400 flex items-center gap-1.5">
-                <span class="text-blue-400">></span>
-                <span>socratic.eval --stream</span>
-                <span class="w-1 h-2.5 bg-blue-400 animate-pulse"></span>
-              </div>
             </div>
             
-            <div class="pt-3 flex items-center justify-between border-t border-white/[0.06]">
-              <span class="text-[11px] text-blue-400 font-mono">Edge Socratic Engine</span>
-              <button type="button" data-open-ai-tutor class="text-xs font-semibold text-blue-400 hover:text-blue-300 flex items-center gap-1 cursor-pointer group-hover:translate-x-0.5 transition-transform">
+            <div class="pt-2 flex items-center justify-between border-t border-white/[0.06]">
+              <span class="text-[11px] text-blue-400 font-mono">24/7 AI Engine</span>
+              <button type="button" data-open-ai-tutor class="text-xs font-semibold text-blue-400 hover:text-blue-300 flex items-center gap-1 cursor-pointer">
                 <span>${t('dashboard.cardAiAction', lang)}</span>
                 <span>&rarr;</span>
               </button>
@@ -604,29 +544,22 @@ export function renderDashboard(moduls = [], devices = [], activeDeviceIdx = 0, 
           </div>
 
           <!-- Bento 4: Adaptive Exam & AI Essay Grader (4 cols) -->
-          <div class="md:col-span-4 rounded-2xl p-6 bg-gradient-to-b from-[#120d24] to-[#0b0817] border border-purple-500/20 flex flex-col justify-between space-y-4 hover:border-purple-400/40 transition-all shadow-xl group">
+          <div class="md:col-span-4 rounded-2xl p-6 bg-[#110c1f] border border-purple-500/20 flex flex-col justify-between space-y-4 hover:border-purple-400/40 transition-colors shadow-lg">
             <div class="space-y-3">
-              <div class="flex items-center justify-between">
-                <div class="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/25 flex items-center justify-center text-purple-400 group-hover:scale-105 transition-transform">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                  </svg>
-                </div>
-                <span class="font-mono text-[10px] text-purple-400/80 uppercase tracking-widest">[ EVALUATION ]</span>
+              <div class="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
               </div>
               <h3 class="text-base font-bold text-white tracking-tight">${t('dashboard.cardExamTitle', lang)}</h3>
-              <p class="text-xs text-slate-300/90 leading-relaxed">
+              <p class="text-xs text-slate-300 leading-relaxed">
                 ${t('dashboard.cardExamDesc', lang)}
               </p>
-              <div class="p-2 rounded-lg bg-black/50 border border-white/[0.06] font-mono text-[10px] text-slate-400 flex items-center justify-between">
-                <span>OBJECTIVE: 25 PG</span>
-                <span class="text-purple-400 font-bold">10 URAIAN AI</span>
-              </div>
             </div>
             
-            <div class="pt-3 flex items-center justify-between border-t border-white/[0.06]">
-              <span class="text-[11px] text-purple-400 font-mono">Exam Simulator</span>
-              <button data-nav="materi" data-materi-format="soal" class="text-xs font-semibold text-purple-400 hover:text-purple-300 flex items-center gap-1 cursor-pointer group-hover:translate-x-0.5 transition-transform">
+            <div class="pt-2 flex items-center justify-between border-t border-white/[0.06]">
+              <span class="text-[11px] text-purple-400 font-mono">25 PG + 10 Uraian AI</span>
+              <button data-nav="materi" data-materi-format="soal" class="text-xs font-semibold text-purple-400 hover:text-purple-300 flex items-center gap-1 cursor-pointer">
                 <span>${t('dashboard.cardExamAction', lang)}</span>
                 <span>&rarr;</span>
               </button>
@@ -634,29 +567,22 @@ export function renderDashboard(moduls = [], devices = [], activeDeviceIdx = 0, 
           </div>
 
           <!-- Bento 5: Realtime Leaderboard & Gamification (4 cols) -->
-          <div class="md:col-span-4 rounded-2xl p-6 bg-gradient-to-b from-[#18120a] to-[#0e0a05] border border-amber-500/20 flex flex-col justify-between space-y-4 hover:border-amber-400/40 transition-all shadow-xl group">
+          <div class="md:col-span-4 rounded-2xl p-6 bg-[#151009] border border-amber-500/20 flex flex-col justify-between space-y-4 hover:border-amber-400/40 transition-colors shadow-lg">
             <div class="space-y-3">
-              <div class="flex items-center justify-between">
-                <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-center text-amber-400 group-hover:scale-105 transition-transform">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
-                  </svg>
-                </div>
-                <span class="font-mono text-[10px] text-amber-400/80 uppercase tracking-widest">[ STANDINGS ]</span>
+              <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+                </svg>
               </div>
               <h3 class="text-base font-bold text-white tracking-tight">${t('dashboard.cardLeaderboardTitle', lang)}</h3>
-              <p class="text-xs text-slate-300/90 leading-relaxed">
+              <p class="text-xs text-slate-300 leading-relaxed">
                 ${t('dashboard.cardLeaderboardDesc', lang)}
               </p>
-              <div class="p-2 rounded-lg bg-black/50 border border-white/[0.06] font-mono text-[10px] text-slate-400 flex items-center justify-between">
-                <span class="text-amber-400">#01 CHAMPION</span>
-                <span>REALTIME XP</span>
-              </div>
             </div>
             
-            <div class="pt-3 flex items-center justify-between border-t border-white/[0.06]">
-              <span class="text-[11px] text-amber-400 font-mono">Live Rankings</span>
-              <button data-nav="leaderboard" class="text-xs font-semibold text-amber-400 hover:text-amber-300 flex items-center gap-1 cursor-pointer group-hover:translate-x-0.5 transition-transform">
+            <div class="pt-2 flex items-center justify-between border-t border-white/[0.06]">
+              <span class="text-[11px] text-amber-400 font-mono">Total XP • Live Sync</span>
+              <button data-nav="leaderboard" class="text-xs font-semibold text-amber-400 hover:text-amber-300 flex items-center gap-1 cursor-pointer">
                 <span>${t('dashboard.cardLeaderboardAction', lang)}</span>
                 <span>&rarr;</span>
               </button>
@@ -670,7 +596,7 @@ export function renderDashboard(moduls = [], devices = [], activeDeviceIdx = 0, 
       <section class="space-y-6">
         <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-white/[0.08] pb-4">
           <div>
-            <div class="text-xs font-semibold text-emerald-400 uppercase tracking-wider font-mono">${t('dashboard.roadmapTag', lang)}</div>
+            <div class="text-xs font-semibold text-emerald-400 uppercase tracking-wider">${t('dashboard.roadmapTag', lang)}</div>
             <h2 class="text-2xl font-bold text-white tracking-tight mt-1">${t('dashboard.roadmapTitle', lang)}</h2>
           </div>
           <div class="text-xs font-mono font-semibold text-amber-400">
@@ -685,10 +611,10 @@ export function renderDashboard(moduls = [], devices = [], activeDeviceIdx = 0, 
             const isDone = mProg?.status === 'selesai';
 
             return `
-              <div class="p-5 rounded-2xl bg-gradient-to-b from-[#111522] to-[#090d16] border border-white/[0.08] flex flex-col justify-between space-y-4 hover:border-white/20 transition-all shadow-md group">
-                <div class="space-y-2.5">
+              <div class="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.08] flex flex-col justify-between space-y-4 hover:border-white/20 transition-all">
+                <div class="space-y-2">
                   <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-amber-400 font-mono tracking-wider">${t('materi.module', lang, { num: idx + 1 })}</span>
+                    <span class="text-xs font-bold text-amber-400 font-mono">${t('materi.module', lang, { num: idx + 1 })}</span>
                     ${isDone ? `
                       <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                         ${t('materi.completedBadge', lang)}
@@ -697,7 +623,7 @@ export function renderDashboard(moduls = [], devices = [], activeDeviceIdx = 0, 
                       <span class="text-xs text-slate-500 font-mono">${t('materi.estimatedTime', lang, { min: m.estimasi_menit || 15 })}</span>
                     `}
                   </div>
-                  <h3 class="text-base font-bold text-white tracking-tight group-hover:text-amber-300 transition-colors">${locM.judul}</h3>
+                  <h3 class="text-base font-bold text-white tracking-tight">${locM.judul}</h3>
                   <p class="text-xs text-slate-400 leading-relaxed line-clamp-2">
                     ${locM.deskripsi || ''}
                   </p>
@@ -708,7 +634,7 @@ export function renderDashboard(moduls = [], devices = [], activeDeviceIdx = 0, 
                   <button
                     data-nav="materi"
                     data-select-modul="${idx}"
-                    class="min-h-10 px-3.5 rounded-lg bg-white/[0.06] hover:bg-white/15 text-white text-xs font-semibold transition-all inline-flex items-center gap-1.5 cursor-pointer group-hover:translate-x-0.5"
+                    class="min-h-10 px-3.5 rounded-lg bg-white/[0.06] hover:bg-white/15 text-white text-xs font-semibold transition-all inline-flex items-center gap-1.5 cursor-pointer"
                   >
                     <span>${isDone ? t('dashboard.btnRepeat', lang) : t('dashboard.btnStart', lang)}</span>
                     <span>&rarr;</span>
@@ -724,7 +650,7 @@ export function renderDashboard(moduls = [], devices = [], activeDeviceIdx = 0, 
       <section id="section-3d-lab" class="space-y-6 pt-4">
         <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-white/[0.08] pb-4">
           <div>
-            <div class="text-xs font-semibold text-amber-400 uppercase tracking-wider font-mono">${t('dashboard.devicesSubtitle', lang)}</div>
+            <div class="text-xs font-semibold text-amber-400 uppercase tracking-wider">${t('dashboard.devicesSubtitle', lang)}</div>
             <h2 class="text-2xl sm:text-3xl font-bold text-white tracking-tight mt-1">${t('dashboard.devicesTitle', lang)}</h2>
           </div>
           <span class="text-xs text-slate-400">${t('dashboard.rotateHint', lang)}</span>

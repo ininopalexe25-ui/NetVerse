@@ -429,19 +429,9 @@ export function renderMateriViewer(
                 <!-- Exam Score / Progress Badge -->
                 <div class="flex flex-col items-end gap-1.5 shrink-0 font-mono text-xs">
                   <div class="px-3 py-1.5 rounded-lg bg-black/60 border border-white/10 text-white font-bold flex items-center gap-2">
-                    <span class="text-amber-400 flex items-center gap-1">
-                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                      </svg>
-                      <span>PG: ${totalPgAnswered}/25</span>
-                    </span>
+                    <span class="text-amber-400">⚡ PG: ${totalPgAnswered}/25</span>
                     <span class="text-slate-600">•</span>
-                    <span class="text-purple-400 flex items-center gap-1">
-                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                      </svg>
-                      <span>Esai: ${totalEssayGraded}/10</span>
-                    </span>
+                    <span class="text-purple-400">🤖 Esai: ${totalEssayGraded}/10</span>
                   </div>
                   <span class="text-[10px] text-emerald-400 font-semibold">Estimasi Reward: Hingga +${potentialXp} XP</span>
                 </div>
@@ -451,10 +441,8 @@ export function renderMateriViewer(
                 <!-- Guest Exam Lock Banner -->
                 <div class="rounded-xl p-4 sm:p-5 bg-gradient-to-r from-amber-500/10 via-amber-600/5 to-transparent border border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg shadow-amber-500/5">
                   <div class="flex items-start gap-3.5">
-                    <div class="w-10 h-10 rounded-lg bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-amber-400 shrink-0 mt-0.5">
-                      <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                      </svg>
+                    <div class="w-10 h-10 rounded-lg bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-amber-400 text-lg shrink-0 mt-0.5">
+                      🔒
                     </div>
                     <div class="space-y-1">
                       <div class="flex items-center gap-2">
@@ -675,9 +663,7 @@ export function renderMateriViewer(
                   id="btn-submit-exam"
                   class="min-h-12 px-6 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs sm:text-sm transition-all shadow-lg active:scale-95 flex items-center gap-2 shrink-0 cursor-pointer"
                 >
-                  <svg class="w-4 h-4 text-amber-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
-                  </svg>
+                  <span>🏆</span>
                   <span>${examSubmitted ? 'Perbarui Hasil Ujian & XP' : `Kumpulkan Ujian & Dapatkan +${potentialXp} XP`}</span>
                   <span>&rarr;</span>
                 </button>
@@ -1002,10 +988,8 @@ export function renderMateriViewer(
                       ${t('materi.quizScoreSummary', lang, { score: quizScore, correct: correctCount, total: quizzes.length })}
                     </div>
                     ${quizScore > 0 ? `
-                      <div class="px-2.5 py-1.5 rounded-md text-xs font-bold font-mono bg-amber-400/15 text-amber-300 border border-amber-400/40 flex items-center gap-1.5 shadow-sm">
-                        <svg class="w-3.5 h-3.5 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                        </svg>
+                      <div class="px-2.5 py-1.5 rounded-md text-xs font-bold font-mono bg-amber-400/15 text-amber-300 border border-amber-400/40 flex items-center gap-1 shadow-sm">
+                        <span class="text-amber-400">⚡</span>
                         <span>+${quizScore} XP</span>
                       </div>
                     ` : ''}
@@ -1017,10 +1001,8 @@ export function renderMateriViewer(
                 <!-- Guest Quiz Lock Banner -->
                 <div class="rounded-xl p-4 sm:p-5 bg-gradient-to-r from-amber-500/10 via-amber-600/5 to-transparent border border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg shadow-amber-500/5">
                   <div class="flex items-start gap-3.5">
-                    <div class="w-10 h-10 rounded-lg bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-amber-400 shrink-0 mt-0.5">
-                      <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                      </svg>
+                    <div class="w-10 h-10 rounded-lg bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-amber-400 text-lg shrink-0 mt-0.5">
+                      🔒
                     </div>
                     <div class="space-y-1">
                       <div class="flex items-center gap-2">
@@ -1130,7 +1112,7 @@ export function renderMateriViewer(
                     } text-xs font-semibold transition-all shadow-md active:scale-95 flex items-center gap-2 cursor-pointer"
                     title="${isAuthenticated ? t('materi.submitQuiz', lang) : t('materi.guestQuizLockTitle', lang)}"
                   >
-                    <span>${isAuthenticated ? t('materi.submitQuiz', lang) : `<span class="inline-flex items-center gap-1.5"><svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>${t('materi.guestQuizLockBtn', lang)}</span>`}</span>
+                    <span>${isAuthenticated ? t('materi.submitQuiz', lang) : `🔒 ${t('materi.guestQuizLockBtn', lang)}`}</span>
                     <span class="font-mono text-slate-600">→</span>
                   </button>
                   <span class="text-xs text-slate-400">${isAuthenticated ? t('materi.answerAllNotice', lang) : t('materi.guestQuizLockDesc', lang)}</span>
@@ -1149,9 +1131,7 @@ export function renderMateriViewer(
                     `}
                     ${quizScore > 0 ? `
                       <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-400/10 border border-amber-400/30 text-amber-300 font-mono font-bold text-xs">
-                        <svg class="w-3.5 h-3.5 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                        </svg>
+                        <span class="text-amber-400">⚡</span>
                         <span>${t('materi.quizEarnedXpNotice', lang, { xp: quizScore })}</span>
                       </span>
                     ` : ''}

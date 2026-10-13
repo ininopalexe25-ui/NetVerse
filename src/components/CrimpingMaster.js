@@ -91,10 +91,8 @@ export function renderCrimpingMaster(state, lang = state.lang || 'id') {
         <!-- Guest Practice Lock Banner -->
         <div class="rounded-xl p-4 sm:p-5 bg-gradient-to-r from-amber-500/10 via-amber-600/5 to-transparent border border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg shadow-amber-500/5">
           <div class="flex items-start gap-3.5">
-            <div class="w-10 h-10 rounded-lg bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-amber-400 shrink-0 mt-0.5">
-              <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-              </svg>
+            <div class="w-10 h-10 rounded-lg bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-amber-400 text-lg shrink-0 mt-0.5">
+              🔒
             </div>
             <div class="space-y-1">
               <div class="flex items-center gap-2">
@@ -233,7 +231,7 @@ export function renderCrimpingMaster(state, lang = state.lang || 'id') {
                   } font-semibold text-xs sm:text-sm flex items-center gap-3 transition-all active:scale-[0.98] shadow-lg cursor-pointer"
                   title="${isAuthenticated ? t('crimping.btnVerify', lang) : t('crimping.guestLockTitle', lang)}"
                 >
-                  <span>${isAuthenticated ? t('crimping.btnVerify', lang) : `<span class="inline-flex items-center gap-1.5"><svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>${t('crimping.guestLockBtn', lang)}</span>`}</span>
+                  <span>${isAuthenticated ? t('crimping.btnVerify', lang) : `🔒 ${t('crimping.guestLockBtn', lang)}`}</span>
                   <span class="w-7 h-7 rounded-md bg-black ${isAuthenticated ? 'text-white' : 'text-amber-400'} flex items-center justify-center transition-transform group-hover:translate-x-0.5 text-xs font-bold">
                     ${isAuthenticated ? '✓' : '→'}
                   </span>
@@ -331,11 +329,9 @@ export function renderCrimpingMaster(state, lang = state.lang || 'id') {
                     </div>
 
                     <!-- Electrical & Signal Transmission Explanation -->
-                    <div class="p-3.5 rounded-lg bg-black/50 border border-white/[0.08] space-y-2 text-xs">
-                      <div class="font-bold text-amber-300 flex items-center gap-2 text-[11px]">
-                        <svg class="w-3.5 h-3.5 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                        </svg>
+                    <div class="p-3.5 rounded-lg bg-black/40 border border-white/[0.06] space-y-2 text-xs">
+                      <div class="font-bold text-amber-300 flex items-center gap-1.5 text-[11px]">
+                        <span>⚡</span>
                         <span>${lang === 'en' ? 'Why This Sequence is Critical (Physics of Differential Signaling):' : (lang === 'jp' ? 'なぜこの配列順序が重要なのか（差動信号伝送の物理原理）:' : (lang === 'cn' ? '为什么线序必须严格遵守标准（差分高频信号物理机理）：' : `Mengapa Urutan Standar ${currentStandard} Wajib Diikuti:`))}</span>
                       </div>
                       <p class="text-slate-300 leading-relaxed text-[11px]">
@@ -350,10 +346,8 @@ export function renderCrimpingMaster(state, lang = state.lang || 'id') {
                     </div>
 
                     <!-- Mnemonic & Quick Tip -->
-                    <div class="p-3 rounded-lg bg-emerald-500/[0.05] border border-emerald-500/20 text-xs text-slate-300 flex items-start gap-2.5">
-                      <svg class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-                      </svg>
+                    <div class="p-3 rounded-lg bg-emerald-500/[0.04] border border-emerald-500/20 text-xs text-slate-300 flex items-start gap-2.5">
+                      <span class="text-amber-400 font-bold shrink-0 text-sm">💡</span>
                       <div class="space-y-0.5 text-[11px]">
                         <span class="font-bold text-emerald-300">Tips Menghafal Cepat (Jembatan Keledai):</span>
                         <p class="text-slate-300 leading-relaxed">
