@@ -36,7 +36,7 @@ const state = {
     total_xp: 0,
     role: 'tamu'
   },
-  authModalOpen: false,
+  authModalOpen: true,
   authMode: 'login', // 'login' | 'register' | 'profile'
   selectedAuthRole: 'siswa', // 'siswa' | 'guru' | 'admin'
   authLoading: false,
@@ -1118,15 +1118,24 @@ async function initData() {
     const { data: { session } } = await supabase.auth.getSession();
     state.session = session;
     if (session?.user) {
+      state.authModalOpen = false;
       await loadUserProfile(session.user.id);
       await loadLearningProgress(session.user.id);
       await loadAiTutorHistory(session.user.id);
+      const userRole = normalizeRole(state.userProfile?.role || 'siswa');
+      if (userRole === 'guru') state.activeTab = 'guru';
+      else if (userRole === 'admin') state.activeTab = 'admin';
+      else state.activeTab = 'workbench';
+    } else {
+      state.authModalOpen = true;
+      state.authMode = 'login';
     }
 
     // Auth state change listener
     supabase.auth.onAuthStateChange(async (event, newSession) => {
       state.session = newSession;
       if (newSession?.user) {
+        state.authModalOpen = false;
         await loadUserProfile(newSession.user.id);
         await loadLearningProgress(newSession.user.id);
         await loadAiTutorHistory(newSession.user.id);
@@ -1840,7 +1849,7 @@ function attachEvents() {
   const authBackdrop = document.getElementById('auth-modal-backdrop');
   if (authBackdrop) {
     authBackdrop.addEventListener('click', (e) => {
-      if (e.target === authBackdrop) {
+      if (e.target === authBackdrop && state.session) {
         state.authModalOpen = false;
         renderApp();
       }
@@ -2174,8 +2183,11 @@ function attachEvents() {
               state.session = data.session;
               await loadUserProfile(data.session.user.id);
               state.userProfile.role = chosenRole;
-              state.authMode = 'profile';
-              state.authNotice = { type: 'success', message: t('authModal.accountCreatedLogin', state.lang) };
+              state.authModalOpen = false;
+              state.authNotice = null;
+              if (chosenRole === 'guru') state.activeTab = 'guru';
+              else if (chosenRole === 'admin') state.activeTab = 'admin';
+              else state.activeTab = 'workbench';
             } else {
               // Sign in with credentials
               const loginRes = await supabase.auth.signInWithPassword({ email: syntheticEmail, password });
@@ -2183,14 +2195,26 @@ function attachEvents() {
                 state.session = loginRes.data.session;
                 await loadUserProfile(loginRes.data.session.user.id);
                 state.userProfile.role = chosenRole;
-                state.authMode = 'profile';
-                state.authNotice = { type: 'success', message: t('authModal.accountCreatedLogin', state.lang) };
+                state.authModalOpen = false;
+                state.authNotice = null;
+                if (chosenRole === 'guru') state.activeTab = 'guru';
+                else if (chosenRole === 'admin') state.activeTab = 'admin';
+                else state.activeTab = 'workbench';
               } else {
-                state.authNotice = { 
-                  type: 'success', 
-                  message: t('authModal.accountCreatedSignIn', state.lang) 
+                // Fallback to newly registered local session so user enters their role page immediately
+                state.session = {
+                  user: {
+                    id: newAccountEntry.id,
+                    email: syntheticEmail,
+                    user_metadata: { ...newAccountEntry }
+                  }
                 };
-                state.authMode = 'login';
+                state.userProfile = { ...newAccountEntry };
+                state.authModalOpen = false;
+                state.authNotice = null;
+                if (chosenRole === 'guru') state.activeTab = 'guru';
+                else if (chosenRole === 'admin') state.activeTab = 'admin';
+                else state.activeTab = 'workbench';
               }
             }
           }
@@ -2291,6 +2315,7 @@ function attachEvents() {
           state.authNotice = null;
           if (activeRole === 'guru') state.activeTab = 'guru';
           else if (activeRole === 'admin') state.activeTab = 'admin';
+          else state.activeTab = 'workbench';
           state.authLoading = false;
           renderApp();
           return;
@@ -2328,6 +2353,7 @@ function attachEvents() {
             state.authNotice = null;
             if (chosenRole === 'guru') state.activeTab = 'guru';
             else if (chosenRole === 'admin') state.activeTab = 'admin';
+            else state.activeTab = 'workbench';
           }
         } catch (err) {
           state.authNotice = { type: 'warning', message: formatAuthErr(err.message) };
@@ -2444,7 +2470,9 @@ function attachEvents() {
       try {
         await supabase.auth.signOut();
         state.session = null;
-        state.authModalOpen = false;
+        state.authMode = 'login';
+        state.authModalOpen = true;
+        state.activeTab = 'workbench';
         state.userProfile = {
           id: null,
           nama_lengkap: 'User',

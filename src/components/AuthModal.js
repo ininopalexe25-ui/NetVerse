@@ -66,7 +66,7 @@ export function renderAuthModal(state) {
   ];
 
   return `
-    <div id="auth-modal-backdrop" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md transition-opacity overflow-y-auto">
+    <div id="auth-modal-backdrop" class="fixed inset-0 z-50 flex items-center justify-center p-4 ${isProfileMode ? 'bg-black/80 backdrop-blur-md' : 'bg-[#06070c]/95 backdrop-blur-xl'} transition-opacity overflow-y-auto">
       <div class="max-w-md w-full my-auto bezel-shell bg-[#090a0f] border border-white/10 shadow-[0_24px_50px_rgba(0,0,0,0.85)]">
         <div class="bezel-core p-5 sm:p-6 relative max-h-[90vh] overflow-y-auto custom-scrollbar">
           

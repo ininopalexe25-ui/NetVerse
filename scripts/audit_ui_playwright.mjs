@@ -90,6 +90,17 @@ async function runAudit() {
     await page.goto('http://localhost:5173', { waitUntil: 'networkidle' });
     await page.waitForTimeout(1000);
 
+    // Verify Login Page Gate appears first before entering main page
+    const initialLoginGate = await page.$('#auth-modal-backdrop #form-auth');
+    recordCheck('Initial load displays Login Gate screen first before entering main page', !!initialLoginGate);
+
+    // Dismiss Login Gate (Continue as Guest) to audit the main Workbench & Student pages
+    const continueGuestGateBtn = await page.$('#btn-continue-guest');
+    if (continueGuestGateBtn) {
+      await continueGuestGateBtn.click();
+      await page.waitForTimeout(300);
+    }
+
     // Title & Branding
     const title = await page.title();
     recordCheck('Page Title exists', title.length > 0, `Title: "${title}"`);
