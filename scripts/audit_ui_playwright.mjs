@@ -1463,11 +1463,12 @@ async function runAudit() {
     const roleSelectButtons = await page.$$('[data-select-auth-role]');
     recordCheck('Auth Modal renders 3 Role Selector buttons (Siswa, Guru, Admin)', roleSelectButtons.length === 3);
 
-    const demoGuruBtn = await page.$('#btn-demo-login-guru');
-    const demoAdminBtn = await page.$('#btn-demo-login-admin');
-    recordCheck('Quick Demo Login buttons for Guru and Admin present', !!demoGuruBtn && !!demoAdminBtn);
+    const demoBtnsCount = await page.$$eval('[data-quick-demo-role]', els => els.length);
+    recordCheck('Auth Modal has no Demo buttons (clean standard web login)', demoBtnsCount === 0);
 
-    // 1b. Test logging in with existing account username 'Nopalexe' (Nickname 'Shiina')
+    // 1b. Test logging in with existing Siswa account username 'Nopalexe' (Nickname 'Shiina')
+    await page.click('[data-select-auth-role="siswa"]');
+    await page.waitForTimeout(100);
     await page.fill('#auth-username', 'Nopalexe');
     await page.fill('#auth-password', 'shiina123');
     await page.click('#btn-submit-auth');
@@ -1479,20 +1480,25 @@ async function runAudit() {
     }));
     recordCheck('Existing account Nopalexe (Nickname Shiina) logs in seamlessly', nopalLoginCheck.loggedIn && nopalLoginCheck.nickname === 'Shiina' && nopalLoginCheck.username === 'Nopalexe', JSON.stringify(nopalLoginCheck));
 
-    // Reopen Auth Modal for Guru Demo test
+    // Reopen Auth Modal in Login mode for Guru login test
     await page.evaluate(() => {
+      window.__netverseState.session = null;
       window.__netverseState.authMode = 'login';
       window.__netverseState.authModalOpen = true;
       window.__renderApp();
     });
     await page.waitForTimeout(250);
 
-    // 2. Click Demo Guru & Audit Teacher Dashboard
-    const demoGuruBtnAfter = await page.$('#btn-demo-login-guru');
-    if (demoGuruBtnAfter) {
-      await demoGuruBtnAfter.click();
-      await page.waitForTimeout(400);
+    // 2. Select Role 'Guru' and log in via standard Login form
+    await page.click('[data-select-auth-role="guru"]');
+    await page.waitForTimeout(100);
+    await page.fill('#auth-username', 'pakbudi');
+    await page.fill('#auth-tagname', 'GURU1');
+    await page.fill('#auth-password', 'budi_guru123');
+    await page.click('#btn-submit-auth');
+    await page.waitForTimeout(400);
 
+    {
       const teacherRoot = await page.$('#teacher-dashboard-root');
       recordCheck('Teacher Dashboard (Panel Guru) opens on Guru login', !!teacherRoot);
 
@@ -1520,18 +1526,24 @@ async function runAudit() {
       recordCheck('Teacher Socratic AI Logs monitoring rendered', aiLogsText.includes('Socratic AI Tutor'));
     }
 
-    // 3. Switch to Admin Role & Audit Admin Dashboard
+    // 3. Log in as Admin Role via standard Login form & Audit Admin Dashboard
     await page.evaluate(() => {
+      window.__netverseState.session = null;
       window.__netverseState.authMode = 'login';
       window.__netverseState.authModalOpen = true;
       window.__renderApp();
     });
     await page.waitForTimeout(250);
 
-    const adminDemoTrigger = await page.$('#btn-demo-login-admin');
-    if (adminDemoTrigger) {
-      await adminDemoTrigger.click();
-      await page.waitForTimeout(400);
+    await page.click('[data-select-auth-role="admin"]');
+    await page.waitForTimeout(100);
+    await page.fill('#auth-username', 'admin');
+    await page.fill('#auth-tagname', 'ADMN1');
+    await page.fill('#auth-password', 'root_admin99');
+    await page.click('#btn-submit-auth');
+    await page.waitForTimeout(400);
+
+    {
 
       const adminRoot = await page.$('#admin-dashboard-root');
       recordCheck('Admin Dashboard (Panel Admin) opens on Admin login', !!adminRoot);

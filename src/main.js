@@ -1238,6 +1238,12 @@ async function initData() {
           );
         });
         const prev = existingKey ? userMap.get(existingKey) : {};
+        const lowerUname = (p.username || prev.username || name || '').toLowerCase();
+        const inferredRole = lowerUname === 'admin'
+          ? 'admin'
+          : (lowerUname === 'guru' || lowerUname === 'pakbudi')
+          ? 'guru'
+          : normalizeRole(prev.role || meta.role || p.role || 'siswa');
         userMap.set(existingKey || uid, {
           ...prev,
           id: p.id,
@@ -1245,11 +1251,11 @@ async function initData() {
           nickname: meta.nickname || name,
           username: p.username || prev.username || name.toLowerCase().replace(/[^a-z0-9]/g, ''),
           tagname: prev.tagname || meta.tagname,
-          password: prev.password || meta.password || resolveUserPassword(p),
+          password: prev.password || meta.password || resolveUserPassword({ ...p, role: inferredRole }),
           uid: prev.uid || uid,
           level: p.level || prev.level || 1,
           total_xp: p.total_xp || prev.total_xp || 0,
-          role: normalizeRole(prev.role || meta.role || p.role || 'siswa')
+          role: inferredRole
         });
       });
     }
@@ -1922,114 +1928,6 @@ function attachEvents() {
       if (nextUser && curUser) nextUser.value = curUser;
       if (nextTag && curTag) nextTag.value = curTag;
       if (nextPass && curPass) nextPass.value = curPass;
-    });
-  });
-
-  // 1-Click Quick Demo Login (Siswa / Guru / Admin) for Lecturer Demonstration
-  document.querySelectorAll('[data-quick-demo-role]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const role = normalizeRole(btn.getAttribute('data-quick-demo-role') || 'siswa');
-      const demoProfiles = {
-        siswa: {
-          id: '9e3d7ba1-0bff-476d-b9e2-d1e153d77648',
-          nama_lengkap: 'Shiina',
-          nickname: 'Shiina',
-          username: 'Nopalexe',
-          tagname: 'SH101',
-          uid: 'NV-849201',
-          level: 6,
-          total_xp: 2520,
-          role: 'siswa'
-        },
-        guru: {
-          id: 'demo-guru-id',
-          nama_lengkap: 'Dr. Budi Santoso, M.Kom.',
-          nickname: 'Dr. Budi Santoso, M.Kom.',
-          username: 'pakbudi',
-          tagname: 'GURU1',
-          uid: 'NV-200101',
-          level: 8,
-          total_xp: 4200,
-          role: 'guru'
-        },
-        admin: {
-          id: 'demo-admin-id',
-          nama_lengkap: 'Admin Utama PTI',
-          nickname: 'Admin Utama PTI',
-          username: 'admin',
-          tagname: 'ADMN1',
-          uid: 'NV-900001',
-          level: 10,
-          total_xp: 5000,
-          role: 'admin'
-        }
-      };
-
-      const chosen = demoProfiles[role] || demoProfiles.siswa;
-      state.session = {
-        user: {
-          id: chosen.id,
-          email: `${chosen.username}@netverse.internal`,
-          user_metadata: { ...chosen }
-        }
-      };
-      state.userProfile = { ...chosen };
-      state.selectedAuthRole = role;
-      state.authModalOpen = false;
-      state.authNotice = null;
-
-      if (role === 'guru') {
-        state.activeTab = 'guru';
-      } else if (role === 'admin') {
-        state.activeTab = 'admin';
-      } else {
-        state.activeTab = 'workbench';
-      }
-
-      state.systemAuditLogs.unshift({
-        id: `aud-${Date.now()}`,
-        type: 'ROLE_LOGIN',
-        actor: `${chosen.nama_lengkap} (${role.toUpperCase()})`,
-        action: `Masuk ke sistem menggunakan mode akses ${role.toUpperCase()}.`,
-        time: 'Baru saja'
-      });
-
-      state.realtimeToast = {
-        id: Date.now(),
-        text: `Selamat datang, ${chosen.nama_lengkap}! Anda masuk dengan hak akses ${role.toUpperCase()}.`,
-        timestamp: new Date()
-      };
-
-      renderApp();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-  });
-
-  // Switch Active Role inside Profile Modal
-  document.querySelectorAll('[data-switch-profile-role]').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const newRole = normalizeRole(btn.getAttribute('data-switch-profile-role') || 'siswa');
-      if (!state.userProfile) return;
-      state.userProfile.role = newRole;
-      state.selectedAuthRole = newRole;
-
-      // Update in communityUsers if present
-      const cIdx = (state.communityUsers || []).findIndex(u =>
-        u.uid === state.userProfile.uid ||
-        (u.nama_lengkap || '').toLowerCase() === (state.userProfile.nama_lengkap || '').toLowerCase()
-      );
-      if (cIdx !== -1) {
-        state.communityUsers[cIdx].role = newRole;
-        try {
-          localStorage.setItem('netverse_community_users', JSON.stringify(state.communityUsers));
-        } catch (e) {}
-      }
-
-      state.authNotice = {
-        type: 'success',
-        message: `Peran akun berhasil diubah menjadi ${newRole.toUpperCase()}!`
-      };
-      renderApp();
     });
   });
 

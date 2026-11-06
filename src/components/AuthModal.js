@@ -105,44 +105,22 @@ export function renderAuthModal(state) {
                 </div>
               </div>
 
-              <!-- Quick Role Switcher & Workspace Access in Profile -->
-              <div class="p-3 rounded-xl bg-white/[0.03] border border-white/[0.08] space-y-2.5">
-                <div class="flex items-center justify-between">
-                  <span class="text-[11px] font-bold text-slate-200">Peran Akun Aktif (Role Akses)</span>
-                  <span class="text-[10px] font-mono text-amber-400">Bebas Ganti Peran</span>
-                </div>
-                <div class="grid grid-cols-3 gap-1.5">
-                  ${roleOptions.map(r => {
-                    const isCurrent = currentRole === r.id;
-                    return `
-                      <button
-                        type="button"
-                        data-switch-profile-role="${r.id}"
-                        class="px-2 py-2 rounded-lg border text-center transition-all cursor-pointer ${
-                          isCurrent
-                            ? 'bg-amber-400/20 border-amber-400/60 text-white font-bold shadow-sm'
-                            : 'bg-white/[0.03] border-white/10 text-slate-400 hover:text-white hover:bg-white/[0.07]'
-                        }"
-                      >
-                        <div class="text-sm leading-none">${r.icon}</div>
-                        <div class="text-[11px] mt-1">${r.label}</div>
-                      </button>
-                    `;
-                  }).join('')}
-                </div>
-
-                ${currentRole === 'guru' || currentRole === 'admin' ? `
-                  <div class="pt-1 flex gap-2">
-                    ${currentRole === 'guru' || currentRole === 'admin' ? `
-                      <button
-                        type="button"
-                        data-open-role-panel="guru"
-                        class="flex-1 py-2 px-3 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5"
-                      >
-                        <span>👨‍🏫</span>
-                        <span>Buka Panel Guru</span>
-                      </button>
-                    ` : ''}
+              ${currentRole === 'guru' || currentRole === 'admin' ? `
+                <!-- Role Workspace Quick Launch -->
+                <div class="p-3 rounded-xl bg-white/[0.03] border border-white/[0.08] space-y-2">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-bold text-slate-200">Akses Panel Khusus</span>
+                    <span class="text-[10px] font-mono text-amber-400">${roleBadge.fullLabel}</span>
+                  </div>
+                  <div class="flex gap-2">
+                    <button
+                      type="button"
+                      data-open-role-panel="guru"
+                      class="flex-1 py-2 px-3 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                    >
+                      <span>👨‍🏫</span>
+                      <span>Buka Panel Guru</span>
+                    </button>
                     ${currentRole === 'admin' ? `
                       <button
                         type="button"
@@ -154,8 +132,8 @@ export function renderAuthModal(state) {
                       </button>
                     ` : ''}
                   </div>
-                ` : ''}
-              </div>
+                </div>
+              ` : ''}
 
               <!-- Private Credentials Section (Username & Tagname - Strictly Protected) -->
               <div class="p-3 rounded-xl bg-blue-500/[0.06] border border-blue-500/20 space-y-2">
@@ -478,45 +456,8 @@ export function renderAuthModal(state) {
                 </button>
               </form>
 
-              <!-- Instant Demo Access (Simulasi Presentasi Tugas) -->
-              <div class="pt-2.5 border-t border-white/[0.08] space-y-2">
-                <div class="flex items-center justify-between text-[10px]">
-                  <span class="text-slate-400 font-semibold uppercase tracking-wider">Simulasi Cepat (1-Klik Demo Tugas)</span>
-                  <span class="text-amber-400 font-mono">Instan</span>
-                </div>
-                <div class="grid grid-cols-3 gap-1.5">
-                  <button
-                    type="button"
-                    id="btn-demo-login-siswa"
-                    data-quick-demo-role="siswa"
-                    class="py-1.5 px-2 rounded-md bg-amber-400/10 hover:bg-amber-400/20 border border-amber-400/30 text-amber-300 text-[11px] font-semibold transition-colors cursor-pointer flex items-center justify-center gap-1"
-                  >
-                    <span>🎓</span>
-                    <span>Demo Siswa</span>
-                  </button>
-                  <button
-                    type="button"
-                    id="btn-demo-login-guru"
-                    data-quick-demo-role="guru"
-                    class="py-1.5 px-2 rounded-md bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[11px] font-semibold transition-colors cursor-pointer flex items-center justify-center gap-1"
-                  >
-                    <span>👨‍🏫</span>
-                    <span>Demo Guru</span>
-                  </button>
-                  <button
-                    type="button"
-                    id="btn-demo-login-admin"
-                    data-quick-demo-role="admin"
-                    class="py-1.5 px-2 rounded-md bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-300 text-[11px] font-semibold transition-colors cursor-pointer flex items-center justify-center gap-1"
-                  >
-                    <span>🛡️</span>
-                    <span>Demo Admin</span>
-                  </button>
-                </div>
-              </div>
-
               <!-- Guest Mode Option -->
-              <div class="pt-1 border-t border-white/[0.06] text-center">
+              <div class="pt-2 border-t border-white/[0.06] text-center">
                 <button 
                   type="button" 
                   id="btn-continue-guest" 
