@@ -113,9 +113,70 @@ export function computeAchievements(user = {}, scores = []) {
 }
 
 /**
+ * Normalize role values across legacy ('mahasiswa', 'dosen') and current ('siswa', 'guru', 'admin')
+ * @param {string} role
+ * @returns {'siswa' | 'guru' | 'admin' | 'tamu'}
+ */
+export function normalizeRole(role = 'siswa') {
+  const r = String(role || '').trim().toLowerCase();
+  if (r === 'admin' || r === 'administrator') return 'admin';
+  if (r === 'guru' || r === 'dosen' || r === 'teacher' || r === 'pengajar') return 'guru';
+  if (r === 'tamu' || r === 'guest') return 'tamu';
+  return 'siswa';
+}
+
+/**
+ * Get localized role label and badge styling
+ * @param {string} role
+ * @param {string} [lang]
+ */
+export function getRoleBadgeInfo(role = 'siswa', lang = 'id') {
+  const norm = normalizeRole(role);
+  const isEn = lang === 'en';
+  if (norm === 'admin') {
+    return {
+      code: 'admin',
+      dbRole: 'admin',
+      label: isEn ? 'Admin' : 'Admin',
+      fullLabel: isEn ? 'System Administrator' : 'Administrator Sistem',
+      icon: '🛡️',
+      badgeClass: 'bg-rose-500/15 text-rose-300 border-rose-500/35'
+    };
+  }
+  if (norm === 'guru') {
+    return {
+      code: 'guru',
+      dbRole: 'dosen',
+      label: isEn ? 'Teacher' : 'Guru',
+      fullLabel: isEn ? 'Vocational Teacher / Lecturer' : 'Guru / Dosen Pengampu',
+      icon: '👨‍🏫',
+      badgeClass: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/35'
+    };
+  }
+  if (norm === 'tamu') {
+    return {
+      code: 'tamu',
+      dbRole: 'mahasiswa',
+      label: isEn ? 'Guest' : 'Tamu',
+      fullLabel: isEn ? 'Guest Visitor' : 'Pengunjung Tamu',
+      icon: '👤',
+      badgeClass: 'bg-slate-500/15 text-slate-300 border-slate-500/30'
+    };
+  }
+  return {
+    code: 'siswa',
+    dbRole: 'mahasiswa',
+    label: isEn ? 'Student' : 'Siswa',
+    fullLabel: isEn ? 'Vocational Student' : 'Siswa / Mahasiswa',
+    icon: '🎓',
+    badgeClass: 'bg-amber-400/15 text-amber-300 border-amber-400/35'
+  };
+}
+
+/**
  * Extract parsed metadata from avatar_url or user_metadata
  * @param {object} profile
- * @returns {object} { nickname, tagname, uid, achievements }
+ * @returns {object} { nickname, tagname, uid, role, achievements }
  */
 export function extractProfileMetadata(profile = {}) {
   let meta = {};
@@ -130,11 +191,13 @@ export function extractProfileMetadata(profile = {}) {
   const nickname = meta.nickname || profile.nama_lengkap || profile.username || 'Mahasiswa';
   const tagname = meta.tagname || (profile.id ? generatePermanentUID(profile.id).slice(-5) : 'NV001');
   const uid = meta.uid || generatePermanentUID(profile.id || profile.username || nickname);
+  const role = normalizeRole(meta.role || profile.role || 'siswa');
 
   return {
     nickname,
     tagname: tagname.toUpperCase(),
     uid,
+    role,
     achievements: meta.achievements || []
   };
 }

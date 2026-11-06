@@ -1,7 +1,12 @@
 import { renderNetVerseLogo } from './Logo.js';
 import { t, SUPPORTED_LANGS, SUPPORTED_THEMES } from '../utils/i18n.js';
+import { normalizeRole, getRoleBadgeInfo } from '../utils/userProfiles.js';
 
 export function renderNavbar(activeTab, onNavigate, userProfile, session, theme = 'dark', lang = 'id') {
+  const isAuthenticated = !!(session && userProfile && userProfile.id);
+  const currentRole = isAuthenticated ? normalizeRole(userProfile?.role || 'siswa') : 'tamu';
+  const roleBadge = getRoleBadgeInfo(currentRole, lang);
+
   const navItems = [
     { id: 'workbench', label: t('nav.workbench', lang) },
     { id: 'crimping', label: t('nav.crimping', lang) },
@@ -10,7 +15,22 @@ export function renderNavbar(activeTab, onNavigate, userProfile, session, theme 
     { id: 'social', label: t('nav.social', lang) }
   ];
 
-  const isAuthenticated = !!(session && userProfile && userProfile.id);
+  // Dynamically inject Guru & Admin navigation tabs based on user role
+  if (isAuthenticated && (currentRole === 'guru' || currentRole === 'admin')) {
+    navItems.push({
+      id: 'guru',
+      label: lang === 'en' ? '👨‍🏫 Teacher Panel' : '👨‍🏫 Panel Guru',
+      accent: 'emerald'
+    });
+  }
+  if (isAuthenticated && currentRole === 'admin') {
+    navItems.push({
+      id: 'admin',
+      label: lang === 'en' ? '🛡️ Admin Panel' : '🛡️ Panel Admin',
+      accent: 'rose'
+    });
+  }
+
   const currentLangObj = SUPPORTED_LANGS.find(l => l.code === lang) || SUPPORTED_LANGS[0];
   const currentThemeObj = SUPPORTED_THEMES.find(th => th.code === theme) || SUPPORTED_THEMES[1];
 
@@ -29,18 +49,28 @@ export function renderNavbar(activeTab, onNavigate, userProfile, session, theme 
           </button>
 
           <!-- Desktop Navigation (lg: 1024px+) -->
-          <nav class="hidden lg:flex items-center space-x-1 shrink-0" aria-label="${t('nav.ariaLabel', lang)}">
+          <nav class="hidden lg:flex items-center space-x-1 shrink-0 overflow-x-auto no-scrollbar" aria-label="${t('nav.ariaLabel', lang)}">
             ${navItems.map(item => {
               const isActive = activeTab === item.id;
+              let btnClasses = isActive
+                ? 'bg-white/15 text-white font-semibold border border-white/15 shadow-sm'
+                : 'text-slate-400 hover:text-white hover:bg-white/[0.05]';
+
+              if (item.accent === 'emerald') {
+                btnClasses = isActive
+                  ? 'bg-emerald-500/25 text-emerald-200 font-bold border border-emerald-400/50 shadow-sm'
+                  : 'text-emerald-300/90 hover:text-emerald-200 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/25 font-medium';
+              } else if (item.accent === 'rose') {
+                btnClasses = isActive
+                  ? 'bg-rose-500/25 text-rose-200 font-bold border border-rose-400/50 shadow-sm'
+                  : 'text-rose-300/90 hover:text-rose-200 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/25 font-medium';
+              }
+
               return `
                 <button 
                   data-nav="${item.id}"
                   aria-current="${isActive ? 'page' : 'false'}"
-                  class="min-h-9 xl:min-h-10 px-2.5 xl:px-3.5 rounded-lg text-xs transition-all shrink-0 whitespace-nowrap ${
-                    isActive 
-                      ? 'bg-white/15 text-white font-semibold border border-white/15 shadow-sm' 
-                      : 'text-slate-400 hover:text-white hover:bg-white/[0.05]'
-                  }"
+                  class="min-h-9 xl:min-h-10 px-2 xl:px-3 rounded-lg text-xs transition-all shrink-0 whitespace-nowrap cursor-pointer ${btnClasses}"
                 >
                   ${item.label}
                 </button>
@@ -150,15 +180,16 @@ export function renderNavbar(activeTab, onNavigate, userProfile, session, theme 
               <button 
                 id="btn-open-auth-modal"
                 class="min-h-9 sm:min-h-10 h-9 sm:h-10 flex items-center gap-1.5 sm:gap-2 px-1.5 sm:pl-1.5 sm:pr-2.5 rounded-lg bg-white/[0.06] hover:bg-white/10 border border-white/15 transition-colors cursor-pointer group shrink-0 whitespace-nowrap"
-                title="${t('auth.profile', lang)}: ${t('auth.level', lang)} ${userProfile?.level || 1}, ${userProfile?.total_xp || 0} XP"
+                title="${t('auth.profile', lang)} (${roleBadge.label}): ${t('auth.level', lang)} ${userProfile?.level || 1}, ${userProfile?.total_xp || 0} XP"
                 aria-label="${t('auth.profile', lang)}, ${t('auth.level', lang)} ${userProfile?.level || 1}, ${userProfile?.total_xp || 0} XP"
               >
                 <div class="w-6 h-6 rounded-md bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-xs font-bold text-amber-400 shrink-0">
                   ${(userProfile?.nama_lengkap || 'U').charAt(0).toUpperCase()}
                 </div>
                 <span class="hidden xl:flex flex-col items-start leading-tight">
-                  <span class="text-xs font-medium text-white max-w-[90px] truncate">
-                    ${userProfile?.nama_lengkap?.split(' ')[0] || t('auth.profile', lang)}
+                  <span class="text-xs font-medium text-white max-w-[95px] truncate flex items-center gap-1">
+                    <span>${userProfile?.nama_lengkap?.split(' ')[0] || t('auth.profile', lang)}</span>
+                    <span class="text-[9px] font-bold px-1 py-0.2 rounded border ${roleBadge.badgeClass}">${roleBadge.label}</span>
                   </span>
                   <span class="text-[10px] text-slate-400">
                     ${t('auth.level', lang)} ${userProfile?.level || 1} · ${userProfile?.total_xp || 0} XP

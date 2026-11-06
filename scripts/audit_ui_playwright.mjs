@@ -1435,6 +1435,94 @@ async function runAudit() {
       auditLog.screenshots.push('13_social_hub_and_profile.png');
     }
 
+    // -------------------------------------------------------------
+    // PHASE 12: Multi-Role (Siswa / Guru / Admin) & Teacher/Admin Panels Audit
+    // -------------------------------------------------------------
+    console.log('\n12. Auditing Multi-Role Auth (Siswa / Guru / Admin), Teacher Panel & Admin Panel...');
+
+    // 1. Open Auth Modal in Login mode to verify Role Selection & Quick Demo buttons
+    await page.evaluate(() => {
+      window.__netverseState.session = null;
+      window.__netverseState.authMode = 'login';
+      window.__netverseState.authModalOpen = true;
+      window.__renderApp();
+    });
+    await page.waitForTimeout(300);
+
+    const roleSelectButtons = await page.$$('[data-select-auth-role]');
+    recordCheck('Auth Modal renders 3 Role Selector buttons (Siswa, Guru, Admin)', roleSelectButtons.length === 3);
+
+    const demoGuruBtn = await page.$('#btn-demo-login-guru');
+    const demoAdminBtn = await page.$('#btn-demo-login-admin');
+    recordCheck('Quick Demo Login buttons for Guru and Admin present', !!demoGuruBtn && !!demoAdminBtn);
+
+    // 2. Click Demo Guru & Audit Teacher Dashboard
+    if (demoGuruBtn) {
+      await demoGuruBtn.click();
+      await page.waitForTimeout(400);
+
+      const teacherRoot = await page.$('#teacher-dashboard-root');
+      recordCheck('Teacher Dashboard (Panel Guru) opens on Guru login', !!teacherRoot);
+
+      const guruNavTab = await page.$('header [data-nav="guru"]');
+      recordCheck('Navbar dynamically displays Panel Guru tab for Teacher role', !!guruNavTab);
+
+      const exportCsvBtn = await page.$('#btn-export-grades-csv');
+      recordCheck('Teacher Grades CSV Export button rendered', !!exportCsvBtn);
+
+      // Test switching Teacher Sub-tabs (Curriculum, Announcements, AI Logs)
+      await page.click('[data-teacher-tab="curriculum"]');
+      await page.waitForTimeout(250);
+      const addModulForm = await page.$('#form-teacher-add-modul');
+      const addQuestionForm = await page.$('#form-teacher-add-question');
+      recordCheck('Teacher Curriculum & Quiz Bank forms rendered', !!addModulForm && !!addQuestionForm);
+
+      await page.click('[data-teacher-tab="announcements"]');
+      await page.waitForTimeout(250);
+      const annForm = await page.$('#form-teacher-announcement');
+      recordCheck('Teacher Class Announcement form rendered', !!annForm);
+
+      await page.click('[data-teacher-tab="ailogs"]');
+      await page.waitForTimeout(250);
+      const aiLogsText = await page.$eval('#teacher-dashboard-root', el => el.innerText);
+      recordCheck('Teacher Socratic AI Logs monitoring rendered', aiLogsText.includes('Socratic AI Tutor'));
+    }
+
+    // 3. Switch to Admin Role & Audit Admin Dashboard
+    await page.evaluate(() => {
+      window.__netverseState.authMode = 'login';
+      window.__netverseState.authModalOpen = true;
+      window.__renderApp();
+    });
+    await page.waitForTimeout(250);
+
+    const adminDemoTrigger = await page.$('#btn-demo-login-admin');
+    if (adminDemoTrigger) {
+      await adminDemoTrigger.click();
+      await page.waitForTimeout(400);
+
+      const adminRoot = await page.$('#admin-dashboard-root');
+      recordCheck('Admin Dashboard (Panel Admin) opens on Admin login', !!adminRoot);
+
+      const adminNavTab = await page.$('header [data-nav="admin"]');
+      recordCheck('Navbar dynamically displays Panel Admin tab for Admin role', !!adminNavTab);
+
+      const addUserForm = await page.$('#form-admin-add-user');
+      const roleSelectDropdowns = await page.$$('[data-admin-change-role]');
+      recordCheck('Admin User & Role Management table and creation form rendered', !!addUserForm && roleSelectDropdowns.length > 0);
+
+      // Test switching Admin Sub-tabs (Analytics, 3D Devices, Moderation)
+      await page.click('[data-admin-tab="analytics"]');
+      await page.waitForTimeout(250);
+      const auditLogText = await page.$eval('#admin-dashboard-root', el => el.innerText);
+      recordCheck('Admin System Analytics & Audit Logs rendered', auditLogText.includes('System Audit Logs'));
+
+      await page.click('[data-admin-tab="moderation"]');
+      await page.waitForTimeout(250);
+      const modText = await page.$eval('#admin-dashboard-root', el => el.innerText);
+      recordCheck('Admin Community Chat & Leaderboard Moderation rendered', modText.includes('Moderasi Pesan Diskusi'));
+    }
+
 
   } catch (error) {
     console.error('Audit encountered unexpected exception:', error);

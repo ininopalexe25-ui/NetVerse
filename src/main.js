@@ -9,18 +9,20 @@ import { renderFloatingAiTutor } from './components/FloatingAiTutor.js';
 import { renderAuthModal } from './components/AuthModal.js';
 import { renderSocialHub } from './components/SocialHub.js';
 import { renderUserProfileModal } from './components/UserProfileModal.js';
+import { renderTeacherDashboard, buildStudentAcademicRecords } from './components/TeacherDashboard.js';
+import { renderAdminDashboard } from './components/AdminDashboard.js';
 import { renderNetVerseLogo } from './components/Logo.js';
 import { renderThemeAtmosphere } from './components/ThemeAtmosphere.js';
 import { getModuleQuizzes } from './data/moduleQuizzes.js';
 import { ASSESSMENT_MULTIPLE_CHOICE, ASSESSMENT_ESSAYS, gradeEssayWithAi } from './data/assessmentQuestions.js';
 import { t, getLocalizedModule } from './utils/i18n.js';
-import { generatePermanentUID, validateTagname, extractProfileMetadata, sanitizePublicProfile } from './utils/userProfiles.js';
+import { generatePermanentUID, validateTagname, extractProfileMetadata, sanitizePublicProfile, normalizeRole, getRoleBadgeInfo } from './utils/userProfiles.js';
 
 const initialLang = localStorage.getItem('netverse-lang') || 'en';
 
 // Application State
 const state = {
-  activeTab: 'workbench', // 'workbench' | 'crimping' | 'materi' | 'leaderboard' | 'social'
+  activeTab: 'workbench', // 'workbench' | 'crimping' | 'materi' | 'leaderboard' | 'social' | 'guru' | 'admin'
   activePort: 1, // 1..8 for Interactive Switch Diagnostics
   session: null,
   userProfile: {
@@ -36,9 +38,100 @@ const state = {
   },
   authModalOpen: false,
   authMode: 'login', // 'login' | 'register' | 'profile'
+  selectedAuthRole: 'siswa', // 'siswa' | 'guru' | 'admin'
   authLoading: false,
   authNotice: null, // { type: 'error' | 'success', message: '' }
   showPassword: false,
+
+  // Teacher (Guru / Dosen) Panel State
+  teacherSubTab: 'grades', // 'grades' | 'curriculum' | 'announcements' | 'ailogs'
+  teacherSearchQuery: '',
+  teacherGradeFilter: 'all',
+  teacherEditingStudentUid: null,
+  teacherNotice: null,
+  teacherEvaluations: JSON.parse(localStorage.getItem('netverse_teacher_evaluations') || '{}'),
+  customTeacherQuestions: JSON.parse(localStorage.getItem('netverse_custom_questions') || '[]'),
+  classAnnouncements: JSON.parse(localStorage.getItem('netverse_class_announcements') || 'null') || [
+    {
+      id: 'ann-1',
+      title: 'Praktikum Wajib: Perakitan Kabel UTP Straight-Through (T568B)',
+      targetClass: 'Kelas TKJ / PTI Reguler',
+      deadline: 'Jumat, 23:59 WIB',
+      body: 'Seluruh siswa wajib menyelesaikan simulasi Crimping Master standar T568B dengan akurasi minimal 87.5% dan waktu di bawah 45 detik.',
+      author: 'Dr. Budi Santoso, M.Kom.',
+      date: 'Hari ini'
+    },
+    {
+      id: 'ann-2',
+      title: 'Evaluasi Kuis Modul 1-3 & Ujian Komprehensif Adaptif',
+      targetClass: 'Seluruh Mahasiswa PTI',
+      deadline: 'Minggu Depan',
+      body: 'Kerjakan seluruh kuis formatif pada Modul 1 hingga Modul 3 serta bagian esai berbantuan Socratic AI Assistant sebelum batas waktu.',
+      author: 'Dr. Budi Santoso, M.Kom.',
+      date: 'Kemarin'
+    }
+  ],
+  teacherAiLogs: [
+    {
+      id: 'ailog-1',
+      studentName: 'Shiina',
+      studentUid: 'NV-849201',
+      context: 'Crimping Master: T568B',
+      question: 'Mengapa urutan pin 3 dan pin 6 pada kabel UTP tidak diletakkan bersebelahan langsung?',
+      aiResponse: 'Pertanyaan kritis yang bagus, Shiina! Pada konektor RJ-45, pin 4 dan 5 berada tepat di tengah untuk kompatibilitas telepon (RJ-11), sehingga pasangan kawat kedua (Pin 3 & 6) mengapit pasangan tengah agar pilinan tetap seimbang meredam crosstalk.',
+      topic: 'Pasangan Kawat & Crosstalk',
+      time: '10:18 WIB'
+    },
+    {
+      id: 'ailog-2',
+      studentName: 'abduljabar',
+      studentUid: 'NV-482910',
+      context: 'Materi: Mengenal Router & Switch',
+      question: 'Apa perbedaan utama cara kerja Switch Layer 2 dengan Router saat meneruskan paket data?',
+      aiResponse: 'Mari kita analisis bersama, abduljabar: perangkat mana yang memeriksa tabel MAC Address di dalam satu segmen LAN lokal, dan perangkat mana yang membaca IP Address untuk menghubungkan dua jaringan yang berbeda?',
+      topic: 'Switch L2 vs Router L3',
+      time: '10:24 WIB'
+    },
+    {
+      id: 'ailog-3',
+      studentName: 'Dimas Wahyu',
+      studentUid: 'NV-739102',
+      context: 'Lab 3D: LAN Tester',
+      question: 'Jika lampu nomor 3 pada unit remote LAN tester tidak menyala, apa penyebabnya?',
+      aiResponse: 'Coba perhatikan jalur konduktor ke-3 (Putih-Hijau pada T568B): jika lampu indikator ke-3 padam di kedua sisi, apakah pisau kuningan konektor RJ-45 sudah menembus jaket tembaga kawat tersebut dengan sempurna?',
+      topic: 'Troubleshooting Kontinuitas Pin',
+      time: '10:32 WIB'
+    }
+  ],
+
+  // Admin Panel State
+  adminSubTab: 'users', // 'users' | 'analytics' | 'devices' | 'moderation'
+  adminUserSearch: '',
+  adminRoleFilter: 'all',
+  adminNotice: null,
+  systemAuditLogs: [
+    {
+      id: 'aud-1',
+      type: 'AUTH_ROLE',
+      actor: 'System Kernel',
+      action: 'Otorisasi Multi-Role (Siswa, Guru, Admin) dan proteksi privasi kredensial aktif.',
+      time: 'Baru saja'
+    },
+    {
+      id: 'aud-2',
+      type: 'CURRICULUM',
+      actor: 'Dr. Budi Santoso, M.Kom. (Guru)',
+      action: 'Mempublikasikan pengumuman praktikum wajib perakitan kabel T568B.',
+      time: '10 menit lalu'
+    },
+    {
+      id: 'aud-3',
+      type: 'LAB_SYNC',
+      actor: 'Shiina (Siswa)',
+      action: 'Menyelesaikan simulasi Crimping Master T568B dengan akurasi 100%.',
+      time: '25 menit lalu'
+    }
+  ],
 
   // Social Hub & Realtime Chat State (Revisi 4)
   socialSearchQuery: '',
@@ -75,51 +168,83 @@ const state = {
       isSelf: false
     }
   ],
-  communityUsers: [
+  communityUsers: JSON.parse(localStorage.getItem('netverse_community_users') || 'null') || [
     {
       id: 'user-seed-1',
       nama_lengkap: 'Shiina',
       nickname: 'Shiina',
+      username: 'shiina',
+      tagname: 'SH101',
       uid: 'NV-849201',
       level: 5,
       total_xp: 2195,
-      role: 'mahasiswa'
+      role: 'siswa'
     },
     {
       id: 'user-seed-2',
       nama_lengkap: 'abduljabar',
       nickname: 'abduljabar',
+      username: 'abduljabar',
+      tagname: 'AB202',
       uid: 'NV-482910',
       level: 3,
       total_xp: 1000,
-      role: 'mahasiswa'
+      role: 'siswa'
     },
     {
       id: 'user-seed-3',
       nama_lengkap: 'Dimas Wahyu',
       nickname: 'Dimas Wahyu',
+      username: 'dimaswahyu',
+      tagname: 'DM303',
       uid: 'NV-739102',
       level: 2,
       total_xp: 650,
-      role: 'mahasiswa'
+      role: 'siswa'
     },
     {
       id: 'user-seed-4',
       nama_lengkap: 'Rian Pratama',
       nickname: 'Rian Pratama',
+      username: 'rianpratama',
+      tagname: 'RN404',
       uid: 'NV-918234',
       level: 2,
       total_xp: 550,
-      role: 'mahasiswa'
+      role: 'siswa'
     },
     {
       id: 'user-seed-5',
       nama_lengkap: 'Zahra Amalia',
       nickname: 'Zahra Amalia',
+      username: 'zahraamalia',
+      tagname: 'ZH505',
       uid: 'NV-628190',
       level: 1,
       total_xp: 320,
-      role: 'mahasiswa'
+      role: 'siswa'
+    },
+    {
+      id: 'user-seed-guru-1',
+      nama_lengkap: 'Dr. Budi Santoso, M.Kom.',
+      nickname: 'Dr. Budi Santoso, M.Kom.',
+      username: 'pakbudi',
+      tagname: 'GURU1',
+      uid: 'NV-200101',
+      level: 8,
+      total_xp: 4200,
+      role: 'guru'
+    },
+    {
+      id: 'user-seed-admin-1',
+      nama_lengkap: 'Admin Utama PTI',
+      nickname: 'Admin Utama PTI',
+      username: 'admin',
+      tagname: 'ADMN1',
+      uid: 'NV-900001',
+      level: 10,
+      total_xp: 5000,
+      role: 'admin'
     }
   ],
   recentDmContacts: ['Shiina', 'abduljabar', 'Dimas Wahyu'],
@@ -312,13 +437,15 @@ async function loadUserProfile(userId) {
     if (profile) {
       const meta = extractProfileMetadata(profile);
       const userMeta = state.session?.user?.user_metadata || {};
+      const resolvedRole = normalizeRole(userMeta.role || meta.role || profile.role || state.selectedAuthRole || 'siswa');
       state.userProfile = {
         ...profile,
         nickname: userMeta.nickname || meta.nickname || profile.nama_lengkap || 'Mahasiswa',
         nama_lengkap: userMeta.nickname || meta.nickname || profile.nama_lengkap || 'Mahasiswa',
         username: userMeta.username || profile.username || 'user',
         tagname: userMeta.tagname || meta.tagname || 'NV001',
-        uid: userMeta.uid || meta.uid || generatePermanentUID(userId)
+        uid: userMeta.uid || meta.uid || generatePermanentUID(userId),
+        role: resolvedRole
       };
       if (Array.isArray(state.scores)) {
         state.scores.forEach(s => {
@@ -334,6 +461,8 @@ async function loadUserProfile(userId) {
       const fallbackUser = userMeta.username || 'user';
       const fallbackTagname = userMeta.tagname || 'NV001';
       const fallbackUid = userMeta.uid || generatePermanentUID(userId);
+      const fallbackRole = normalizeRole(userMeta.role || state.selectedAuthRole || 'siswa');
+      const dbRole = getRoleBadgeInfo(fallbackRole).dbRole;
 
       const { data: createdProfile } = await supabase
         .from('profiles')
@@ -344,11 +473,12 @@ async function loadUserProfile(userId) {
           avatar_url: JSON.stringify({
             nickname: fallbackNickname,
             tagname: fallbackTagname,
-            uid: fallbackUid
+            uid: fallbackUid,
+            role: fallbackRole
           }),
           total_xp: 250,
           level: 1,
-          role: 'mahasiswa'
+          role: dbRole
         })
         .select()
         .single();
@@ -358,7 +488,8 @@ async function loadUserProfile(userId) {
           ...createdProfile,
           nickname: fallbackNickname,
           tagname: fallbackTagname,
-          uid: fallbackUid
+          uid: fallbackUid,
+          role: fallbackRole
         };
       }
     }
@@ -632,6 +763,18 @@ async function sendSocraticQuery(userQuery) {
   if (tutorResult.suggestedInquiries && tutorResult.suggestedInquiries.length > 0) {
     state.aiDynamicChips = tutorResult.suggestedInquiries;
   }
+
+  // Record in Teacher AI Socratic Logs for teacher monitoring
+  state.teacherAiLogs.unshift({
+    id: `ailog-${Date.now()}`,
+    studentName: getEffectiveUserName(),
+    studentUid: state.userProfile?.uid || 'NV-100001',
+    context: activeContextName,
+    question: q,
+    aiResponse: tutorResult.response,
+    topic: tutorResult.concept || 'Diskusi Jaringan',
+    time: 'Baru saja'
+  });
 
   // Asynchronously log interaction to Supabase ai_tutor_logs table
   if (supabase) {
@@ -1194,6 +1337,18 @@ async function initData() {
     ];
   }
 
+  // Merge custom modules created by Teacher if any
+  try {
+    const savedCustomModuls = JSON.parse(localStorage.getItem('netverse_custom_moduls') || '[]');
+    if (Array.isArray(savedCustomModuls) && savedCustomModuls.length > 0) {
+      savedCustomModuls.forEach(cm => {
+        if (!state.moduls.some(m => m.id === cm.id)) {
+          state.moduls.push(cm);
+        }
+      });
+    }
+  } catch (e) {}
+
   renderApp();
 }
 
@@ -1260,6 +1415,14 @@ function renderApp() {
 
     case 'social':
       mainContent = renderSocialHub(state);
+      break;
+
+    case 'guru':
+      mainContent = renderTeacherDashboard(state);
+      break;
+
+    case 'admin':
+      mainContent = renderAdminDashboard(state);
       break;
   }
 
@@ -1673,7 +1836,151 @@ function attachEvents() {
     });
   }
 
-  // Auth Form Submit (Login or Register - Username + Tagname + Password - NO EMAIL)
+  // Role Selection Buttons inside AuthModal (Login & Register)
+  document.querySelectorAll('[data-select-auth-role]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const role = normalizeRole(btn.getAttribute('data-select-auth-role') || 'siswa');
+      const curName = document.getElementById('auth-nama-lengkap')?.value || '';
+      const curUser = document.getElementById('auth-username')?.value || '';
+      const curTag = document.getElementById('auth-tagname')?.value || '';
+      const curPass = document.getElementById('auth-password')?.value || '';
+
+      state.selectedAuthRole = role;
+      renderApp();
+
+      const nextName = document.getElementById('auth-nama-lengkap');
+      const nextUser = document.getElementById('auth-username');
+      const nextTag = document.getElementById('auth-tagname');
+      const nextPass = document.getElementById('auth-password');
+      if (nextName && curName) nextName.value = curName;
+      if (nextUser && curUser) nextUser.value = curUser;
+      if (nextTag && curTag) nextTag.value = curTag;
+      if (nextPass && curPass) nextPass.value = curPass;
+    });
+  });
+
+  // 1-Click Quick Demo Login (Siswa / Guru / Admin) for Lecturer Demonstration
+  document.querySelectorAll('[data-quick-demo-role]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const role = normalizeRole(btn.getAttribute('data-quick-demo-role') || 'siswa');
+      const demoProfiles = {
+        siswa: {
+          id: 'demo-siswa-id',
+          nama_lengkap: 'Shiina',
+          nickname: 'Shiina',
+          username: 'shiina',
+          tagname: 'SH101',
+          uid: 'NV-849201',
+          level: 5,
+          total_xp: 2195,
+          role: 'siswa'
+        },
+        guru: {
+          id: 'demo-guru-id',
+          nama_lengkap: 'Dr. Budi Santoso, M.Kom.',
+          nickname: 'Dr. Budi Santoso, M.Kom.',
+          username: 'pakbudi',
+          tagname: 'GURU1',
+          uid: 'NV-200101',
+          level: 8,
+          total_xp: 4200,
+          role: 'guru'
+        },
+        admin: {
+          id: 'demo-admin-id',
+          nama_lengkap: 'Admin Utama PTI',
+          nickname: 'Admin Utama PTI',
+          username: 'admin',
+          tagname: 'ADMN1',
+          uid: 'NV-900001',
+          level: 10,
+          total_xp: 5000,
+          role: 'admin'
+        }
+      };
+
+      const chosen = demoProfiles[role] || demoProfiles.siswa;
+      state.session = {
+        user: {
+          id: chosen.id,
+          email: `${chosen.username}@netverse.internal`,
+          user_metadata: { ...chosen }
+        }
+      };
+      state.userProfile = { ...chosen };
+      state.selectedAuthRole = role;
+      state.authModalOpen = false;
+      state.authNotice = null;
+
+      if (role === 'guru') {
+        state.activeTab = 'guru';
+      } else if (role === 'admin') {
+        state.activeTab = 'admin';
+      } else {
+        state.activeTab = 'workbench';
+      }
+
+      state.systemAuditLogs.unshift({
+        id: `aud-${Date.now()}`,
+        type: 'ROLE_LOGIN',
+        actor: `${chosen.nama_lengkap} (${role.toUpperCase()})`,
+        action: `Masuk ke sistem menggunakan mode akses ${role.toUpperCase()}.`,
+        time: 'Baru saja'
+      });
+
+      state.realtimeToast = {
+        id: Date.now(),
+        text: `Selamat datang, ${chosen.nama_lengkap}! Anda masuk dengan hak akses ${role.toUpperCase()}.`,
+        timestamp: new Date()
+      };
+
+      renderApp();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+
+  // Switch Active Role inside Profile Modal
+  document.querySelectorAll('[data-switch-profile-role]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const newRole = normalizeRole(btn.getAttribute('data-switch-profile-role') || 'siswa');
+      if (!state.userProfile) return;
+      state.userProfile.role = newRole;
+      state.selectedAuthRole = newRole;
+
+      // Update in communityUsers if present
+      const cIdx = (state.communityUsers || []).findIndex(u =>
+        u.uid === state.userProfile.uid ||
+        (u.nama_lengkap || '').toLowerCase() === (state.userProfile.nama_lengkap || '').toLowerCase()
+      );
+      if (cIdx !== -1) {
+        state.communityUsers[cIdx].role = newRole;
+        try {
+          localStorage.setItem('netverse_community_users', JSON.stringify(state.communityUsers));
+        } catch (e) {}
+      }
+
+      state.authNotice = {
+        type: 'success',
+        message: `Peran akun berhasil diubah menjadi ${newRole.toUpperCase()}!`
+      };
+      renderApp();
+    });
+  });
+
+  // Open Guru or Admin Panel directly from Profile Modal
+  document.querySelectorAll('[data-open-role-panel]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetPanel = btn.getAttribute('data-open-role-panel');
+      if (targetPanel) {
+        state.authModalOpen = false;
+        state.activeTab = targetPanel;
+        renderApp();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
+  });
+
+  // Auth Form Submit (Login or Register - Username + Tagname + Password + Role - NO EMAIL)
   const authForm = document.getElementById('form-auth');
   if (authForm) {
     authForm.addEventListener('submit', async (e) => {
@@ -1681,11 +1988,14 @@ function attachEvents() {
       const userInput = document.getElementById('auth-username');
       const tagInput = document.getElementById('auth-tagname');
       const passwordInput = document.getElementById('auth-password');
+      const roleInput = document.getElementById('auth-role');
       if (!userInput || !tagInput || !passwordInput) return;
 
       const username = userInput.value.trim();
       const tagname = tagInput.value.trim().toUpperCase();
       const password = passwordInput.value;
+      const chosenRole = normalizeRole(roleInput ? roleInput.value : state.selectedAuthRole || 'siswa');
+      const dbRole = getRoleBadgeInfo(chosenRole).dbRole;
 
       state.authLoading = true;
       state.authNotice = null;
@@ -1719,6 +2029,31 @@ function attachEvents() {
           return;
         }
 
+        // Add to communityUsers & local accounts for instant role persistence
+        const newAccountEntry = {
+          id: `user-${Date.now()}`,
+          nama_lengkap: nickname,
+          nickname: nickname,
+          username: username.toLowerCase(),
+          tagname: tagname,
+          password: password,
+          uid: permanentUid,
+          level: 1,
+          total_xp: 250,
+          role: chosenRole
+        };
+        const existsIdx = state.communityUsers.findIndex(u =>
+          (u.username || '').toLowerCase() === username.toLowerCase() && (u.tagname || '').toUpperCase() === tagname
+        );
+        if (existsIdx === -1) {
+          state.communityUsers.push(newAccountEntry);
+        } else {
+          state.communityUsers[existsIdx] = { ...state.communityUsers[existsIdx], ...newAccountEntry };
+        }
+        try {
+          localStorage.setItem('netverse_community_users', JSON.stringify(state.communityUsers));
+        } catch (err) {}
+
         const syntheticEmail = `${username.toLowerCase()}.${tagname.toLowerCase()}@netverse.internal`;
 
         const formatAuthErr = (msg) => {
@@ -1740,6 +2075,7 @@ function attachEvents() {
                 username: username,
                 tagname: tagname,
                 uid: permanentUid,
+                role: chosenRole,
                 full_name: nickname,
                 name: nickname
               }
@@ -1764,11 +2100,12 @@ function attachEvents() {
                   avatar_url: JSON.stringify({
                     nickname: nickname,
                     tagname: tagname,
-                    uid: permanentUid
+                    uid: permanentUid,
+                    role: chosenRole
                   }),
                   total_xp: 250,
                   level: 1,
-                  role: 'mahasiswa'
+                  role: dbRole
                 });
               } catch (pErr) {
                 console.warn('Profile upsert notice:', pErr);
@@ -1778,6 +2115,7 @@ function attachEvents() {
             if (data.session) {
               state.session = data.session;
               await loadUserProfile(data.session.user.id);
+              state.userProfile.role = chosenRole;
               state.authMode = 'profile';
               state.authNotice = { type: 'success', message: t('authModal.accountCreatedLogin', state.lang) };
             } else {
@@ -1786,6 +2124,7 @@ function attachEvents() {
               if (loginRes.data?.session) {
                 state.session = loginRes.data.session;
                 await loadUserProfile(loginRes.data.session.user.id);
+                state.userProfile.role = chosenRole;
                 state.authMode = 'profile';
                 state.authNotice = { type: 'success', message: t('authModal.accountCreatedLogin', state.lang) };
               } else {
@@ -1809,6 +2148,35 @@ function attachEvents() {
             type: 'warning',
             message: 'Tagname harus berupa 5 digit kombinasi huruf dan angka (cth. A1B2C).'
           };
+          renderApp();
+          return;
+        }
+
+        // Check if credentials match a known local/community account with password or default guru/admin credentials
+        const matchedLocal = (state.communityUsers || []).find(u =>
+          (u.username || '').toLowerCase() === username.toLowerCase() &&
+          (u.tagname || '').toUpperCase() === tagname &&
+          (u.password ? u.password === password : password.length >= 6)
+        );
+
+        if (matchedLocal) {
+          const activeRole = normalizeRole(chosenRole || matchedLocal.role || 'siswa');
+          state.session = {
+            user: {
+              id: matchedLocal.id || `local-${username}`,
+              email: `${username.toLowerCase()}.${tagname.toLowerCase()}@netverse.internal`,
+              user_metadata: { ...matchedLocal, role: activeRole }
+            }
+          };
+          state.userProfile = {
+            ...matchedLocal,
+            role: activeRole
+          };
+          state.authModalOpen = false;
+          state.authNotice = null;
+          if (activeRole === 'guru') state.activeTab = 'guru';
+          else if (activeRole === 'admin') state.activeTab = 'admin';
+          state.authLoading = false;
           renderApp();
           return;
         }
@@ -1840,8 +2208,11 @@ function attachEvents() {
           } else if (data?.session) {
             state.session = data.session;
             await loadUserProfile(data.session.user.id);
+            state.userProfile.role = chosenRole;
             state.authModalOpen = false;
             state.authNotice = null;
+            if (chosenRole === 'guru') state.activeTab = 'guru';
+            else if (chosenRole === 'admin') state.activeTab = 'admin';
           }
         } catch (err) {
           state.authNotice = { type: 'warning', message: formatAuthErr(err.message) };
@@ -2947,6 +3318,498 @@ function attachEvents() {
       }
     });
   });
+
+  // =========================================================================
+  // TEACHER (GURU / DOSEN) DASHBOARD EVENT LISTENERS
+  // =========================================================================
+  document.querySelectorAll('[data-teacher-tab]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.getAttribute('data-teacher-tab');
+      if (tab) {
+        state.teacherSubTab = tab;
+        renderApp();
+      }
+    });
+  });
+
+  const closeTeacherNotice = document.getElementById('btn-close-teacher-notice');
+  if (closeTeacherNotice) {
+    closeTeacherNotice.addEventListener('click', () => {
+      state.teacherNotice = null;
+      renderApp();
+    });
+  }
+
+  const teacherSearchInput = document.getElementById('input-teacher-search-student');
+  if (teacherSearchInput) {
+    teacherSearchInput.addEventListener('input', (e) => {
+      state.teacherSearchQuery = e.target.value;
+      renderApp();
+      const nextInput = document.getElementById('input-teacher-search-student');
+      if (nextInput) {
+        nextInput.focus();
+        nextInput.setSelectionRange(nextInput.value.length, nextInput.value.length);
+      }
+    });
+  }
+
+  document.querySelectorAll('[data-teacher-grade-filter]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.teacherGradeFilter = btn.getAttribute('data-teacher-grade-filter') || 'all';
+      renderApp();
+    });
+  });
+
+  document.querySelectorAll('[data-open-eval-student]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.teacherEditingStudentUid = btn.getAttribute('data-open-eval-student');
+      renderApp();
+    });
+  });
+
+  const cancelEvalBtn = document.getElementById('btn-cancel-eval-student');
+  if (cancelEvalBtn) {
+    cancelEvalBtn.addEventListener('click', () => {
+      state.teacherEditingStudentUid = null;
+      renderApp();
+    });
+  }
+
+  const formSaveEval = document.getElementById('form-teacher-save-eval');
+  if (formSaveEval) {
+    formSaveEval.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const uid = document.getElementById('eval-student-uid')?.value;
+      const quizScore = Number(document.getElementById('eval-quiz-score')?.value || 80);
+      const examScore = Number(document.getElementById('eval-exam-score')?.value || 80);
+      const bonusXp = Number(document.getElementById('eval-bonus-xp')?.value || 0);
+      const note = document.getElementById('eval-teacher-note')?.value?.trim() || 'Telah dievaluasi oleh Guru.';
+
+      if (!uid) return;
+      state.teacherEvaluations[uid] = { quizScore, examScore, note, updatedAt: new Date().toISOString() };
+      try {
+        localStorage.setItem('netverse_teacher_evaluations', JSON.stringify(state.teacherEvaluations));
+      } catch (err) {}
+
+      if (bonusXp > 0) {
+        const uIdx = state.communityUsers.findIndex(u => u.uid === uid);
+        if (uIdx !== -1) {
+          state.communityUsers[uIdx].total_xp = Number(state.communityUsers[uIdx].total_xp || 0) + bonusXp;
+          state.communityUsers[uIdx].level = Math.floor(state.communityUsers[uIdx].total_xp / 500) + 1;
+          try {
+            localStorage.setItem('netverse_community_users', JSON.stringify(state.communityUsers));
+          } catch (err) {}
+        }
+      }
+
+      state.systemAuditLogs.unshift({
+        id: `aud-${Date.now()}`,
+        type: 'EVAL_GRADE',
+        actor: `${state.userProfile?.nama_lengkap || 'Guru'} (GURU)`,
+        action: `Menyimpan evaluasi nilai siswa UID ${uid} (Kuis: ${quizScore}, Ujian: ${examScore}).`,
+        time: 'Baru saja'
+      });
+
+      state.teacherEditingStudentUid = null;
+      state.teacherNotice = `Nilai dan catatan evaluasi untuk siswa (${uid}) berhasil disimpan!`;
+      renderApp();
+    });
+  }
+
+  const btnExportGradesCsv = document.getElementById('btn-export-grades-csv');
+  if (btnExportGradesCsv) {
+    btnExportGradesCsv.addEventListener('click', () => {
+      const records = buildStudentAcademicRecords(state);
+      const headers = ['UID', 'Nama Siswa', 'Level', 'Total XP', 'Standar Kabel', 'Akurasi Crimping (%)', 'Waktu Crimping (s)', 'Rata2 Kuis', 'Nilai Ujian', 'Nilai Akhir', 'Predikat', 'Catatan Guru'];
+      const rows = records.map(r => [
+        r.uid,
+        `"${(r.name || '').replace(/"/g, '""')}"`,
+        r.level,
+        r.total_xp,
+        r.crimpingStandard,
+        r.crimpingAccuracy,
+        r.crimpingTime,
+        r.quizAvg,
+        r.examScore,
+        r.finalScore,
+        `"${r.gradeLetter}"`,
+        `"${(r.teacherNote || '').replace(/"/g, '""')}"`
+      ].join(','));
+      const csvContent = [headers.join(','), ...rows].join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Rekap_Nilai_Siswa_NetVerse_${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      state.teacherNotice = 'File CSV Rekap Nilai Siswa berhasil diunduh!';
+      renderApp();
+    });
+  }
+
+  const formAddModul = document.getElementById('form-teacher-add-modul');
+  if (formAddModul) {
+    formAddModul.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const title = document.getElementById('teacher-modul-title')?.value?.trim();
+      const minutes = Number(document.getElementById('teacher-modul-minutes')?.value || 20);
+      const xp = Number(document.getElementById('teacher-modul-xp')?.value || 150);
+      const desc = document.getElementById('teacher-modul-desc')?.value?.trim();
+      if (!title || !desc) return;
+
+      const newModul = {
+        id: `modul-${Date.now()}`,
+        slug: title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+        judul: title,
+        estimasi_menit: minutes,
+        xp_reward: xp,
+        deskripsi: desc
+      };
+      state.moduls.push(newModul);
+      try {
+        const customModuls = state.moduls.slice(3);
+        localStorage.setItem('netverse_custom_moduls', JSON.stringify(customModuls));
+      } catch (err) {}
+
+      state.systemAuditLogs.unshift({
+        id: `aud-${Date.now()}`,
+        type: 'ADD_MODUL',
+        actor: `${state.userProfile?.nama_lengkap || 'Guru'} (GURU)`,
+        action: `Menambahkan modul pembelajaran baru: "${title}".`,
+        time: 'Baru saja'
+      });
+
+      state.teacherNotice = `Modul "${title}" berhasil dipublikasikan ke halaman Materi Siswa!`;
+      renderApp();
+    });
+  }
+
+  document.querySelectorAll('[data-delete-modul]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const mId = btn.getAttribute('data-delete-modul');
+      state.moduls = state.moduls.filter(m => m.id !== mId);
+      try {
+        const customModuls = state.moduls.slice(3);
+        localStorage.setItem('netverse_custom_moduls', JSON.stringify(customModuls));
+      } catch (err) {}
+      state.teacherNotice = 'Modul tambahan berhasil dihapus.';
+      renderApp();
+    });
+  });
+
+  const formAddQuestion = document.getElementById('form-teacher-add-question');
+  if (formAddQuestion) {
+    formAddQuestion.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const pertanyaan = document.getElementById('teacher-q-text')?.value?.trim();
+      const optA = document.getElementById('teacher-q-opt-a')?.value?.trim();
+      const optB = document.getElementById('teacher-q-opt-b')?.value?.trim();
+      const optC = document.getElementById('teacher-q-opt-c')?.value?.trim();
+      const optD = document.getElementById('teacher-q-opt-d')?.value?.trim();
+      const correct = Number(document.getElementById('teacher-q-correct')?.value || 0);
+      const modulId = document.getElementById('teacher-q-modul')?.value || '1';
+
+      if (!pertanyaan || !optA || !optB || !optC || !optD) return;
+      const newQ = {
+        id: `tq-${Date.now()}`,
+        modul_id: modulId,
+        pertanyaan,
+        pilihan: [optA, optB, optC, optD],
+        jawaban_benar: correct
+      };
+      state.customTeacherQuestions.push(newQ);
+      try {
+        localStorage.setItem('netverse_custom_questions', JSON.stringify(state.customTeacherQuestions));
+      } catch (err) {}
+
+      state.teacherNotice = 'Soal evaluasi baru berhasil ditambahkan ke Bank Soal!';
+      renderApp();
+    });
+  }
+
+  document.querySelectorAll('[data-delete-teacher-q]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const qId = btn.getAttribute('data-delete-teacher-q');
+      state.customTeacherQuestions = state.customTeacherQuestions.filter(q => q.id !== qId);
+      try {
+        localStorage.setItem('netverse_custom_questions', JSON.stringify(state.customTeacherQuestions));
+      } catch (err) {}
+      state.teacherNotice = 'Soal evaluasi berhasil dihapus.';
+      renderApp();
+    });
+  });
+
+  const formAnnouncement = document.getElementById('form-teacher-announcement');
+  if (formAnnouncement) {
+    formAnnouncement.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const title = document.getElementById('ann-title')?.value?.trim();
+      const targetClass = document.getElementById('ann-class')?.value?.trim() || 'Seluruh Kelas TKJ';
+      const deadline = document.getElementById('ann-deadline')?.value?.trim() || 'Minggu ini';
+      const body = document.getElementById('ann-body')?.value?.trim();
+      if (!title || !body) return;
+
+      const authorName = state.userProfile?.nama_lengkap || 'Dr. Budi Santoso, M.Kom.';
+      const newAnn = {
+        id: `ann-${Date.now()}`,
+        title,
+        targetClass,
+        deadline,
+        body,
+        author: authorName,
+        date: 'Baru saja'
+      };
+      state.classAnnouncements.unshift(newAnn);
+      try {
+        localStorage.setItem('netverse_class_announcements', JSON.stringify(state.classAnnouncements));
+      } catch (err) {}
+
+      // Also broadcast announcement to Global Chat so students see it
+      const now = new Date();
+      const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      state.chatMessages.push({
+        id: `msg-ann-${Date.now()}`,
+        sender: `👨‍🏫 ${authorName}`,
+        senderUid: state.userProfile?.uid || 'NV-200101',
+        recipient: 'global',
+        text: `📢 [PENGUMUMAN GURU - ${title}] ${body} (Tenggat: ${deadline})`,
+        time: timeStr,
+        timestamp: Date.now(),
+        isSelf: false
+      });
+      try {
+        localStorage.setItem('netverse_chat_messages', JSON.stringify(state.chatMessages.slice(-50)));
+      } catch (err) {}
+
+      state.teacherNotice = `Pengumuman "${title}" berhasil dipublikasikan dan dikirim ke Ruang Diskusi Siswa!`;
+      renderApp();
+    });
+  }
+
+  document.querySelectorAll('[data-delete-announcement]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const aId = btn.getAttribute('data-delete-announcement');
+      state.classAnnouncements = state.classAnnouncements.filter(a => a.id !== aId);
+      try {
+        localStorage.setItem('netverse_class_announcements', JSON.stringify(state.classAnnouncements));
+      } catch (err) {}
+      state.teacherNotice = 'Pengumuman kelas berhasil dihapus.';
+      renderApp();
+    });
+  });
+
+  // =========================================================================
+  // ADMIN DASHBOARD EVENT LISTENERS
+  // =========================================================================
+  document.querySelectorAll('[data-admin-tab]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.getAttribute('data-admin-tab');
+      if (tab) {
+        state.adminSubTab = tab;
+        renderApp();
+      }
+    });
+  });
+
+  const closeAdminNotice = document.getElementById('btn-close-admin-notice');
+  if (closeAdminNotice) {
+    closeAdminNotice.addEventListener('click', () => {
+      state.adminNotice = null;
+      renderApp();
+    });
+  }
+
+  const adminSearchInput = document.getElementById('input-admin-search-user');
+  if (adminSearchInput) {
+    adminSearchInput.addEventListener('input', (e) => {
+      state.adminUserSearch = e.target.value;
+      renderApp();
+      const nextInput = document.getElementById('input-admin-search-user');
+      if (nextInput) {
+        nextInput.focus();
+        nextInput.setSelectionRange(nextInput.value.length, nextInput.value.length);
+      }
+    });
+  }
+
+  document.querySelectorAll('[data-admin-role-filter]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.adminRoleFilter = btn.getAttribute('data-admin-role-filter') || 'all';
+      renderApp();
+    });
+  });
+
+  const formAdminAddUser = document.getElementById('form-admin-add-user');
+  if (formAdminAddUser) {
+    formAdminAddUser.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const nickname = document.getElementById('admin-new-nickname')?.value?.trim();
+      const username = document.getElementById('admin-new-username')?.value?.trim()?.toLowerCase();
+      const tagname = (document.getElementById('admin-new-tagname')?.value || 'NV999').trim().toUpperCase().slice(0, 5).padEnd(5, '0');
+      const role = normalizeRole(document.getElementById('admin-new-role')?.value || 'siswa');
+      if (!nickname || !username) return;
+
+      const uid = generatePermanentUID(`${username}-${Date.now()}`);
+      const newUser = {
+        id: `usr-${Date.now()}`,
+        nama_lengkap: nickname,
+        nickname,
+        username,
+        tagname,
+        uid,
+        role,
+        level: role === 'admin' ? 10 : role === 'guru' ? 5 : 1,
+        total_xp: role === 'admin' ? 5000 : role === 'guru' ? 2000 : 250
+      };
+      state.communityUsers.unshift(newUser);
+      try {
+        localStorage.setItem('netverse_community_users', JSON.stringify(state.communityUsers));
+      } catch (err) {}
+
+      state.systemAuditLogs.unshift({
+        id: `aud-${Date.now()}`,
+        type: 'USER_CREATE',
+        actor: `${state.userProfile?.nama_lengkap || 'Admin'} (ADMIN)`,
+        action: `Mendaftarkan akun baru "${nickname}" (${uid}) dengan role ${role.toUpperCase()}.`,
+        time: 'Baru saja'
+      });
+
+      state.adminNotice = `Akun "${nickname}" (${uid}) berhasil ditambahkan sebagai ${role.toUpperCase()}!`;
+      renderApp();
+    });
+  }
+
+  document.querySelectorAll('[data-admin-change-role]').forEach(sel => {
+    sel.addEventListener('change', (e) => {
+      const targetUid = e.currentTarget.getAttribute('data-admin-change-role');
+      const newRole = normalizeRole(e.currentTarget.value);
+      const uIdx = state.communityUsers.findIndex(u => u.uid === targetUid);
+      if (uIdx !== -1) {
+        const userName = state.communityUsers[uIdx].nama_lengkap || state.communityUsers[uIdx].nickname;
+        state.communityUsers[uIdx].role = newRole;
+        try {
+          localStorage.setItem('netverse_community_users', JSON.stringify(state.communityUsers));
+        } catch (err) {}
+
+        state.systemAuditLogs.unshift({
+          id: `aud-${Date.now()}`,
+          type: 'ROLE_UPDATE',
+          actor: `${state.userProfile?.nama_lengkap || 'Admin'} (ADMIN)`,
+          action: `Mengubah hak akses ${userName} (${targetUid}) menjadi ${newRole.toUpperCase()}.`,
+          time: 'Baru saja'
+        });
+
+        state.adminNotice = `Role pengguna ${userName} (${targetUid}) berhasil diubah menjadi ${newRole.toUpperCase()}!`;
+        renderApp();
+      }
+    });
+  });
+
+  document.querySelectorAll('[data-admin-boost-xp]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetUid = btn.getAttribute('data-admin-boost-xp');
+      const uIdx = state.communityUsers.findIndex(u => u.uid === targetUid);
+      if (uIdx !== -1) {
+        state.communityUsers[uIdx].total_xp = Number(state.communityUsers[uIdx].total_xp || 0) + 250;
+        state.communityUsers[uIdx].level = Math.floor(state.communityUsers[uIdx].total_xp / 500) + 1;
+        try {
+          localStorage.setItem('netverse_community_users', JSON.stringify(state.communityUsers));
+        } catch (err) {}
+        state.adminNotice = `+250 XP berhasil ditambahkan ke akun ${state.communityUsers[uIdx].nama_lengkap}!`;
+        renderApp();
+      }
+    });
+  });
+
+  document.querySelectorAll('[data-admin-reset-xp]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetUid = btn.getAttribute('data-admin-reset-xp');
+      const uIdx = state.communityUsers.findIndex(u => u.uid === targetUid);
+      if (uIdx !== -1) {
+        state.communityUsers[uIdx].total_xp = 0;
+        state.communityUsers[uIdx].level = 1;
+        try {
+          localStorage.setItem('netverse_community_users', JSON.stringify(state.communityUsers));
+        } catch (err) {}
+        state.adminNotice = `XP akun ${state.communityUsers[uIdx].nama_lengkap} berhasil direset menjadi 0 XP.`;
+        renderApp();
+      }
+    });
+  });
+
+  document.querySelectorAll('[data-admin-delete-user]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetUid = btn.getAttribute('data-admin-delete-user');
+      const targetUser = state.communityUsers.find(u => u.uid === targetUid);
+      state.communityUsers = state.communityUsers.filter(u => u.uid !== targetUid);
+      try {
+        localStorage.setItem('netverse_community_users', JSON.stringify(state.communityUsers));
+      } catch (err) {}
+      state.systemAuditLogs.unshift({
+        id: `aud-${Date.now()}`,
+        type: 'USER_DELETE',
+        actor: `${state.userProfile?.nama_lengkap || 'Admin'} (ADMIN)`,
+        action: `Menghapus akun pengguna ${targetUser?.nama_lengkap || targetUid}.`,
+        time: 'Baru saja'
+      });
+      state.adminNotice = `Akun pengguna (${targetUid}) berhasil dihapus dari sistem.`;
+      renderApp();
+    });
+  });
+
+  document.querySelectorAll('[data-admin-delete-chat]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const msgId = btn.getAttribute('data-admin-delete-chat');
+      state.chatMessages = state.chatMessages.filter(m => m.id !== msgId);
+      try {
+        localStorage.setItem('netverse_chat_messages', JSON.stringify(state.chatMessages));
+      } catch (err) {}
+      state.adminNotice = 'Pesan obrolan berhasil dihapus oleh moderator Admin.';
+      renderApp();
+    });
+  });
+
+  document.querySelectorAll('[data-admin-delete-score]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = Number(btn.getAttribute('data-admin-delete-score'));
+      if (!isNaN(idx) && state.scores[idx]) {
+        const removed = state.scores.splice(idx, 1)[0];
+        state.adminNotice = `Skor milik ${removed.player_name || 'Siswa'} berhasil dihapus dari Leaderboard.`;
+        renderApp();
+      }
+    });
+  });
+
+  const btnAdminExportUsers = document.getElementById('btn-admin-export-users');
+  if (btnAdminExportUsers) {
+    btnAdminExportUsers.addEventListener('click', () => {
+      const headers = ['UID', 'Nickname', 'Username', 'Tagname', 'Role', 'Level', 'Total XP'];
+      const rows = (state.communityUsers || []).map(u => [
+        u.uid || '',
+        `"${(u.nama_lengkap || u.nickname || '').replace(/"/g, '""')}"`,
+        u.username || '',
+        u.tagname || '',
+        normalizeRole(u.role),
+        u.level || 1,
+        u.total_xp || 0
+      ].join(','));
+      const csv = [headers.join(','), ...rows].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Data_Pengguna_NetVerse_${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      state.adminNotice = 'File CSV Data Pengguna & Role berhasil diunduh!';
+      renderApp();
+    });
+  }
 
   // Mobile menu
   const mobileBtn = document.getElementById('mobile-menu-btn');

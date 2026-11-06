@@ -1,5 +1,5 @@
 import { t } from '../utils/i18n.js';
-import { sanitizePublicProfile, extractProfileMetadata, computeAchievements } from '../utils/userProfiles.js';
+import { sanitizePublicProfile, extractProfileMetadata, computeAchievements, getRoleBadgeInfo } from '../utils/userProfiles.js';
 
 /**
  * NetVerse - User Profile Modal Component
@@ -28,6 +28,7 @@ export function renderUserProfileModal(state) {
   const uid = meta.uid;
   const totalXp = Number(targetUser.total_xp || targetUser.xp || 0);
   const level = Number(targetUser.level || Math.floor(totalXp / 500) + 1);
+  const roleBadge = getRoleBadgeInfo(targetUser.role || meta.role || 'siswa', lang);
 
   // Compute Achievements
   const achievements = computeAchievements(targetUser, state.scores || []);
@@ -68,8 +69,12 @@ export function renderUserProfileModal(state) {
               ${nickname.charAt(0).toUpperCase()}
             </div>
             <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2">
+              <div class="flex items-center gap-2 flex-wrap">
                 <h3 class="text-base font-bold text-white truncate" id="profile-modal-nickname">${nickname}</h3>
+                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold border ${roleBadge.badgeClass} inline-flex items-center gap-1">
+                  <span>${roleBadge.icon}</span>
+                  <span>${roleBadge.label}</span>
+                </span>
                 ${isSelf ? `
                   <span class="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-amber-400/20 text-amber-300 border border-amber-400/30">
                     ${t('leaderboard.youTag', lang)}

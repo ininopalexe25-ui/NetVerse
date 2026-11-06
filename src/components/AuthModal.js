@@ -1,6 +1,6 @@
 import { renderNetVerseLogo } from './Logo.js';
 import { t } from '../utils/i18n.js';
-import { generatePermanentUID, extractProfileMetadata, computeAchievements } from '../utils/userProfiles.js';
+import { generatePermanentUID, extractProfileMetadata, computeAchievements, normalizeRole, getRoleBadgeInfo } from '../utils/userProfiles.js';
 
 const eyeIconSvg = `
   <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -29,11 +29,16 @@ export function renderAuthModal(state) {
   const xpNextLevel = 500;
   const xpPercentage = Math.min(100, Math.round((xpCurrentLevel / xpNextLevel) * 100));
 
-  // Metadata extraction (Nickname, UID, Tagname)
+  // Metadata extraction (Nickname, UID, Tagname, Role)
   const meta = extractProfileMetadata(state.userProfile || {});
   const userNickname = meta.nickname || state.userProfile?.nama_lengkap || 'Mahasiswa';
   const userUid = meta.uid;
   const userTagname = state.userProfile?.tagname || meta.tagname || 'NV001';
+  const currentRole = normalizeRole(state.userProfile?.role || meta.role || 'siswa');
+  const roleBadge = getRoleBadgeInfo(currentRole, lang);
+
+  // Selected Role in Login / Register form ('siswa' | 'guru' | 'admin')
+  const selectedAuthRole = normalizeRole(state.selectedAuthRole || 'siswa');
 
   // Generated candidate UID for new registration
   const candidateRegisterUid = state.candidateRegisterUid || generatePermanentUID();
@@ -54,10 +59,16 @@ export function renderAuthModal(state) {
 
   const guestLabel = t('authModal.continueGuest', lang);
 
+  const roleOptions = [
+    { id: 'siswa', icon: '🎓', label: 'Siswa', desc: 'Lab, Materi & Kuis' },
+    { id: 'guru', icon: '👨‍🏫', label: 'Guru', desc: 'Nilai, Modul & Soal' },
+    { id: 'admin', icon: '🛡️', label: 'Admin', desc: 'User & Sistem' }
+  ];
+
   return `
-    <div id="auth-modal-backdrop" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md transition-opacity">
-      <div class="max-w-md w-full bezel-shell bg-[#090a0f] border border-white/10 shadow-[0_24px_50px_rgba(0,0,0,0.85)]">
-        <div class="bezel-core p-6 relative">
+    <div id="auth-modal-backdrop" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md transition-opacity overflow-y-auto">
+      <div class="max-w-md w-full my-auto bezel-shell bg-[#090a0f] border border-white/10 shadow-[0_24px_50px_rgba(0,0,0,0.85)]">
+        <div class="bezel-core p-5 sm:p-6 relative max-h-[90vh] overflow-y-auto custom-scrollbar">
           
           <!-- Close Button -->
           <button id="btn-close-auth-modal" class="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer" aria-label="${t('authModal.closeWindow', lang)}">
@@ -68,18 +79,19 @@ export function renderAuthModal(state) {
 
           ${isProfileMode ? `
             <!-- ================= PROFILE VIEW ================= -->
-            <div class="space-y-5">
+            <div class="space-y-4">
               
               <!-- Profile Header Card -->
-              <div class="flex items-center space-x-3.5 pb-4 border-b border-white/[0.08]">
+              <div class="flex items-center space-x-3.5 pb-3.5 border-b border-white/[0.08]">
                 <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-500/20 to-amber-600/5 border border-amber-500/30 flex items-center justify-center text-xl font-bold text-amber-400 shadow-sm shrink-0">
                   ${userNickname.charAt(0).toUpperCase()}
                 </div>
                 <div class="flex-1 min-w-0">
-                  <div class="flex items-center gap-2">
+                  <div class="flex items-center gap-2 flex-wrap">
                     <h3 class="text-base font-bold text-white truncate">${userNickname}</h3>
-                    <span class="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-amber-400/10 text-amber-400 border border-amber-400/20 capitalize">
-                      ${state.userProfile?.role || 'mahasiswa'}
+                    <span class="px-2 py-0.5 rounded-md text-[10px] font-bold border ${roleBadge.badgeClass} inline-flex items-center gap-1">
+                      <span>${roleBadge.icon}</span>
+                      <span>${roleBadge.label}</span>
                     </span>
                   </div>
 
@@ -88,13 +100,65 @@ export function renderAuthModal(state) {
                     <span class="px-2 py-0.5 rounded-md bg-white/[0.06] border border-white/10 text-amber-400 font-mono text-[11px] font-bold">
                       🆔 ${userUid}
                     </span>
-                    <span class="text-[10px] text-slate-500 font-mono">UID Permanen</span>
+                    <span class="text-[10px] text-slate-500 font-mono">${roleBadge.fullLabel}</span>
                   </div>
                 </div>
               </div>
 
+              <!-- Quick Role Switcher & Workspace Access in Profile -->
+              <div class="p-3 rounded-xl bg-white/[0.03] border border-white/[0.08] space-y-2.5">
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-bold text-slate-200">Peran Akun Aktif (Role Akses)</span>
+                  <span class="text-[10px] font-mono text-amber-400">Bebas Ganti Peran</span>
+                </div>
+                <div class="grid grid-cols-3 gap-1.5">
+                  ${roleOptions.map(r => {
+                    const isCurrent = currentRole === r.id;
+                    return `
+                      <button
+                        type="button"
+                        data-switch-profile-role="${r.id}"
+                        class="px-2 py-2 rounded-lg border text-center transition-all cursor-pointer ${
+                          isCurrent
+                            ? 'bg-amber-400/20 border-amber-400/60 text-white font-bold shadow-sm'
+                            : 'bg-white/[0.03] border-white/10 text-slate-400 hover:text-white hover:bg-white/[0.07]'
+                        }"
+                      >
+                        <div class="text-sm leading-none">${r.icon}</div>
+                        <div class="text-[11px] mt-1">${r.label}</div>
+                      </button>
+                    `;
+                  }).join('')}
+                </div>
+
+                ${currentRole === 'guru' || currentRole === 'admin' ? `
+                  <div class="pt-1 flex gap-2">
+                    ${currentRole === 'guru' || currentRole === 'admin' ? `
+                      <button
+                        type="button"
+                        data-open-role-panel="guru"
+                        class="flex-1 py-2 px-3 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                      >
+                        <span>👨‍🏫</span>
+                        <span>Buka Panel Guru</span>
+                      </button>
+                    ` : ''}
+                    ${currentRole === 'admin' ? `
+                      <button
+                        type="button"
+                        data-open-role-panel="admin"
+                        class="flex-1 py-2 px-3 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-300 text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                      >
+                        <span>🛡️</span>
+                        <span>Buka Panel Admin</span>
+                      </button>
+                    ` : ''}
+                  </div>
+                ` : ''}
+              </div>
+
               <!-- Private Credentials Section (Username & Tagname - Strictly Protected) -->
-              <div class="p-3.5 rounded-xl bg-blue-500/[0.06] border border-blue-500/20 space-y-2">
+              <div class="p-3 rounded-xl bg-blue-500/[0.06] border border-blue-500/20 space-y-2">
                 <div class="flex items-center justify-between">
                   <span class="text-xs font-bold text-blue-300 flex items-center gap-1.5">
                     <span>🔒</span> Kredensial Login Privat (Hanya Anda)
@@ -114,7 +178,7 @@ export function renderAuthModal(state) {
               </div>
 
               <!-- XP & Gamification Progress Bar -->
-              <div class="p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.06] space-y-2">
+              <div class="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06] space-y-2">
                 <div class="flex items-center justify-between text-xs">
                   <div class="flex items-center space-x-1.5">
                     <span class="w-2 h-2 rounded-sm bg-amber-400"></span>
@@ -136,22 +200,22 @@ export function renderAuthModal(state) {
 
               <!-- Learning Stats Bento Grid -->
               <div class="grid grid-cols-2 gap-2.5">
-                <div class="p-3 rounded-lg bg-white/[0.02] border border-white/[0.06]">
+                <div class="p-2.5 rounded-lg bg-white/[0.02] border border-white/[0.06]">
                   <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">${t('authModal.bestAccuracy', lang)}</div>
-                  <div class="text-base font-bold text-white mt-1 font-mono">${bestAccuracy > 0 ? `${bestAccuracy.toFixed(0)}%` : '-'}</div>
-                  <div class="text-[10px] text-slate-400 mt-0.5">${t('authModal.totalAttempts', lang, { count: userScores.length })}</div>
+                  <div class="text-base font-bold text-white mt-0.5 font-mono">${bestAccuracy > 0 ? `${bestAccuracy.toFixed(0)}%` : '-'}</div>
+                  <div class="text-[10px] text-slate-400">${t('authModal.totalAttempts', lang, { count: userScores.length })}</div>
                 </div>
-                <div class="p-3 rounded-lg bg-white/[0.02] border border-white/[0.06]">
+                <div class="p-2.5 rounded-lg bg-white/[0.02] border border-white/[0.06]">
                   <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">${t('authModal.cloudSync', lang)}</div>
-                  <div class="text-base font-bold text-emerald-400 mt-1 flex items-center gap-1.5">
+                  <div class="text-base font-bold text-emerald-400 mt-0.5 flex items-center gap-1.5">
                     <span class="w-2 h-2 rounded-sm bg-emerald-400"></span> ${t('authModal.cloudActive', lang)}
                   </div>
-                  <div class="text-[10px] text-slate-400 mt-0.5">${t('authModal.syncReady', lang)}</div>
+                  <div class="text-[10px] text-slate-400">${t('authModal.syncReady', lang)}</div>
                 </div>
               </div>
 
               <!-- Profile Update Form (Update Nickname) -->
-              <form id="form-update-profile" class="space-y-3 pt-1">
+              <form id="form-update-profile" class="space-y-2.5 pt-1">
                 <div>
                   <label class="block text-xs font-semibold text-slate-300 mb-1">
                     Nickname (Nama Panggilan Publik)
@@ -163,7 +227,7 @@ export function renderAuthModal(state) {
                     required
                     class="w-full px-3 py-2 rounded-lg bg-white/[0.04] border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 transition-colors"
                   />
-                  <p class="text-[10px] text-slate-500 mt-1">
+                  <p class="text-[10px] text-slate-500 mt-0.5">
                     Nama ini dapat dilihat oleh semua pengguna pada Leaderboard dan Chat.
                   </p>
                 </div>
@@ -174,7 +238,7 @@ export function renderAuthModal(state) {
                   </div>
                 ` : ''}
 
-                <div class="flex items-center gap-2 pt-2">
+                <div class="flex items-center gap-2 pt-1">
                   <button 
                     type="submit" 
                     id="btn-save-profile" 
@@ -195,19 +259,19 @@ export function renderAuthModal(state) {
 
             </div>
           ` : `
-            <!-- ================= LOGIN / REGISTER VIEW (NO EMAIL) ================= -->
-            <div class="space-y-4">
+            <!-- ================= LOGIN / REGISTER VIEW (WITH ROLE SELECTION) ================= -->
+            <div class="space-y-3.5">
               
               <!-- Brand Header -->
-              <div class="text-center pt-1">
-                <div class="flex justify-center mb-2">
-                  ${renderNetVerseLogo({ size: 36, className: 'w-9 h-9 rounded-lg shadow-lg' })}
+              <div class="text-center pt-0.5">
+                <div class="flex justify-center mb-1.5">
+                  ${renderNetVerseLogo({ size: 34, className: 'w-8 h-8 rounded-lg shadow-lg' })}
                 </div>
                 <h3 class="text-base font-bold text-white tracking-tight">
                   ${isRegisterMode ? 'Daftar Akun NetVerse' : 'Masuk ke NetVerse'}
                 </h3>
                 <p class="text-[11px] text-slate-400 mt-0.5">
-                  ${isRegisterMode ? 'Gunakan Username & Tagname kustom tanpa memerlukan email' : 'Masuk menggunakan Username dan Tagname 5 digit Anda'}
+                  Pilih peran akses <strong class="text-amber-300">Siswa</strong>, <strong class="text-emerald-300">Guru</strong>, atau <strong class="text-rose-300">Admin</strong>
                 </p>
               </div>
 
@@ -271,32 +335,68 @@ export function renderAuthModal(state) {
                 </div>
               ` : ''}
 
-              <!-- Auth Form (Username + Tagname + Password - NO EMAIL) -->
-              <form id="form-auth" class="space-y-3">
+              <!-- Role Selector (Siswa / Guru / Admin) -->
+              <div>
+                <div class="flex items-center justify-between mb-1.5">
+                  <label class="block text-xs font-semibold text-slate-300">
+                    Pilih Role Akun
+                  </label>
+                  <span class="text-[10px] font-mono text-amber-400">Siswa / Guru / Admin</span>
+                </div>
+                <div class="grid grid-cols-3 gap-2">
+                  ${roleOptions.map(role => {
+                    const isSelected = selectedAuthRole === role.id;
+                    const activeBorder = role.id === 'admin'
+                      ? 'bg-rose-500/20 border-rose-500/60 text-white shadow-sm'
+                      : role.id === 'guru'
+                      ? 'bg-emerald-500/20 border-emerald-500/60 text-white shadow-sm'
+                      : 'bg-amber-400/20 border-amber-400/60 text-white shadow-sm';
+                    return `
+                      <button
+                        type="button"
+                        data-select-auth-role="${role.id}"
+                        class="p-2 rounded-lg border text-center transition-all cursor-pointer ${
+                          isSelected
+                            ? activeBorder
+                            : 'bg-white/[0.03] border-white/10 text-slate-400 hover:text-white hover:bg-white/[0.06]'
+                        }"
+                      >
+                        <div class="text-base leading-none">${role.icon}</div>
+                        <div class="text-xs font-bold mt-1">${role.label}</div>
+                        <div class="text-[9px] text-slate-400 leading-tight mt-0.5 truncate">${role.desc}</div>
+                      </button>
+                    `;
+                  }).join('')}
+                </div>
+              </div>
+
+              <!-- Auth Form (Username + Tagname + Password + Role - NO EMAIL) -->
+              <form id="form-auth" class="space-y-2.5">
+                <input type="hidden" id="auth-role" value="${selectedAuthRole}" />
+
                 ${isRegisterMode ? `
                   <!-- REGISTER: Nickname (Public) -->
                   <div>
                     <label class="block text-xs font-semibold text-slate-300 mb-1">
-                      Nickname (Nama Panggilan Umum)
+                      Nickname (${selectedAuthRole === 'guru' ? 'Nama Guru / Dosen' : selectedAuthRole === 'admin' ? 'Nama Administrator' : 'Nama Panggilan Umum'})
                     </label>
                     <input 
                       type="text" 
                       id="auth-nama-lengkap" 
-                      placeholder="cth. Shiina, CyberAce, Farras" 
+                      placeholder="${selectedAuthRole === 'guru' ? 'cth. Pak Budi, Bu Sari' : selectedAuthRole === 'admin' ? 'cth. Admin Utama' : 'cth. Shiina, CyberAce, Farras'}" 
                       required 
                       class="w-full px-3 py-2 rounded-lg bg-white/[0.04] border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 transition-colors"
                     />
-                    <p class="text-[10px] text-slate-400 mt-0.5">Dapat dilihat publik di Leaderboard & Chat</p>
                   </div>
 
                   <!-- REGISTER: Auto-generated Permanent UID -->
-                  <div class="p-2.5 rounded-lg bg-white/[0.02] border border-white/[0.08] flex items-center justify-between">
+                  <div class="p-2 rounded-lg bg-white/[0.02] border border-white/[0.08] flex items-center justify-between">
                     <div>
                       <div class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">UID Permanen (Sistem)</div>
                       <div class="text-xs font-mono font-bold text-amber-400 mt-0.5">${candidateRegisterUid}</div>
                     </div>
                     <input type="hidden" id="auth-uid" value="${candidateRegisterUid}" />
-                    <span class="text-[10px] text-slate-500 font-mono">Identitas Permanen</span>
+                    <span class="text-[10px] text-slate-500 font-mono">Role: ${selectedAuthRole.toUpperCase()}</span>
                   </div>
                 ` : ''}
 
@@ -335,9 +435,6 @@ export function renderAuthModal(state) {
                       class="w-full pl-7 pr-3 py-2 rounded-lg bg-white/[0.04] border border-white/10 text-xs text-white placeholder-slate-500 font-mono uppercase tracking-wider focus:outline-none focus:border-amber-400 transition-colors"
                     />
                   </div>
-                  <p class="text-[10px] text-slate-500 mt-0.5">
-                    ${isRegisterMode ? 'Tentukan 5 kombinasi huruf/angka pilihan Anda sebagai kunci login privat.' : 'Masukkan 5 digit tagname rahasia Anda.'}
-                  </p>
                 </div>
 
                 <!-- Password (Minimal 6 Karakter Bebas) -->
@@ -378,12 +475,49 @@ export function renderAuthModal(state) {
                 >
                   ${state.authLoading 
                     ? '...' 
-                    : (isRegisterMode ? 'Daftar Akun NetVerse' : 'Masuk ke NetVerse')}
+                    : (isRegisterMode ? `Daftar sebagai ${selectedAuthRole.toUpperCase()}` : `Masuk sebagai ${selectedAuthRole.toUpperCase()}`)}
                 </button>
               </form>
 
+              <!-- Instant Demo Access (Simulasi Presentasi Tugas) -->
+              <div class="pt-2.5 border-t border-white/[0.08] space-y-2">
+                <div class="flex items-center justify-between text-[10px]">
+                  <span class="text-slate-400 font-semibold uppercase tracking-wider">Simulasi Cepat (1-Klik Demo Tugas)</span>
+                  <span class="text-amber-400 font-mono">Instan</span>
+                </div>
+                <div class="grid grid-cols-3 gap-1.5">
+                  <button
+                    type="button"
+                    id="btn-demo-login-siswa"
+                    data-quick-demo-role="siswa"
+                    class="py-1.5 px-2 rounded-md bg-amber-400/10 hover:bg-amber-400/20 border border-amber-400/30 text-amber-300 text-[11px] font-semibold transition-colors cursor-pointer flex items-center justify-center gap-1"
+                  >
+                    <span>🎓</span>
+                    <span>Demo Siswa</span>
+                  </button>
+                  <button
+                    type="button"
+                    id="btn-demo-login-guru"
+                    data-quick-demo-role="guru"
+                    class="py-1.5 px-2 rounded-md bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[11px] font-semibold transition-colors cursor-pointer flex items-center justify-center gap-1"
+                  >
+                    <span>👨‍🏫</span>
+                    <span>Demo Guru</span>
+                  </button>
+                  <button
+                    type="button"
+                    id="btn-demo-login-admin"
+                    data-quick-demo-role="admin"
+                    class="py-1.5 px-2 rounded-md bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-300 text-[11px] font-semibold transition-colors cursor-pointer flex items-center justify-center gap-1"
+                  >
+                    <span>🛡️</span>
+                    <span>Demo Admin</span>
+                  </button>
+                </div>
+              </div>
+
               <!-- Guest Mode Option -->
-              <div class="pt-2 border-t border-white/[0.06] text-center">
+              <div class="pt-1 border-t border-white/[0.06] text-center">
                 <button 
                   type="button" 
                   id="btn-continue-guest" 
