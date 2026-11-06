@@ -1456,9 +1456,30 @@ async function runAudit() {
     const demoAdminBtn = await page.$('#btn-demo-login-admin');
     recordCheck('Quick Demo Login buttons for Guru and Admin present', !!demoGuruBtn && !!demoAdminBtn);
 
+    // 1b. Test logging in with existing account username 'Nopalexe' (Nickname 'Shiina')
+    await page.fill('#auth-username', 'Nopalexe');
+    await page.fill('#auth-password', 'shiina123');
+    await page.click('#btn-submit-auth');
+    await page.waitForTimeout(400);
+    const nopalLoginCheck = await page.evaluate(() => ({
+      loggedIn: !!window.__netverseState.session,
+      nickname: window.__netverseState.userProfile?.nama_lengkap,
+      username: window.__netverseState.userProfile?.username
+    }));
+    recordCheck('Existing account Nopalexe (Nickname Shiina) logs in seamlessly', nopalLoginCheck.loggedIn && nopalLoginCheck.nickname === 'Shiina' && nopalLoginCheck.username === 'Nopalexe', JSON.stringify(nopalLoginCheck));
+
+    // Reopen Auth Modal for Guru Demo test
+    await page.evaluate(() => {
+      window.__netverseState.authMode = 'login';
+      window.__netverseState.authModalOpen = true;
+      window.__renderApp();
+    });
+    await page.waitForTimeout(250);
+
     // 2. Click Demo Guru & Audit Teacher Dashboard
-    if (demoGuruBtn) {
-      await demoGuruBtn.click();
+    const demoGuruBtnAfter = await page.$('#btn-demo-login-guru');
+    if (demoGuruBtnAfter) {
+      await demoGuruBtnAfter.click();
       await page.waitForTimeout(400);
 
       const teacherRoot = await page.$('#teacher-dashboard-root');

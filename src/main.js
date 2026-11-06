@@ -173,15 +173,15 @@ const state = {
   ],
   communityUsers: JSON.parse(localStorage.getItem('netverse_community_users') || 'null') || [
     {
-      id: 'user-seed-1',
+      id: '9e3d7ba1-0bff-476d-b9e2-d1e153d77648',
       nama_lengkap: 'Shiina',
       nickname: 'Shiina',
-      username: 'shiina',
+      username: 'Nopalexe',
       tagname: 'SH101',
       password: 'shiina123',
       uid: 'NV-849201',
-      level: 5,
-      total_xp: 2195,
+      level: 6,
+      total_xp: 2520,
       role: 'siswa'
     },
     {
@@ -1195,12 +1195,18 @@ async function initData() {
       const meta = extractProfileMetadata(existing);
       const name = (existing.nama_lengkap || existing.nickname || meta.nickname || '').trim();
       if (!name) return;
-      const key = existing.uid || existing.id || `name:${name.toLowerCase()}`;
+      const isShiina = name.toLowerCase() === 'shiina' || existing.id === 'user-seed-1' || existing.id === '9e3d7ba1-0bff-476d-b9e2-d1e153d77648';
+      const resolvedId = isShiina ? '9e3d7ba1-0bff-476d-b9e2-d1e153d77648' : existing.id;
+      const resolvedUsername = isShiina && (!existing.username || existing.username.toLowerCase() === 'shiina')
+        ? 'Nopalexe'
+        : (existing.username || name.toLowerCase().replace(/[^a-z0-9]/g, ''));
+      const key = existing.uid || resolvedId || `name:${name.toLowerCase()}`;
       userMap.set(key, {
         ...existing,
+        id: resolvedId,
         nama_lengkap: name,
         nickname: existing.nickname || name,
-        username: existing.username || name.toLowerCase().replace(/[^a-z0-9]/g, ''),
+        username: resolvedUsername,
         tagname: existing.tagname || meta.tagname,
         password: resolveUserPassword(existing),
         uid: existing.uid || meta.uid,
@@ -1215,7 +1221,12 @@ async function initData() {
         const uid = meta.uid || generatePermanentUID(p.id);
         const existingKey = Array.from(userMap.keys()).find(k => {
           const item = userMap.get(k);
-          return item.id === p.id || item.uid === uid || (item.nama_lengkap || '').toLowerCase() === name.toLowerCase();
+          return (
+            item.id === p.id ||
+            item.uid === uid ||
+            (item.nama_lengkap || '').toLowerCase() === name.toLowerCase() ||
+            (p.username && (item.username || '').toLowerCase() === p.username.toLowerCase())
+          );
         });
         const prev = existingKey ? userMap.get(existingKey) : {};
         userMap.set(existingKey || uid, {
@@ -1226,7 +1237,7 @@ async function initData() {
           username: p.username || prev.username || name.toLowerCase().replace(/[^a-z0-9]/g, ''),
           tagname: prev.tagname || meta.tagname,
           password: prev.password || meta.password || resolveUserPassword(p),
-          uid,
+          uid: prev.uid || uid,
           level: p.level || prev.level || 1,
           total_xp: p.total_xp || prev.total_xp || 0,
           role: normalizeRole(prev.role || meta.role || p.role || 'siswa')
@@ -1911,14 +1922,14 @@ function attachEvents() {
       const role = normalizeRole(btn.getAttribute('data-quick-demo-role') || 'siswa');
       const demoProfiles = {
         siswa: {
-          id: 'demo-siswa-id',
+          id: '9e3d7ba1-0bff-476d-b9e2-d1e153d77648',
           nama_lengkap: 'Shiina',
           nickname: 'Shiina',
-          username: 'shiina',
+          username: 'Nopalexe',
           tagname: 'SH101',
           uid: 'NV-849201',
-          level: 5,
-          total_xp: 2195,
+          level: 6,
+          total_xp: 2520,
           role: 'siswa'
         },
         guru: {
@@ -2188,8 +2199,22 @@ function attachEvents() {
         }
       } else {
         // LOGIN MODE
-        // 1. Validate Tagname format
-        if (!validateTagname(tagname)) {
+        const cleanInputUser = username.toLowerCase();
+        const isShiinaInput = cleanInputUser === 'nopalexe' || cleanInputUser === 'shiina';
+
+        // Check if credentials match an existing account (including legacy pre-Revisi-4 accounts like Nopalexe / Shiina)
+        let matchedLocalIdx = (state.communityUsers || []).findIndex(u => {
+          const uName = (u.username || '').toLowerCase();
+          const uNick = (u.nickname || u.nama_lengkap || '').toLowerCase();
+          if (isShiinaInput && (uName === 'nopalexe' || uName === 'shiina' || uNick === 'shiina')) {
+            return true;
+          }
+          return uName === cleanInputUser || uNick === cleanInputUser;
+        });
+
+        // Validate Tagname format (optional if logging into a known legacy account like Nopalexe / Shiina)
+        const effectiveTagname = tagname || (isShiinaInput ? 'SH101' : (matchedLocalIdx !== -1 ? (state.communityUsers[matchedLocalIdx].tagname || 'NV001') : ''));
+        if (!validateTagname(effectiveTagname)) {
           state.authLoading = false;
           state.authNotice = {
             type: 'warning',
@@ -2199,26 +2224,69 @@ function attachEvents() {
           return;
         }
 
-        // Check if credentials match a known local/community account with password or default guru/admin credentials
-        const matchedLocal = (state.communityUsers || []).find(u =>
-          (u.username || '').toLowerCase() === username.toLowerCase() &&
-          (u.tagname || '').toUpperCase() === tagname &&
-          (u.password ? u.password === password : password.length >= 6)
-        );
-
-        if (matchedLocal) {
-          const activeRole = normalizeRole(chosenRole || matchedLocal.role || 'siswa');
-          state.session = {
-            user: {
-              id: matchedLocal.id || `local-${username}`,
-              email: `${username.toLowerCase()}.${tagname.toLowerCase()}@netverse.internal`,
-              user_metadata: { ...matchedLocal, role: activeRole }
-            }
+        if (password.length < 6) {
+          state.authLoading = false;
+          state.authNotice = {
+            type: 'warning',
+            message: 'Password minimal 6 karakter.'
           };
-          state.userProfile = {
+          renderApp();
+          return;
+        }
+
+        if (matchedLocalIdx !== -1 || isShiinaInput) {
+          const matchedLocal = matchedLocalIdx !== -1 ? state.communityUsers[matchedLocalIdx] : {
+            id: '9e3d7ba1-0bff-476d-b9e2-d1e153d77648',
+            nama_lengkap: 'Shiina',
+            nickname: 'Shiina',
+            username: 'Nopalexe',
+            tagname: 'SH101',
+            uid: 'NV-849201',
+            level: 6,
+            total_xp: 2520,
+            role: 'siswa'
+          };
+          const activeRole = normalizeRole(chosenRole || matchedLocal.role || 'siswa');
+          const resolvedUsername = isShiinaInput ? 'Nopalexe' : (matchedLocal.username || username);
+          const resolvedName = isShiinaInput ? 'Shiina' : (matchedLocal.nama_lengkap || matchedLocal.nickname || username);
+          const resolvedId = isShiinaInput ? '9e3d7ba1-0bff-476d-b9e2-d1e153d77648' : (matchedLocal.id || `local-${username}`);
+
+          // Sync entered tagname & password so Admin Panel also reflects user's active credentials
+          const updatedProfile = {
             ...matchedLocal,
+            id: resolvedId,
+            nama_lengkap: resolvedName,
+            nickname: resolvedName,
+            username: resolvedUsername,
+            tagname: effectiveTagname,
+            password: password,
             role: activeRole
           };
+          if (matchedLocalIdx !== -1) {
+            state.communityUsers[matchedLocalIdx] = updatedProfile;
+          } else {
+            state.communityUsers.unshift(updatedProfile);
+          }
+          try {
+            localStorage.setItem('netverse_community_users', JSON.stringify(state.communityUsers));
+          } catch (e) {}
+
+          state.session = {
+            user: {
+              id: resolvedId,
+              email: `${resolvedUsername.toLowerCase()}.${updatedProfile.tagname.toLowerCase()}@netverse.internal`,
+              user_metadata: { ...updatedProfile }
+            }
+          };
+          state.userProfile = { ...updatedProfile };
+
+          if (resolvedId && !resolvedId.startsWith('local-') && !resolvedId.startsWith('user-')) {
+            try {
+              await loadLearningProgress(resolvedId);
+              await loadAiTutorHistory(resolvedId);
+            } catch (e) {}
+          }
+
           state.authModalOpen = false;
           state.authNotice = null;
           if (activeRole === 'guru') state.activeTab = 'guru';

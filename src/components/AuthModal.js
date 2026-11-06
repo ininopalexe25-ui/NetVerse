@@ -421,17 +421,16 @@ export function renderAuthModal(state) {
                     <label class="block text-xs font-semibold text-slate-300">
                       Tagname <span class="text-amber-400 font-mono">(5 Digit Huruf & Angka)</span>
                     </label>
-                    <span class="text-[10px] text-slate-500 font-mono">Tepat 5 Karakter</span>
+                    <span class="text-[10px] text-slate-500 font-mono">${isRegisterMode ? 'Wajib 5 Karakter' : 'Akun lama otomatis'}</span>
                   </div>
                   <div class="relative">
                     <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-mono text-xs font-bold">#</span>
                     <input 
                       type="text" 
                       id="auth-tagname" 
-                      placeholder="A1B2C" 
-                      required 
+                      placeholder="${isRegisterMode ? 'A1B2C' : 'SH101 (Kosongkan jika akun lama)'}" 
+                      ${isRegisterMode ? 'required pattern="[A-Za-z0-9]{5}"' : ''}
                       maxlength="5"
-                      pattern="[A-Za-z0-9]{5}"
                       class="w-full pl-7 pr-3 py-2 rounded-lg bg-white/[0.04] border border-white/10 text-xs text-white placeholder-slate-500 font-mono uppercase tracking-wider focus:outline-none focus:border-amber-400 transition-colors"
                     />
                   </div>
