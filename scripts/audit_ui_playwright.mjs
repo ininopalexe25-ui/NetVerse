@@ -1511,6 +1511,28 @@ async function runAudit() {
       const roleSelectDropdowns = await page.$$('[data-admin-change-role]');
       recordCheck('Admin User & Role Management table and creation form rendered', !!addUserForm && roleSelectDropdowns.length > 0);
 
+      // Verify Admin can inspect Guru & Murid passwords
+      const toggleAllPassBtn = await page.$('#btn-admin-toggle-all-passwords');
+      const rowPassToggles = await page.$$('[data-admin-toggle-pass]');
+      recordCheck('Admin Password Inspection controls (Guru & Murid) rendered', !!toggleAllPassBtn && rowPassToggles.length > 0);
+
+      if (toggleAllPassBtn) {
+        await toggleAllPassBtn.click();
+        await page.waitForTimeout(250);
+        const revealedPassCells = await page.$$eval('[data-user-password-cell]', els => els.map(el => el.innerText.trim()));
+        const allRevealed = revealedPassCells.length > 0 && revealedPassCells.every(txt => txt.length >= 6 && !txt.includes('••••'));
+        recordCheck('Admin can reveal and inspect all Guru & Murid passwords', allRevealed, `Sample passwords: ${revealedPassCells.slice(0, 3).join(', ')}`);
+      }
+
+      // Test opening inline Password Editor for a Guru/Murid
+      const firstEditPassBtn = await page.$('[data-admin-edit-pass]');
+      if (firstEditPassBtn) {
+        await firstEditPassBtn.click();
+        await page.waitForTimeout(250);
+        const savePassForm = await page.$('#form-admin-save-password');
+        recordCheck('Admin inline Password Reset/Update form opens for Guru/Murid', !!savePassForm);
+      }
+
       // Test switching Admin Sub-tabs (Analytics, 3D Devices, Moderation)
       await page.click('[data-admin-tab="analytics"]');
       await page.waitForTimeout(250);

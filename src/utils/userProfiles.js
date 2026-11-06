@@ -174,9 +174,39 @@ export function getRoleBadgeInfo(role = 'siswa', lang = 'id') {
 }
 
 /**
+ * Resolve stored or default password for Admin credential inspection
+ * @param {object} user
+ * @returns {string}
+ */
+export function resolveUserPassword(user = {}) {
+  let meta = {};
+  if (user.avatar_url && typeof user.avatar_url === 'string' && user.avatar_url.startsWith('{')) {
+    try {
+      meta = JSON.parse(user.avatar_url);
+    } catch (e) {
+      meta = {};
+    }
+  }
+  const explicitPass = user.password || meta.password;
+  if (explicitPass && String(explicitPass).trim().length > 0) {
+    return String(explicitPass).trim();
+  }
+
+  const role = normalizeRole(user.role || meta.role || 'siswa');
+  const rawName = (user.username || meta.nickname || user.nama_lengkap || user.nickname || 'siswa')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '')
+    .slice(0, 10) || 'user';
+
+  if (role === 'admin') return `${rawName}#admin99`;
+  if (role === 'guru') return `${rawName}#guru123`;
+  return `${rawName}12345`.slice(0, Math.max(6, rawName.length + 3));
+}
+
+/**
  * Extract parsed metadata from avatar_url or user_metadata
  * @param {object} profile
- * @returns {object} { nickname, tagname, uid, role, achievements }
+ * @returns {object} { nickname, tagname, uid, role, password, achievements }
  */
 export function extractProfileMetadata(profile = {}) {
   let meta = {};
@@ -192,12 +222,14 @@ export function extractProfileMetadata(profile = {}) {
   const tagname = meta.tagname || (profile.id ? generatePermanentUID(profile.id).slice(-5) : 'NV001');
   const uid = meta.uid || generatePermanentUID(profile.id || profile.username || nickname);
   const role = normalizeRole(meta.role || profile.role || 'siswa');
+  const password = resolveUserPassword({ ...profile, role, username: profile.username || meta.username });
 
   return {
     nickname,
     tagname: tagname.toUpperCase(),
     uid,
     role,
+    password,
     achievements: meta.achievements || []
   };
 }

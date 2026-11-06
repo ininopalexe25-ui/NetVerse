@@ -1,10 +1,12 @@
-import { generatePermanentUID, extractProfileMetadata, normalizeRole, getRoleBadgeInfo } from '../utils/userProfiles.js';
+import { generatePermanentUID, extractProfileMetadata, normalizeRole, getRoleBadgeInfo, resolveUserPassword } from '../utils/userProfiles.js';
 
 export function renderAdminDashboard(state) {
   const activeSubTab = state.adminSubTab || 'users'; // 'users' | 'analytics' | 'devices' | 'moderation'
   const searchQuery = (state.adminUserSearch || '').trim().toLowerCase();
   const roleFilter = state.adminRoleFilter || 'all'; // 'all' | 'siswa' | 'guru' | 'admin'
   const lang = state.lang || 'id';
+  const showAllPasswords = !!state.adminShowAllPasswords;
+  const revealedMap = state.adminRevealedPasswords || {};
 
   const adminName = state.userProfile?.nama_lengkap || state.userProfile?.nickname || 'Administrator';
   const adminUid = state.userProfile?.uid || 'NV-ADMN01';
@@ -16,6 +18,7 @@ export function renderAdminDashboard(state) {
     const uid = u.uid || meta.uid || generatePermanentUID(name);
     const username = u.username || name.toLowerCase().replace(/[^a-z0-9]/g, '');
     const tagname = u.tagname || meta.tagname || 'NV001';
+    const password = resolveUserPassword({ ...u, username, role: normRole });
     const totalXp = Number(u.total_xp || 0);
     const level = Number(u.level || Math.floor(totalXp / 500) + 1);
     return {
@@ -24,12 +27,17 @@ export function renderAdminDashboard(state) {
       uid,
       username,
       tagname,
+      password,
       role: normRole,
       total_xp: totalXp,
       level,
       status: u.status || 'aktif'
     };
   });
+
+  const editingPasswordUser = state.adminEditingPasswordUid
+    ? allUsers.find(u => u.uid === state.adminEditingPasswordUid)
+    : null;
 
   const countSiswa = allUsers.filter(u => u.role === 'siswa').length;
   const countGuru = allUsers.filter(u => u.role === 'guru').length;
@@ -172,7 +180,7 @@ export function renderAdminDashboard(state) {
                 <span class="text-[10px] font-mono text-slate-400">Otomatis menghasilkan UID Permanen</span>
               </div>
 
-              <form id="form-admin-add-user" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+              <form id="form-admin-add-user" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
                 <div>
                   <label class="block text-[10px] font-semibold text-slate-400 mb-1">Nickname / Nama Lengkap</label>
                   <input
@@ -206,12 +214,24 @@ export function renderAdminDashboard(state) {
                   />
                 </div>
                 <div>
+                  <label class="block text-[10px] font-semibold text-slate-400 mb-1">Password Login</label>
+                  <input
+                    type="text"
+                    id="admin-new-password"
+                    placeholder="Min. 6 karakter"
+                    value="netverse123"
+                    minlength="6"
+                    required
+                    class="w-full px-3 py-2 rounded-lg bg-white/[0.04] border border-white/10 text-xs text-amber-300 font-mono focus:outline-none focus:border-rose-400"
+                  />
+                </div>
+                <div>
                   <label class="block text-[10px] font-semibold text-slate-400 mb-1">Pilih Role Akun</label>
                   <select
                     id="admin-new-role"
                     class="w-full px-3 py-2 rounded-lg bg-[#0d111a] border border-white/15 text-xs text-white focus:outline-none focus:border-rose-400"
                   >
-                    <option value="siswa">🎓 Siswa (Mahasiswa)</option>
+                    <option value="siswa">🎓 Siswa (Murid)</option>
                     <option value="guru">👨‍🏫 Guru (Dosen Pengampu)</option>
                     <option value="admin">🛡️ Admin (Administrator)</option>
                   </select>
@@ -229,25 +249,90 @@ export function renderAdminDashboard(state) {
             </div>
           </div>
 
+          ${editingPasswordUser ? `
+            <div class="bezel-shell border border-amber-400/45">
+              <div class="bezel-core p-5 space-y-3.5 bg-amber-950/15">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <span class="text-[10px] font-mono uppercase tracking-wider text-amber-400 font-bold">🔑 Inspeksi & Reset Password Pengguna (Root Admin)</span>
+                    <h3 class="text-sm font-bold text-white mt-0.5">
+                      ${editingPasswordUser.name}
+                      <span class="text-xs font-mono text-amber-300 ml-1.5">(@${editingPasswordUser.username} #${editingPasswordUser.tagname} • ${editingPasswordUser.uid})</span>
+                    </h3>
+                  </div>
+                  <button
+                    type="button"
+                    id="btn-cancel-admin-edit-pass"
+                    class="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-xs text-slate-300 cursor-pointer"
+                  >
+                    Batal ✕
+                  </button>
+                </div>
+
+                <form id="form-admin-save-password" class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+                  <input type="hidden" id="admin-edit-pass-uid" value="${editingPasswordUser.uid}" />
+                  <div>
+                    <label class="block text-[10px] font-semibold text-slate-400 mb-1">Password Saat Ini</label>
+                    <div class="px-3 py-2 rounded-lg bg-black/50 border border-white/10 text-xs font-mono text-emerald-300 font-bold">
+                      ${editingPasswordUser.password}
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-[10px] font-semibold text-slate-400 mb-1">Password Baru (Min. 6 Karakter)</label>
+                    <input
+                      type="text"
+                      id="admin-edit-pass-input"
+                      value="${editingPasswordUser.password}"
+                      minlength="6"
+                      required
+                      class="w-full px-3 py-2 rounded-lg bg-white/[0.06] border border-amber-400/40 text-xs text-white font-mono focus:outline-none focus:border-amber-400"
+                    />
+                  </div>
+                  <div>
+                    <button
+                      type="submit"
+                      class="w-full py-2 px-4 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs transition-colors cursor-pointer"
+                    >
+                      💾 Simpan Password Baru
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          ` : ''}
+
           <!-- Tabel Daftar Seluruh Pengguna -->
           <div class="bezel-shell">
             <div class="bezel-core p-4 sm:p-5 space-y-4">
-              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
                 <div class="relative flex-1 max-w-md">
                   <input
                     type="text"
                     id="input-admin-search-user"
                     value="${state.adminUserSearch || ''}"
-                    placeholder="Cari nama, username, atau UID pengguna..."
+                    placeholder="Cari nama, username, atau UID guru/murid..."
                     class="w-full pl-9 pr-4 py-2 rounded-lg bg-white/[0.04] border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-rose-400"
                   />
                   <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs">🔍</span>
                 </div>
 
                 <div class="flex flex-wrap items-center gap-1.5">
+                  <button
+                    type="button"
+                    id="btn-admin-toggle-all-passwords"
+                    class="px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 ${
+                      showAllPasswords
+                        ? 'bg-amber-400/20 text-amber-200 border border-amber-400/50'
+                        : 'bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25 border border-emerald-500/35'
+                    }"
+                  >
+                    <span>${showAllPasswords ? '🙈' : '👁️'}</span>
+                    <span>${showAllPasswords ? 'Sembunyikan Semua Password' : 'Cek Semua Password (Guru & Murid)'}</span>
+                  </button>
+
                   ${[
                     { id: 'all', label: `Semua (${allUsers.length})` },
-                    { id: 'siswa', label: `🎓 Siswa (${countSiswa})` },
+                    { id: 'siswa', label: `🎓 Murid/Siswa (${countSiswa})` },
                     { id: 'guru', label: `👨‍🏫 Guru (${countGuru})` },
                     { id: 'admin', label: `🛡️ Admin (${countAdmin})` }
                   ].map(rf => `
@@ -267,11 +352,12 @@ export function renderAdminDashboard(state) {
               </div>
 
               <div class="overflow-x-auto custom-scrollbar">
-                <table class="w-full text-left border-collapse min-w-[780px]">
+                <table class="w-full text-left border-collapse min-w-[900px]">
                   <thead>
                     <tr class="border-b border-white/10 text-[10px] font-bold uppercase tracking-wider text-slate-400">
                       <th class="py-3 px-3">Pengguna & UID</th>
-                      <th class="py-3 px-3">Kredensial Login (Admin View)</th>
+                      <th class="py-3 px-3">Username & Tagname</th>
+                      <th class="py-3 px-3">Password (Guru & Murid)</th>
                       <th class="py-3 px-3">Role Saat Ini</th>
                       <th class="py-3 px-3">Ubah Role Akses</th>
                       <th class="py-3 px-3">Level & XP</th>
@@ -281,6 +367,7 @@ export function renderAdminDashboard(state) {
                   <tbody class="divide-y divide-white/[0.06] text-xs">
                     ${filteredUsers.map(u => {
                       const badge = getRoleBadgeInfo(u.role, lang);
+                      const isPassVisible = showAllPasswords || !!revealedMap[u.uid];
                       return `
                         <tr class="hover:bg-white/[0.03] transition-colors">
                           <td class="py-3 px-3">
@@ -297,6 +384,34 @@ export function renderAdminDashboard(state) {
                           <td class="py-3 px-3 font-mono text-[11px]">
                             <span class="text-slate-200">@${u.username}</span>
                             <span class="text-amber-400 ml-1">#${u.tagname}</span>
+                          </td>
+                          <td class="py-3 px-3">
+                            <div class="flex items-center gap-1.5">
+                              <span
+                                data-user-password-cell="${u.uid}"
+                                class="px-2 py-1 rounded bg-black/50 border ${
+                                  isPassVisible ? 'border-emerald-500/40 text-emerald-300' : 'border-white/10 text-slate-400'
+                                } font-mono text-[11px] font-bold select-all"
+                              >
+                                ${isPassVisible ? u.password : '••••••••'}
+                              </span>
+                              <button
+                                type="button"
+                                data-admin-toggle-pass="${u.uid}"
+                                class="px-2 py-1 rounded bg-white/[0.06] hover:bg-white/15 border border-white/10 text-[10px] font-semibold text-slate-200 cursor-pointer"
+                                title="${isPassVisible ? 'Sembunyikan Password' : 'Cek Password'}"
+                              >
+                                ${isPassVisible ? '🙈 Tutup' : '👁️ Cek'}
+                              </button>
+                              <button
+                                type="button"
+                                data-admin-edit-pass="${u.uid}"
+                                class="px-2 py-1 rounded bg-amber-400/15 hover:bg-amber-400/25 border border-amber-400/30 text-[10px] font-semibold text-amber-300 cursor-pointer"
+                                title="Ubah / Reset Password"
+                              >
+                                ✏️ Ubah
+                              </button>
+                            </div>
                           </td>
                           <td class="py-3 px-3">
                             <span class="px-2 py-0.5 rounded-md text-[10px] font-bold border ${badge.badgeClass} inline-flex items-center gap-1">

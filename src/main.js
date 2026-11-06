@@ -16,7 +16,7 @@ import { renderThemeAtmosphere } from './components/ThemeAtmosphere.js';
 import { getModuleQuizzes } from './data/moduleQuizzes.js';
 import { ASSESSMENT_MULTIPLE_CHOICE, ASSESSMENT_ESSAYS, gradeEssayWithAi } from './data/assessmentQuestions.js';
 import { t, getLocalizedModule } from './utils/i18n.js';
-import { generatePermanentUID, validateTagname, extractProfileMetadata, sanitizePublicProfile, normalizeRole, getRoleBadgeInfo } from './utils/userProfiles.js';
+import { generatePermanentUID, validateTagname, extractProfileMetadata, sanitizePublicProfile, normalizeRole, getRoleBadgeInfo, resolveUserPassword } from './utils/userProfiles.js';
 
 const initialLang = localStorage.getItem('netverse-lang') || 'en';
 
@@ -108,6 +108,9 @@ const state = {
   adminSubTab: 'users', // 'users' | 'analytics' | 'devices' | 'moderation'
   adminUserSearch: '',
   adminRoleFilter: 'all',
+  adminShowAllPasswords: false,
+  adminRevealedPasswords: {},
+  adminEditingPasswordUid: null,
   adminNotice: null,
   systemAuditLogs: [
     {
@@ -175,6 +178,7 @@ const state = {
       nickname: 'Shiina',
       username: 'shiina',
       tagname: 'SH101',
+      password: 'shiina123',
       uid: 'NV-849201',
       level: 5,
       total_xp: 2195,
@@ -186,6 +190,7 @@ const state = {
       nickname: 'abduljabar',
       username: 'abduljabar',
       tagname: 'AB202',
+      password: 'abdul123',
       uid: 'NV-482910',
       level: 3,
       total_xp: 1000,
@@ -197,6 +202,7 @@ const state = {
       nickname: 'Dimas Wahyu',
       username: 'dimaswahyu',
       tagname: 'DM303',
+      password: 'dimas123',
       uid: 'NV-739102',
       level: 2,
       total_xp: 650,
@@ -208,6 +214,7 @@ const state = {
       nickname: 'Rian Pratama',
       username: 'rianpratama',
       tagname: 'RN404',
+      password: 'rian1234',
       uid: 'NV-918234',
       level: 2,
       total_xp: 550,
@@ -219,6 +226,7 @@ const state = {
       nickname: 'Zahra Amalia',
       username: 'zahraamalia',
       tagname: 'ZH505',
+      password: 'zahra123',
       uid: 'NV-628190',
       level: 1,
       total_xp: 320,
@@ -230,6 +238,7 @@ const state = {
       nickname: 'Dr. Budi Santoso, M.Kom.',
       username: 'pakbudi',
       tagname: 'GURU1',
+      password: 'budi_guru123',
       uid: 'NV-200101',
       level: 8,
       total_xp: 4200,
@@ -241,6 +250,7 @@ const state = {
       nickname: 'Admin Utama PTI',
       username: 'admin',
       tagname: 'ADMN1',
+      password: 'root_admin99',
       uid: 'NV-900001',
       level: 10,
       total_xp: 5000,
@@ -1179,19 +1189,47 @@ async function initData() {
       state.scores = enrichScoresWithProfiles(cleanScores, profiles || []);
     }
 
-    // Build communityUsers list for social search & profile inspection
+    // Build communityUsers list for social search, profile inspection & Admin management
     const userMap = new Map();
+    (state.communityUsers || []).forEach(existing => {
+      const meta = extractProfileMetadata(existing);
+      const name = (existing.nama_lengkap || existing.nickname || meta.nickname || '').trim();
+      if (!name) return;
+      const key = existing.uid || existing.id || `name:${name.toLowerCase()}`;
+      userMap.set(key, {
+        ...existing,
+        nama_lengkap: name,
+        nickname: existing.nickname || name,
+        username: existing.username || name.toLowerCase().replace(/[^a-z0-9]/g, ''),
+        tagname: existing.tagname || meta.tagname,
+        password: resolveUserPassword(existing),
+        uid: existing.uid || meta.uid,
+        role: normalizeRole(existing.role || meta.role || 'siswa')
+      });
+    });
+
     if (profiles) {
       profiles.forEach(p => {
         const meta = extractProfileMetadata(p);
-        userMap.set(p.id, {
+        const name = (p.nama_lengkap || meta.nickname || 'Siswa').trim();
+        const uid = meta.uid || generatePermanentUID(p.id);
+        const existingKey = Array.from(userMap.keys()).find(k => {
+          const item = userMap.get(k);
+          return item.id === p.id || item.uid === uid || (item.nama_lengkap || '').toLowerCase() === name.toLowerCase();
+        });
+        const prev = existingKey ? userMap.get(existingKey) : {};
+        userMap.set(existingKey || uid, {
+          ...prev,
           id: p.id,
-          nama_lengkap: p.nama_lengkap,
-          nickname: meta.nickname || p.nama_lengkap,
-          uid: meta.uid || generatePermanentUID(p.id),
-          level: p.level || 1,
-          total_xp: p.total_xp || 0,
-          role: p.role || 'mahasiswa'
+          nama_lengkap: name,
+          nickname: meta.nickname || name,
+          username: p.username || prev.username || name.toLowerCase().replace(/[^a-z0-9]/g, ''),
+          tagname: prev.tagname || meta.tagname,
+          password: prev.password || meta.password || resolveUserPassword(p),
+          uid,
+          level: p.level || prev.level || 1,
+          total_xp: p.total_xp || prev.total_xp || 0,
+          role: normalizeRole(prev.role || meta.role || p.role || 'siswa')
         });
       });
     }
@@ -1199,16 +1237,24 @@ async function initData() {
       scores.forEach(s => {
         const name = (s.player_name || '').trim();
         if (name && name.toLowerCase() !== 'user') {
-          const key = s.user_id || `name:${name.toLowerCase()}`;
-          if (!userMap.has(key)) {
-            userMap.set(key, {
+          const uid = generatePermanentUID(s.user_id || name);
+          const hasMatch = Array.from(userMap.values()).some(u =>
+            (s.user_id && u.id === s.user_id) ||
+            u.uid === uid ||
+            (u.nama_lengkap || '').trim().toLowerCase() === name.toLowerCase()
+          );
+          if (!hasMatch) {
+            userMap.set(uid, {
               id: s.user_id || null,
               nama_lengkap: name,
               nickname: name,
-              uid: generatePermanentUID(s.user_id || name),
+              username: name.toLowerCase().replace(/[^a-z0-9]/g, ''),
+              tagname: uid.slice(-5).toUpperCase(),
+              password: resolveUserPassword({ nama_lengkap: name, role: 'siswa' }),
+              uid,
               level: s.level || Math.floor((s.total_xp || s.xp_didapat || 100) / 500) + 1,
               total_xp: s.total_xp || s.xp_didapat || 150,
-              role: 'mahasiswa'
+              role: 'siswa'
             });
           }
         }
@@ -2101,7 +2147,8 @@ function attachEvents() {
                     nickname: nickname,
                     tagname: tagname,
                     uid: permanentUid,
-                    role: chosenRole
+                    role: chosenRole,
+                    password: password
                   }),
                   total_xp: 250,
                   level: 1,
@@ -3642,6 +3689,94 @@ function attachEvents() {
     });
   });
 
+  const btnAdminToggleAllPasswords = document.getElementById('btn-admin-toggle-all-passwords');
+  if (btnAdminToggleAllPasswords) {
+    btnAdminToggleAllPasswords.addEventListener('click', () => {
+      state.adminShowAllPasswords = !state.adminShowAllPasswords;
+      state.systemAuditLogs.unshift({
+        id: `aud-${Date.now()}`,
+        type: 'CRED_INSPECT',
+        actor: `${state.userProfile?.nama_lengkap || 'Admin'} (ADMIN)`,
+        action: state.adminShowAllPasswords
+          ? 'Membuka tampilan seluruh password akun Guru & Murid (Root Inspection).'
+          : 'Menyembunyikan kembali tampilan password akun Guru & Murid.',
+        time: 'Baru saja'
+      });
+      renderApp();
+    });
+  }
+
+  document.querySelectorAll('[data-admin-toggle-pass]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetUid = btn.getAttribute('data-admin-toggle-pass');
+      if (!targetUid) return;
+      if (!state.adminRevealedPasswords) state.adminRevealedPasswords = {};
+      if (state.adminShowAllPasswords) {
+        state.adminShowAllPasswords = false;
+        state.adminRevealedPasswords[targetUid] = false;
+      } else {
+        state.adminRevealedPasswords[targetUid] = !state.adminRevealedPasswords[targetUid];
+      }
+      renderApp();
+    });
+  });
+
+  document.querySelectorAll('[data-admin-edit-pass]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetUid = btn.getAttribute('data-admin-edit-pass');
+      if (!targetUid) return;
+      state.adminEditingPasswordUid = targetUid;
+      if (!state.adminRevealedPasswords) state.adminRevealedPasswords = {};
+      state.adminRevealedPasswords[targetUid] = true;
+      renderApp();
+    });
+  });
+
+  const btnCancelAdminEditPass = document.getElementById('btn-cancel-admin-edit-pass');
+  if (btnCancelAdminEditPass) {
+    btnCancelAdminEditPass.addEventListener('click', () => {
+      state.adminEditingPasswordUid = null;
+      renderApp();
+    });
+  }
+
+  const formAdminSavePassword = document.getElementById('form-admin-save-password');
+  if (formAdminSavePassword) {
+    formAdminSavePassword.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const targetUid = document.getElementById('admin-edit-pass-uid')?.value;
+      const newPassword = (document.getElementById('admin-edit-pass-input')?.value || '').trim();
+      if (!targetUid || newPassword.length < 6) {
+        state.adminNotice = 'Password baru minimal harus 6 karakter.';
+        renderApp();
+        return;
+      }
+
+      const uIdx = state.communityUsers.findIndex(u => u.uid === targetUid);
+      if (uIdx !== -1) {
+        const userName = state.communityUsers[uIdx].nama_lengkap || state.communityUsers[uIdx].nickname;
+        state.communityUsers[uIdx].password = newPassword;
+        try {
+          localStorage.setItem('netverse_community_users', JSON.stringify(state.communityUsers));
+        } catch (err) {}
+
+        state.systemAuditLogs.unshift({
+          id: `aud-${Date.now()}`,
+          type: 'PASS_UPDATE',
+          actor: `${state.userProfile?.nama_lengkap || 'Admin'} (ADMIN)`,
+          action: `Memperbarui password akun ${userName} (${targetUid}).`,
+          time: 'Baru saja'
+        });
+
+        state.adminEditingPasswordUid = null;
+        if (!state.adminRevealedPasswords) state.adminRevealedPasswords = {};
+        state.adminRevealedPasswords[targetUid] = true;
+        state.adminNotice = `Password untuk akun ${userName} (${targetUid}) berhasil diperbarui menjadi "${newPassword}"!`;
+        renderApp();
+      }
+    });
+  }
+
   const formAdminAddUser = document.getElementById('form-admin-add-user');
   if (formAdminAddUser) {
     formAdminAddUser.addEventListener('submit', (e) => {
@@ -3649,6 +3784,7 @@ function attachEvents() {
       const nickname = document.getElementById('admin-new-nickname')?.value?.trim();
       const username = document.getElementById('admin-new-username')?.value?.trim()?.toLowerCase();
       const tagname = (document.getElementById('admin-new-tagname')?.value || 'NV999').trim().toUpperCase().slice(0, 5).padEnd(5, '0');
+      const password = (document.getElementById('admin-new-password')?.value || 'netverse123').trim();
       const role = normalizeRole(document.getElementById('admin-new-role')?.value || 'siswa');
       if (!nickname || !username) return;
 
@@ -3659,6 +3795,7 @@ function attachEvents() {
         nickname,
         username,
         tagname,
+        password: password.length >= 6 ? password : `${password}123456`.slice(0, 6),
         uid,
         role,
         level: role === 'admin' ? 10 : role === 'guru' ? 5 : 1,
@@ -3786,12 +3923,13 @@ function attachEvents() {
   const btnAdminExportUsers = document.getElementById('btn-admin-export-users');
   if (btnAdminExportUsers) {
     btnAdminExportUsers.addEventListener('click', () => {
-      const headers = ['UID', 'Nickname', 'Username', 'Tagname', 'Role', 'Level', 'Total XP'];
+      const headers = ['UID', 'Nickname', 'Username', 'Tagname', 'Password', 'Role', 'Level', 'Total XP'];
       const rows = (state.communityUsers || []).map(u => [
         u.uid || '',
         `"${(u.nama_lengkap || u.nickname || '').replace(/"/g, '""')}"`,
         u.username || '',
         u.tagname || '',
+        `"${resolveUserPassword(u).replace(/"/g, '""')}"`,
         normalizeRole(u.role),
         u.level || 1,
         u.total_xp || 0
